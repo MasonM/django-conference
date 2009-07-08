@@ -1,0 +1,51 @@
+{% extends "django_conference/submit_base.html" %}
+{% load display_form %}
+{% block main %}
+<form action="{% url django_conference_submit_session %}" method="post">
+   <div class="section">
+      <div class="heading">
+         <h3>Session Information</h3>
+      </div>
+      <div class="content">
+         <p>
+            NOTE: If you are organizing special sessions, such as roundtables
+            or workshops, please contact our executive office at 
+            <a href="mailto:info@hssonline.org">info@hssonline.org</a>
+            <br/><br/>
+            Fields in bold are required.
+         </p>
+         {% display_form session_form %}
+      </div>
+   </div>
+   <br/>
+   <div class="section">
+      <div class="heading">
+         <h3>Organizer Information</h3>
+      </div>
+      <div class="content">
+         {% display_form organizer_form %}
+      </div>
+   </div>
+   <br/>
+   <div class="section">
+      <div class="heading">
+         <h3>Chair Information (OPTIONAL)</h3>
+      </div>
+      <div class="content">
+         {% display_form chair_form %}
+      </div>
+   </div>
+   <br/>
+   <div class="section">
+      <div class="heading">
+         <h3>Commentator Information (OPTIONAL)</h3>
+      </div>
+      <div class="content">
+         {% display_form commentator_form %}
+      </div>
+   </div>
+   <p>
+      <input type="submit" value="Continue"/>
+   </p>
+</form>
+{% endblock %}

@@ -1,0 +1,112 @@
+/* general styles */
+.section {
+  text-align: left;
+  border: #D3D3D3 1px solid;
+  font-size: 10pt;
+}
+
+.section hr {
+  border: 1px #D3D3D3 solid;
+  width: 98%;
+  margin: 20px 0 10px 0;
+  clear: both;
+}
+
+.title {
+  width: 100%;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.title-note {
+  color: #696969;
+  font-size: 14px;
+}
+
+#main, #tab_header, .section, .title-note {
+  margin: 0 10px 0 18px;
+}
+
+#content .heading {
+  background-color: #65745a;
+}
+
+#content .heading h3, #content .heading h5  {
+  font-family: sans-serif;
+  padding: 5px;
+  margin: 0;
+  color: white;
+}
+
+.content {
+  padding: 10px 5px;
+  height: 100%;
+}
+
+/* form styles */
+#regForm .form-row label {
+  width: 130px;
+}
+
+.form-row .label_container {
+  width: 110px;
+  float: left;
+}
+
+.indent {
+  margin: 10px 0 0 110px;
+}
+
+#orderSummary {
+  width: 220px;
+  border: 1px #D3D3D3 solid;
+  float: left;
+}
+
+#orderSummary th {
+  text-align: center;
+  color: white;
+  font-family: sans-serif;
+  padding: 5px;
+}
+
+#orderSummary td {
+   padding: 5px 10px;
+   border-bottom: 1px #D3D3D3 solid;
+}
+
+#paymentInfo {
+  margin: 0;
+  padding: 0;
+  width: 250px;
+  float: right;
+}
+
+.meetingSessions select {
+  vertical-align: top;
+  height: 200px;
+}
+
+.meetingSessions .sessionDay {
+  padding: 5px;
+  margin-left: 18px;
+  float: left;
+}
+
+#id_banquets, #id_grad_donation {
+  width: 40px;
+}
+
+#id_abstracts, #id_hunt_tour, #id_creek_trip {
+  width: 35px;
+}
+
+#id_expiration_container, #id_ccv_number {
+  width: 100px;
+}
+
+/* admin styles */
+table.stats {
+  display: inline;
+  padding: 3px;
+}

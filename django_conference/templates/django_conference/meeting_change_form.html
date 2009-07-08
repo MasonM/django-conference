@@ -1,0 +1,11 @@
+{% extends "admin/change_form.html" %}
+{% block after_field_sets %}
+    <script type="text/javascript">
+        introductions = {
+    {% for inline_admin_formset in inline_admin_formsets %}
+            '{{inline_admin_formset.formset.prefix}}':
+            "{{inline_admin_formset.opts.introduction|escapejs}}",
+    {% endfor %}
+        }
+    </script>
+{% endblock %}

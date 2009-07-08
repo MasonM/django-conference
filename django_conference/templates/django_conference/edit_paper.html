@@ -1,0 +1,28 @@
+{% extends "django_conference/submit_base.html" %}
+{% load display_form %}
+{% load show_notice %}
+{% block main %}
+<form action="{% url django_conference_edit_paper paper_id=paper_form.instance.pk %}"
+      method="post">
+    <div class="section">
+        <div class="heading">
+            <h3>Edit Paper/Poster</h3>
+        </div>
+        <div class="content">
+            {% if notice %}
+                {% show_notice notice %}
+            {% endif %}
+            {% if paper_form %}
+            <p>
+                Please make your edits and click "Submit".
+                Required fields are in bold.
+            </p>
+            {% display_form paper_form %}
+            {% endif %}
+        </div>
+    </div>
+    {% if paper_form %}
+    <p><input type="submit" value="Submit"/></p>
+    {% endif %}
+</form>
+{% endblock %}

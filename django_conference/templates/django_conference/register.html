@@ -1,0 +1,56 @@
+{% extends "django_conference/register_base.html" %}
+{% load display_form %}
+{% block javascript %}
+<script type="text/javascript" src="/media/jquery-1.3.2.min.js"></script>
+{% endblock %}
+{% block main %}
+<form method="post" action="{% url django_conference_register %}" id="regForm">
+<div class="section">
+  <div class="heading">
+    <h3>Register for the {{meeting.start_date.year}} Meeting</h3>
+  </div>
+  <div class="content">
+    <p>
+      Fields in bold are required. 
+    </p>
+    {% display_form register_form %}
+    {% if extras_form.fields %}
+    <hr align="left"/>
+    <p>
+      If you'd like to include any of the following extras in your order, please
+      indicate the quantity.
+    </p>
+    {% display_form extras_form %}
+    {% endif %}
+    {% if donations_form.fields %}
+    <hr align="left"/>
+    <p>
+      Please consider making a donation to assist with the following causes.
+    </p>
+    {% display_form donations_form %}
+    {% endif %}
+    <hr align="left"/>
+    <p>
+      Please select which sessions you plan to attend. This will help us assign 
+      session rooms. Hold down the "Control" key ("Command" on a Mac) to select 
+      more than one session.
+      {% if meeting.preliminary_program %}
+      See the <a target="_blank" href="{{meeting.preliminary_program}}">HSS preliminary program</a>
+      for session details.
+      {% endif %}
+    </p>
+    <div class="meetingSessions">
+      {% for field in session_form %}
+        <div class="sessionDay">
+            {{field.label}}<br/>
+            {{field}}
+        </div>
+      {% endfor %}
+    </div>
+    <p class="clearer">
+      <input type="submit" name="registerMeeting" value="Submit"/>
+    </p>
+  </div>
+</div>
+</form>
+{% endblock %}

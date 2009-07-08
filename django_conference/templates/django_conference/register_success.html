@@ -1,0 +1,17 @@
+{% extends "django_conference/register_base.html" %}
+{% block main %}
+<div class="section">
+  <div class="heading">
+    <h3>Success</h3>
+  </div>
+  <div class="content">
+    <p>
+      Thank you for registering for the {{params.meeting.start_date.year}} meeting.
+      Your registration information will be processed shortly. If you need to change
+      your personal information, login at the link below and click "Edit Profile."
+      <br/><br/>
+      <a href="/account/">Account Page</a>.
+    </p>
+  </div>
+</div>
+{% endblock %}

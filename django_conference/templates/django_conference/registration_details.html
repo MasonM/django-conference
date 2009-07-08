@@ -1,0 +1,53 @@
+{% load money_format %}
+<table cellspacing="0" cellpadding="3" class="registration-details">
+  <colgroup>
+    <col width="30%"/>
+    <col width="70%"/>
+  </colgroup>
+  <tr>
+    <th align="left">Date/Time Entered:</th>
+    <td>{{registration.date_entered|date:"r"}}</td>
+  </tr>
+  <tr>
+    <th align="left">Registration Type:</th>
+    <td>{{registration.type}}</td>
+  </tr>
+{% if registration.guests %}
+  <tr>
+    <th align="left">Guest Name(s):</th>
+    <td>{{registration.guests.all|join:", "}}</td>
+  </tr>
+{% endif %}
+{% for extra in registration.regextras.all %}
+  <tr>
+    <th align="left">{{extra}}:</th>
+    <td>{{extra.quantity}}</td>
+  </tr>
+{% endfor %}
+{% for donation in registration.regdonations.all %}
+  <tr>
+    <th align="left">{{donation}}:</th>
+    <td>{{donation.total|money_format}}</td>
+  </tr>
+{% endfor %}
+  <tr>
+    <th align="left">Total:</th>
+    <td>{{registration.get_total|money_format}}</td>
+  </tr>
+{% if registration.special_needs %}
+  <tr>
+    <th align="left">Special Needs:</th>
+    <td>{{registration.special_needs}}</td>
+  </tr>
+{% endif %}
+{% if registration.sessions.all %}
+  <tr>
+    <th align="left">Sessions:</th>
+    <td>
+    {% for session in registration.sessions.all %}
+      {{session}}{% if not forloop.last %}, {% endif %}
+    {% endfor %}
+    </td>
+  </tr>
+{% endif %}
+</table>

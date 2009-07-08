@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Meeting Registration{% endblock %}
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="/media/registration.css"/>
+{% endblock %}
+{% block content %}
+{% if meeting %}
+<h3 class="title">
+  {{meeting.institutions.all|join:"/"}} Online Registration
+</h3>
+{% if meeting.register_form %}
+<div class="title-note">
+    (If you prefer to complete your registration by mail, click 
+    <a href="{{meeting.register_form}}">here</a> to download the 
+    registration form.)
+</div>
+{% endif %}
+<br/>
+{% endif %}
+{% block main %}{% endblock %}
+{% endblock %}

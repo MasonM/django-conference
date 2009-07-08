@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}About Us{% endblock %}
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="/media/registration.css"/>
+{% endblock %}
+{% block content %}
+<h3 class="title">
+    {{meeting}} Meeting
+</h3>
+<br/>
+<p>
+{% if not meeting.deadline_passed %}
+    <a href="{% url django_conference_register %}">Register for the Meeting</a>
+{% else %}
+    Deadline for registration is over
+{% endif %}
+</p>
+<p>
+{% if meeting.can_submit_paper %}
+    <a href="{% url django_conference_submit_paper %}">Submit Paper or Poster</a>
+{% else %}
+    Deadline for Paper/Poster submission is over
+{% endif %}
+</p>
+<p>
+{% if meeting.can_submit_session %}
+    <a href="{% url django_conference_submit_session %}">Submit Session</a>
+{% else %}
+    Deadline for Session submission is over
+</p>
+{% endif %}
+{% endblock %}

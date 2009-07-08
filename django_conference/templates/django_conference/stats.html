@@ -1,0 +1,102 @@
+{% extends "admin/change_form.html" %}
+{% load money_format %}
+{% block extrahead %}
+<link rel="stylesheet" type="text/css" href="/media/registration.css"/>
+{% endblock %}
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="/admin/">Home</a> &rsaquo; Meeting Statistics
+</div>
+{% endblock %}
+{% block content %}
+<div id="content-main">
+  <h1>Statistics for Meeting {{meeting}}</h1>
+  <div>
+    <table class="stats">
+      <tr>
+        <th>Registration Type</th>
+        <th>Quantity</th>
+        <th>Total Income</th>
+      </tr>
+      {% for stat_row in meeting.get_registration_stats %}
+      <tr>
+        <td>{{stat_row.type}}</td>
+        <td>{{stat_row.quantity}}</td>
+        <td>{{stat_row.income|money_format}}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <table class="stats">
+      <tr>
+        <th>Time Period</th>
+        <th>Quantity</th>
+      </tr>
+      {% for stat_row in meeting.get_registration_time_stats %}
+      <tr>
+        <td>{{stat_row.type}}</td>
+        <td>{{stat_row.quantity}}</td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <th>Payment Type</th>
+        <th>Quantity</th>
+      </tr>
+      {% for stat_row in meeting.get_payment_stats %}
+      <tr>
+        <td>{{stat_row.type}}</td>
+        <td>{{stat_row.quantity}}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+  <br/>
+  {% if meeting.get_extra_stats %}
+  <div>
+    <table class="stats">
+      <tr>
+        <th>Extra Type</th>
+        <th>Quantity</th>
+        <th>Total Income</th>
+      </tr>
+      {% for stat_row in meeting.get_extra_stats %}
+      <tr>
+        <td>{{stat_row.type}}</td>
+        <td>{{stat_row.quantity}}</td>
+        <td>{{stat_row.income|money_format}}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+  </div>
+  <br/>
+  {% if meeting.get_donation_stats %}
+  <table class="stats">
+    <tr>
+      <th>Donation Type</th>
+      <th>Quantity</th>
+      <th>Total Income</th>
+    </tr>
+    {% for stat_row in meeting.get_donation_stats %}
+    <tr>
+      <td>{{stat_row.type}}</td>
+      <td>{{stat_row.quantity}}</td>
+      <td>{{stat_row.income|money_format}}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endif %}
+  <br/>
+  <table class="stats">
+    <tr>
+      <th>Session Name</th>
+      <th>Quantity</th>
+    </tr>
+    {% for stat_row in meeting.get_session_stats %}
+    <tr>
+      <td>{{stat_row.type}}</td>
+      <td>{{stat_row.quantity}}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endblock %}

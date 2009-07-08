@@ -1,0 +1,76 @@
+{% extends "django_conference/register_base.html" %}
+{% load display_form %}
+{% load money_format %}
+{% load show_notice %}
+{% block main %}
+<form method="post" id="regForm"
+      action="{% url django_conference_payment reg_id=regCont.registration.id%}">
+<div class="section">
+  <div class="heading">
+    <h3>Register for the {{meeting.start_date.year}} Meeting</h3>
+  </div>
+  <div class="content">
+    {% if notice %}
+      {% show_notice notice %}
+    {% endif %}
+    <table id="orderSummary" cellspacing="0" cellpadding="0">
+      <tr>
+        <th class="heading">Item</th>
+        <th class="heading">Quantity</th>
+        <th class="heading">Subtotal</th>
+      </tr>
+      <tr>
+        <td>{{regCont.registration.type}} Registration</td>
+        <td align="center">1</td>
+        <td align="right">{{regCont.registration.get_meeting_cost|money_format}}</td>
+      </tr>
+      {% for extra in regCont.extras %}
+      <tr>
+        <td>{{extra}}</td>
+        <td align="center">{{extra.quantity}}</td>
+        <td align="right">{{extra.get_total|money_format}}</td>
+      </tr>
+      {% endfor %}
+      {% for donation in regCont.donations %}
+      <tr>
+        <td>{{donation}}</td>
+        <td colspan="2" align="right">{{donation.total|money_format}}</td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td><b>Total</b></td>
+        <td colspan="2" align="right">
+          {{regCont.get_total|money_format}}
+        </td>
+      </tr>
+    </table>
+    <div class="section" id="paymentInfo">
+      <div class="heading">
+        <h5>Payment Information</h5>
+      </div>
+      <div class="content">
+        <p>
+          Please enter your credit card information. We accept, Visa, MasterCard,
+          and American Express.
+          {% display_form payment_form %}
+        </p>
+      </div>
+    </div>
+    <div class="clearer"></div>
+    {% if address_form %}
+      <hr align="left"/>
+      <p>
+        Please enter your credit card billing address. 
+        Fields in bold are required.
+      </p>
+      {% display_form address_form %}
+    {% endif %}
+    <br/>
+    {% if not regCont.registration.id %}
+      <input type="submit" name="previous" value="Previous"/>
+    {% endif %}
+    <input type="submit" name="payMeeting" value="Submit"/>
+  </div>
+</div>
+</form>
+{% endblock %}

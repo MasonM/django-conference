@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="/media/name_badges.xsl"?>
+<meeting institution="{{meeting.institutions.all|join:"/"}}"
+         location="{{meeting.location}}" year="{{meeting.start_date.year}}">
+    {% for registration in registrations %}
+    <registrant name="{{registration.registrant.get_name}}"
+                institution="{{registration.registrant.institution}}"/>
+    {% endfor %}
+</meeting>

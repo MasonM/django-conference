@@ -1,0 +1,30 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Meeting Receipts</title>
+  <link rel="stylesheet" type="text/css" href="/media/registration_batch.css"/>
+</head>
+<body>
+  {% for registration in registrations %}
+    <div class="receipt">
+      <h1>
+        {{registration.meeting.institutions.all|join:"/"}} Meeting:<br/>
+        {{registration.meeting}}
+      </h1>
+      <h2>Conference Receipt and Proof of Payment</h2>
+      <b>
+        {{registration.registrant.get_full_name}}<br/>
+        {{registration.registrant.institution}}
+      </b>
+      {% include "django_conference/registration_details.html" %}
+      <div class="bottom-notice">
+        If you have any questions about your registration, contact:<br/>
+        History of Science Society Executive Office, University of Florida<br/>
+        3310 Turlington Hall, P.O. Box 11730, Gainesville, Florida 32611<br/>
+        Phone: 352.392.1677 or E-mail: info@hssonline.org
+      </div>
+    </div>
+  {% endfor %}
+</body>
+</html>

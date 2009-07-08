@@ -1,0 +1,31 @@
+@media all {
+  @page {
+    size: 8.5in 11in;
+    margin: 0.5cm 1.3cm;
+  }
+}
+
+/* receipts */
+.receipt {
+  text-align: center;
+  width: 8.5in;
+  height: 11in;
+  page-break-after: always;
+  margin: 0 auto;
+  font-family: Verdana, Geneva, Arial, Helvetica, sans-serif;
+}
+
+.receipt .registration-details {
+  text-align: left;
+  margin: 10px auto;
+  padding-left: 5em;
+  width: 40em;
+}
+
+.receipt .bottom-notice {
+  text-align: left;
+  margin: 20px auto;
+  position: relative;
+  left: 50%;
+  margin-left: -15em;
+}
