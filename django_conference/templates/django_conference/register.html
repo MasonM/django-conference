@@ -1,7 +1,7 @@
 {% extends "django_conference/register_base.html" %}
 {% load display_form %}
 {% block javascript %}
-<script type="text/javascript" src="/media/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="{{media_root}}/js/jquery-1.3.2.min.js"></script>
 {% endblock %}
 {% block main %}
 <form method="post" action="{% url django_conference_register %}" id="regForm">
@@ -35,7 +35,7 @@
       session rooms. Hold down the "Control" key ("Command" on a Mac) to select 
       more than one session.
       {% if meeting.preliminary_program %}
-      See the <a target="_blank" href="{{meeting.preliminary_program}}">HSS preliminary program</a>
+      See the <a target="_blank" href="{{meeting.preliminary_program}}">preliminary program</a>
       for session details.
       {% endif %}
     </p>

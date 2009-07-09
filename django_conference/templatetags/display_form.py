@@ -1,5 +1,7 @@
 from django import template
 
+from django_conference import settings
+
 register = template.Library()
 
 
@@ -28,8 +30,11 @@ class FormFieldNode(template.Node):
             #e.g. "first_name" => "First Name"
             errors = map(lambda x: (x[0].replace("_", " ").title(), x[1]),
                          form.errors.items())
-            output += template.loader.render_to_string('errors.html',
-                {'error_dict': errors})
+            error_template = 'django_conference/errors.html'
+            output += template.loader.render_to_string(error_template, {
+                'error_dict': errors,
+                'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
+            })
         for field in form:
             output += "<p class='container' id='%s_container'>" % field.auto_id
             if field.field.required:

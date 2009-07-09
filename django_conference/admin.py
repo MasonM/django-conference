@@ -1,8 +1,9 @@
 from django.core.urlresolvers import reverse
 from django.contrib import admin
 
-from models import (DonationType, ExtraType, Meeting, MeetingDonation,
-    MeetingExtra, MeetingInstitution, Paper, Registration,
+from django_conference import settings
+from django_conference.models import (DonationType, ExtraType, Meeting,
+    MeetingDonation, MeetingExtra, MeetingInstitution, Paper, Registration,
     RegistrationDonation, RegistrationExtra, RegistrationGuest,
     RegistrationOption, Session, SessionCadre)
 
@@ -73,8 +74,8 @@ class MeetingAdmin(admin.ModelAdmin):
     admin_actions.allow_tags = True
 
     class Media:
-        js = ["/media/jquery-1.3.2.min.js",
-              "/media/dynamic_inlines.js"]
+        js = [settings.DJANGO_CONFERENCE_MEDIA_ROOT+"/js/jquery-1.3.2.min.js",
+              settings.DJANGO_CONFERENCE_MEDIA_ROOT+"/js/dynamic_inlines.js"]
 admin.site.register(Meeting, MeetingAdmin)
 
 

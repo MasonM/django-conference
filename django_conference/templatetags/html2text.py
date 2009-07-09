@@ -2,6 +2,8 @@ from subprocess import Popen, PIPE
 
 from django import template
 
+from django_conference import settings
+
 register = template.Library()
 
 @register.filter
@@ -11,8 +13,7 @@ def html2text(value):
     Rendered text is grabbed from STDOUT and returned.
     """
     try:
-        cmd = "/usr/local/bin/w3m -dump -T text/html -cols 80 -O ascii"
-        proc = Popen(cmd, shell = True, stdin = PIPE, stdout = PIPE)
+        cmd = settings.DJANGO_CONFERENCE_HTML2TEXT_CMD
         return proc.communicate(str(value))[0]
     except OSError:
         # something bad happened, so just return the input

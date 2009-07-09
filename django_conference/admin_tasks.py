@@ -5,7 +5,7 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.admin.views.decorators import staff_member_required
 
-from newhssonline.apps.registration.models import Meeting, Registration
+from django_conference.models import Meeting, Registration
 
 
 class AdminTask(object):

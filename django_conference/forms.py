@@ -4,9 +4,10 @@ from calendar import monthrange
 import re
 
 from django import forms
+from django.db.models import get_model
 
-from newhssonline.apps.accounts.models import Account
-from models import (Meeting, Paper, Session, SessionCadre,
+from django_conference import settings
+from django_conference.models import (Meeting, Paper, Session, SessionCadre,
     RegistrationDonation, Registration, RegistrationExtra,
     RegistrationGuest, RegistrationOption)
 
@@ -110,6 +111,8 @@ class MeetingRegister(forms.Form):
         and the given registrant.
         """
         clean = self.clean()
+        user_model = get_model(*settings.DJANGO_CONFERENCE_USER_MODEL)
+        reg_username = 'OnlineRegistration'
         kwargs = {
             'meeting': self.meeting,
             'type': RegistrationOption.objects.get(id=clean['type']),
@@ -117,7 +120,7 @@ class MeetingRegister(forms.Form):
             'date_entered': datetime.today(),
             'payment_type': 'cc',
             'registrant': registrant,
-            'entered_by': Account.objects.get(username='OnlineRegistration'),
+            'entered_by': user_model.objects.get(username=reg_username),
         }
         return Registration(**kwargs)
 
@@ -369,12 +372,12 @@ class PaymentForm(forms.Form):
         if not self.errors:
             result = self.process_payment()
             if not result:
+                email = settings.DJANGO_CONFERENCE_CONTACT_EMAIL
                 err = """
                     We encountered an error while processing your credit card.
-                    Please contact <a href="mailto:infomanager@hssonline.org">
-                    infomanager@hssonline.org</a> for assistance.
+                    Please contact <a href="mailto:%s">%s</a> for assistance.
                 """
-                raise forms.ValidationError(err)
+                raise forms.ValidationError(err % (email, email))
             if result and result[0] == 'Card declined':
                 raise forms.ValidationError('Your credit card was declined.')
             elif result and result[0] == 'Processing error':
@@ -386,17 +389,7 @@ class PaymentForm(forms.Form):
     def process_payment(self):
         from newhssonline.apps.donation.virtualmerchant import VirtualMerchant
         if self.payment_data:
-            # don't process payment if payment_data wasn't set
+            auth = settings.DJANGO_CONFERENCE_PAYMENT_AUTH_FUNCTION
             datadict = self.cleaned_data
             datadict.update(self.payment_data)
-            # VirtualMerchant only takes in the first and last names, so
-            # use the following regex to match the first and last names based
-            # on the location of the first space, ignoring any middle initial
-            # present. This is purely for back-office purposes,
-            # so the inaccuracy shouldn't be a big deal
-            name_regex = re.compile(r"([^\s]+)\s?(?:[A-Z]\.?\s)?(.+)", re.I)
-            names = name_regex.match(datadict['holder'])
-            (datadict['first_name'], datadict['last_name']) = names.groups()
-            del datadict['holder']
-
-            return VirtualMerchant(datadict).process_virtualmerchant_payment()
+            return auth(datadict)

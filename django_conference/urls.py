@@ -1,8 +1,8 @@
 from django.conf.urls.defaults import *
 from django.views.generic.simple import direct_to_template
 
-import views
-import admin_tasks
+import django_conference.views
+import django_conference.admin_tasks
 
 
 urlpatterns = patterns('',

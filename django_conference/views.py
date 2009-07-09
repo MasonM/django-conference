@@ -7,10 +7,11 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 
-from newhssonline.apps.registration.forms import (PaperForm, MeetingSessions,
+from django_conference import settings
+from django_conference.forms import (PaperForm, MeetingSessions,
     MeetingRegister, MeetingExtras, MeetingDonations, SessionForm,
     SessionCadreForm, PaymentForm)
-from newhssonline.apps.registration.models import Meeting, Registration, Paper
+from django_conference.models import Meeting, Registration, Paper
 from newhssonline.apps.accounts.forms import AddressForm
 
 
@@ -116,6 +117,7 @@ def register(request):
         'donations_form': donations_form,
         'meeting': meeting,
         'registrant': request.user,
+        'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
     })
 
 
@@ -195,6 +197,7 @@ def payment(request, reg_id=None):
         'meeting': meeting,
         'regCont': cont,
         'notice': notice,
+        'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
     })
 
 
@@ -237,6 +240,8 @@ def submit_session(request):
         'chair_form': chair_form,
         'commentator_form': commentator_form,
         'meeting': meeting,
+        'contact_email': settings.DJANGO_CONFERENCE_CONTACT_EMAIL,
+        'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
     })
 
 
@@ -245,6 +250,7 @@ def submission_success(request, id=None):
     return render_to_response('django_conference/submission_success.html', {
         'message': message,
         'meeting': Meeting.objects.latest(),
+        'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
     })
 
 
@@ -267,6 +273,7 @@ def submit_paper(request):
     return render_to_response('django_conference/submit_paper.html', {
         'paper_form': paper_form,
         'meeting': meeting,
+        'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
     })
 
 
@@ -283,13 +290,11 @@ def edit_paper(request, paper_id):
     notice = ""
     paper_form = None
     if paper.presenter != request.user:
-        office_url = 'http://www.hssonline.org/about/'+\
-                     'society_executive_office.html'
+        email = settings.DJANGO_CONFERENCE_CONTACT_EMAIL
         notice = 'According to our records, you are not the presenter for '+\
             'the paper "%s" and thus may not edit it. If you believe this '+\
-            'to be an error, please contact <a href="%s">the executive '+\
-            'office</a>.'
-        notice = notice % (unicode(paper), office_url)
+            'to be an error, please contact <a href="mailto:%s">%s</a>.'
+        notice = notice % (unicode(paper), email, %email)
     else:
         paper_form = PaperForm(request.POST or None, instance=paper)
         if request.POST and paper_form.is_valid():
@@ -299,10 +304,12 @@ def edit_paper(request, paper_id):
     return render_to_response('django_conference/edit_paper.html', {
         'paper_form': paper_form,
         'notice': notice,
+        'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
     })
 
 
 def homepage(request):
     return render_to_response('django_conference/homepage.html', {
         'meeting': Meeting.objects.latest(),
+        'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
     })

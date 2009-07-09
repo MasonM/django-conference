@@ -3,13 +3,14 @@ from decimal import Decimal
 import re
 
 from django.db import models
-from django.db.models import Q
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
-from django.contrib.auth.models import User
 
-from newhssonline.apps.registration.templatetags import html2text
-from newhssonline.apps.accounts.models import Account
+from django_conference.templatetags import html2text
+from django_conference import settings
+
+
+user_model = get_model(*settings.DJANGO_CONFERENCE_USER_MODEL)
 
 
 def meeting_stat(stat_func):
@@ -326,8 +327,8 @@ class Registration(models.Model):
     date_entered = models.DateTimeField()
     payment_type = models.CharField(max_length=2, choices=PAYMENT_TYPES,
         default="cc")
-    registrant = models.ForeignKey(Account, related_name="registrations")
-    entered_by = models.ForeignKey(Account,
+    registrant = models.ForeignKey(user_model, related_name="registrations")
+    entered_by = models.ForeignKey(user_model,
         limit_choices_to={'is_staff': True})
     sessions = models.ManyToManyField("Session", blank=True,
         related_name="regsessions",
@@ -374,8 +375,9 @@ class Registration(models.Model):
             "registration": self,
         })
         text = html2text.html2text(html)
+        sender = settings.DJANGO_CONFERENCE_CONTACT_EMAIL
         msg = EmailMultiAlternatives(subject=subject, body=text,
-            from_email="meeting@hssonline.org", to=[self.registrant.email])
+            from_email=sender, to=[self.registrant.email])
         msg.attach_alternative(html, "text/html")
         msg.send()
 
@@ -510,7 +512,7 @@ class Session(models.Model):
         Sends e-mail notifying organizer(s) of the submission.
         """
         subject = 'Session Submission Confirmation'
-        sender = 'infomanager@hssonline.org'
+        sender = settings.DJANGO_CONFERENCE_CONTACT_EMAIL
         html = render_to_string("django_conference/submit_session_email.html",
             {"session": self})
         text = html2text.html2text(html)
@@ -521,9 +523,9 @@ class Session(models.Model):
 
 
 def _get_past_meetings():
-    return Q(start_date__lt=date.today()) &\
-           Q(end_date__lt=date.today()) &\
-           ~Q(pk=Meeting.objects.latest().pk)
+    return models.Q(start_date__lt=date.today()) &\
+           models.Q(end_date__lt=date.today()) &\
+           ~models.Q(pk=Meeting.objects.latest().pk)
 
 
 class Paper(models.Model):
@@ -532,7 +534,7 @@ class Paper(models.Model):
         ('L', 'LCD(PowerPoint)'),
         ('O', 'Overhead Projector'),
     )
-    presenter = models.ForeignKey(Account)
+    presenter = models.ForeignKey(user_model)
     title = models.CharField(max_length=300)
     abstract = models.TextField()
     coauthor = models.CharField(max_length=255, blank=True)
@@ -555,7 +557,7 @@ class Paper(models.Model):
         Sends e-mail notifying presenter of the submission.
         """
         subject = 'Paper Submission Confirmation'
-        sender = 'infomanager@hssonline.org'
+        sender = settings.DJANGO_CONFERENCE_CONTACT_EMAIL
         html = render_to_string("django_conference/submit_paper_email.html", {
             "paper": self,
         })

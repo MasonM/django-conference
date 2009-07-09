@@ -1,19 +1,31 @@
 from django.conf import settings
 
-
+"""
+This is the URL prefix for the media files used by django-conference.
+"""
 DJANGO_CONFERENCE_MEDIA_ROOT = getattr(settings,
     'DJANGO_CONFERENCE_MEDIA_ROOT',
     '/media')
 
 
+""" 
+Django-conference stores all e-mails as HTML and uses a text-browser to
+convert them to text. The default is W3M, but Elinks would also work well.
+Here's the command string for ELinks: elinks -force-html -stdin -dump -no-home
+"""
 DJANGO_CONFERENCE_HTML2TEXT_CMD = getattr(settings,
     'DJANGO_CONFERENCE_HTML2TEXT_CMD',
     'w3m -dump -T text/html -cols 80 -O ascii')
 
 
+"""
+Contact e-mail address used to set the "From" address for e-mails sent by
+the system and for various "contact us for help" links.
+"""
 DJANGO_CONFERENCE_CONTACT_EMAIL = getattr(settings,
     'DJANGO_CONFERENCE_CONTACT_EMAIL',
     'infomanager@hssonline.org')
+
 
 """
 A tuple of the form (app_name, model) that corresponds to the model
@@ -25,6 +37,7 @@ http://scottbarnham.com/blog/2008/08/21/extending-the-django-user-model-with-inh
 DJANGO_CONFERENCE_USER_MODEL = getattr(settings,
     'DJANGO_CONFERENCE_USER_MODEL',
     ('auth', 'User'))
+
 
 """
 Must be a function that accepts the following parameters: a Registration
