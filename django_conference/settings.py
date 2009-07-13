@@ -1,7 +1,5 @@
 from django.conf import settings
 
-from django_conference.forms import AddressForm
-
 
 """
 This is the URL prefix for the media files used by django-conference.
@@ -93,11 +91,13 @@ DJANGO_CONFERENCE_PAYMENT_AUTH_FUNC = getattr(settings,
 
 
 """
-The form to use for billing addresses. This is override-able so that sites with
-their own address models/forms can integrate with Django-conference.
+A tuple representing the form to use for billing addresses. The first element
+of the tuple should be class name and the second is the package.
+This is override-able so that sites with their own address models/forms can
+integrate with Django-conference.
 Note that the form must have a save() method and accept a "user" parameter in
 the constructor
 """
 DJANGO_CONFERENCE_ADDRESS_FORM = getattr(settings,
     'DJANGO_CONFERENCE_ADDRESS_FORM',
-    address_form)
+    ("AddressForm", "django_conference.forms"))

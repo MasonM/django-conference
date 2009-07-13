@@ -3,6 +3,7 @@ from decimal import Decimal
 import re
 
 from django.db import models
+from django.db.models import get_model
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 
@@ -85,6 +86,17 @@ class Meeting(models.Model):
     def can_submit_session(self):
         return (self.session_submission_start <= datetime.now() <=
                 self.session_submission_end)
+
+    @staticmethod
+    def latest_or_none():
+        """
+        Version of Meeting.objects.latest() that returns None if no meetings
+        have been entered.
+        """
+        try:
+            return Meeting.objects.latest()
+        except Meeting.DoesNotExist:
+            return None
 
     @meeting_stat
     def get_registration_stats(self):
@@ -320,9 +332,9 @@ class Registration(models.Model):
         ("mo", "Money Order"),
     )
     meeting = models.ForeignKey(Meeting, related_name='registrations',
-        default=lambda: Meeting.objects.latest())
+        default=Meeting.latest_or_none())
     type = models.ForeignKey(RegistrationOption,
-        limit_choices_to={'meeting': Meeting.objects.latest()})
+        limit_choices_to={'meeting': Meeting.latest_or_none()})
     special_needs = models.TextField(blank=True)
     date_entered = models.DateTimeField()
     payment_type = models.CharField(max_length=2, choices=PAYMENT_TYPES,
@@ -332,7 +344,7 @@ class Registration(models.Model):
         limit_choices_to={'is_staff': True})
     sessions = models.ManyToManyField("Session", blank=True,
         related_name="regsessions",
-        limit_choices_to={'meeting': Meeting.objects.latest(),
+        limit_choices_to={'meeting': Meeting.latest_or_none(),
                           'accepted': True})
 
     def __unicode__(self):
@@ -399,7 +411,7 @@ class Registration(models.Model):
 class RegistrationExtra(models.Model):
     registration = models.ForeignKey(Registration, related_name="regextras")
     extra = models.ForeignKey(MeetingExtra,
-        limit_choices_to={'meeting': Meeting.objects.latest()})
+        limit_choices_to={'meeting': Meeting.latest_or_none()})
     quantity = models.PositiveIntegerField()
     # allow price to be NULL, which indicates we should use extra.price instead
     price = models.DecimalField("Price override", max_digits=6,
@@ -441,7 +453,7 @@ class RegistrationDonation(models.Model):
     registration = models.ForeignKey(Registration,
         related_name="regdonations")
     donate_type = models.ForeignKey(MeetingDonation,
-        limit_choices_to={'meeting': Meeting.objects.latest()})
+        limit_choices_to={'meeting': Meeting.latest_or_none()})
     total = models.DecimalField(max_digits=6, decimal_places=2)
 
     def __unicode__(self):
@@ -487,7 +499,7 @@ class SessionCadre(models.Model):
 
 class Session(models.Model):
     meeting = models.ForeignKey(Meeting, related_name="sessions",
-        default=lambda: Meeting.objects.latest())
+        default=Meeting.latest_or_none())
     start_time = models.DateTimeField(blank=True, null=True)
     stop_time = models.DateTimeField(blank=True, null=True)
     room_no = models.CharField(max_length=30, blank=True, null=True)
@@ -523,9 +535,12 @@ class Session(models.Model):
 
 
 def _get_past_meetings():
-    return models.Q(start_date__lt=date.today()) &\
-           models.Q(end_date__lt=date.today()) &\
-           ~models.Q(pk=Meeting.objects.latest().pk)
+    past_meetings = models.Q(start_date__lt=date.today()) &\
+        models.Q(end_date__lt=date.today())
+    if Meeting.latest_or_none():
+        #filter out current meeting
+        past_meetings &= ~models.Q(pk=Meeting.latest_or_none().pk)
+    return past_meetings
 
 
 class Paper(models.Model):

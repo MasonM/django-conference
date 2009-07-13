@@ -144,7 +144,9 @@ def payment(request, reg_id=None):
         cont = pickle.loads(request.session['regContainer'])
         meeting = Meeting.objects.latest()
 
-    address_form = settings.DJANGO_CONFERENCE_ADDRESS_FORM
+    address_form_loc = settings.DJANGO_CONFERENCE_ADDRESS_FORM
+    address_form = __import__(name=address_form_loc[0],
+        form_list=[address_form_loc[1]])
 
     if 'payMeeting' in request.POST:
         payment_data = None
