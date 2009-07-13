@@ -100,9 +100,9 @@ class RegistrationAdmin(admin.ModelAdmin):
         }),
     )
     list_display = ('registrant', 'meeting', 'type', 'date_entered',
-                    'has_special_needs')
+        'has_special_needs')
     search_fields = ('registrant__first_name', 'registrant__last_name',
-                     'type__option_name', 'special_needs')
+        'type__option_name', 'special_needs')
     inlines = [RegistrationExtraInline, RegistrationDonationInline,
         RegistrationGuestInline]
     filter_horizontal = ['sessions']
@@ -121,15 +121,16 @@ class PaperAdmin(admin.ModelAdmin):
         (None, {'fields': ['title', 'abstract', 'presenter', 'accepted']}),
         ('Additional Info', {
             'fields': ['coauthor', 'is_poster', 'av_info', 'notes',
-                       'previous_meetings'],
+                       'previous_meetings', 'sessions'],
         }),
     ]
     list_display = ('title', 'presenter', 'is_poster', 'accepted',
         'av_info', 'creation_time')
     list_filter = ['accepted', 'is_poster']
-    search_fields = ['title']
+    search_fields = ['title', 'presenter__first_name', 'presenter__last_name',
+        'presenter__email', 'abstract', 'notes', 'coauthor']
     date_hierarchy = 'creation_time'
-    filter_horizontal = ['previous_meetings']
+    filter_horizontal = ['previous_meetings', 'sessions']
     ordering = ['title']
 admin.site.register(Paper, PaperAdmin)
 
@@ -147,9 +148,9 @@ class SessionAdmin(admin.ModelAdmin):
                        'papers']
         }),
     ]
-    search_fields = ('title', 'abstract', 'notes',
-                     'chair__first_name', 'chair__last_name',
-                     'chair__institution')
+    search_fields = ('title', 'abstract', 'notes', 'papers__title',
+        'papers__abstract', 'papers__coauthor', 'coauthor__notes',
+        'chair__first_name', 'chair__last_name', 'chair__institution')
     ordering = ['title']
     filter_horizontal = ['papers', 'organizers', 'commentators']
     list_display = ('title', 'meeting', 'accepted', 'chair',

@@ -234,6 +234,16 @@ def _get_past_meetings():
     return past_meetings
 
 
+class ManyToManyField_NoTable(models.ManyToManyField):
+    """
+    A Many2Many field that doesn't result in the creation of a new table.
+    Allows having a Many2Many relation on both tables involved.
+    """
+    def __init__(self, *args, **kwargs):
+        super(ManyToManyField_NoTable, self).__init__(*args, **kwargs)
+        self.creates_table = False
+
+
 class Paper(models.Model):
     AV_CHOICES = (
         ('N', 'None'),
@@ -250,11 +260,13 @@ class Paper(models.Model):
         default='N', verbose_name="Audiovisual Requirement")
     notes = models.TextField(blank=True)
     accepted = models.BooleanField(default=False)
-    previous_meetings = models.ManyToManyField(Meeting,
+    previous_meetings = models.ManyToManyField(Meeting, blank=True,
         related_name="meeting_papers",
         limit_choices_to=_get_past_meetings(),
         verbose_name="Presented at the following past meetings")
     creation_time = models.DateTimeField(auto_now_add=True, editable=False)
+    sessions = ManyToManyField_NoTable("Session", blank=True,
+        db_table="django_conference_session_papers")
 
     def __unicode__(self):
         return self.title
