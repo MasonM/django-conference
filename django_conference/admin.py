@@ -154,5 +154,5 @@ class SessionAdmin(admin.ModelAdmin):
     filter_horizontal = ['papers', 'organizers', 'commentators']
     list_display = ('title', 'meeting', 'accepted', 'chair',
         'start_time', 'stop_time', 'creation_time')
-    list_filter = ['meeting']
+    list_filter = ['meeting', 'accepted']
 admin.site.register(Session, SessionAdmin)

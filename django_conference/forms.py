@@ -393,6 +393,7 @@ class PaymentForm(forms.Form):
             datadict.update(self.payment_data)
             return auth(datadict)
 
+
 class AddressForm(forms.Form):
     address_line1 = forms.CharField(required=True, max_length=45)
     address_line2 = forms.CharField(required=False, max_length=45)

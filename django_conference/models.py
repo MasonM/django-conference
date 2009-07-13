@@ -533,6 +533,9 @@ class Session(models.Model):
         msg.attach_alternative(html, "text/html")
         msg.send()
 
+    class Meta:
+        ordering = ['-meeting', 'start_time', 'stop_time']
+
 
 def _get_past_meetings():
     past_meetings = models.Q(start_date__lt=date.today()) &\
