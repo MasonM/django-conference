@@ -1,0 +1,4 @@
+include LICENSE
+include README
+recursive-include django_elect/templates *
+recursive-include django_elect/media *
