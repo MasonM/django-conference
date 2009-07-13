@@ -225,6 +225,56 @@ class Meeting(models.Model):
         ordering = ['start_date']
 
 
+def _get_past_meetings():
+    past_meetings = models.Q(start_date__lt=date.today()) &\
+        models.Q(end_date__lt=date.today())
+    if Meeting.latest_or_none():
+        #filter out current meeting
+        past_meetings &= ~models.Q(pk=Meeting.latest_or_none().pk)
+    return past_meetings
+
+
+class Paper(models.Model):
+    AV_CHOICES = (
+        ('N', 'None'),
+        ('L', 'LCD(PowerPoint)'),
+        ('O', 'Overhead Projector'),
+    )
+    presenter = models.ForeignKey(user_model)
+    title = models.CharField(max_length=300)
+    abstract = models.TextField()
+    coauthor = models.CharField(max_length=255, blank=True)
+    is_poster = models.BooleanField(default=False,
+        verbose_name="Is this a poster?")
+    av_info = models.CharField(max_length=1, blank=True, choices=AV_CHOICES,
+        default='N', verbose_name="Audiovisual Requirement")
+    notes = models.TextField(blank=True)
+    accepted = models.BooleanField(default=False)
+    previous_meetings = models.ManyToManyField(Meeting,
+        related_name="meeting_papers",
+        limit_choices_to=_get_past_meetings(),
+        verbose_name="Presented at the following past meetings")
+    creation_time = models.DateTimeField(auto_now_add=True, editable=False)
+
+    def __unicode__(self):
+        return self.title
+
+    def send_submission_email(self):
+        """
+        Sends e-mail notifying presenter of the submission.
+        """
+        subject = 'Paper Submission Confirmation'
+        sender = settings.DJANGO_CONFERENCE_CONTACT_EMAIL
+        html = render_to_string("django_conference/submit_paper_email.html", {
+            "paper": self,
+        })
+        text = html2text.html2text(html)
+        msg = EmailMultiAlternatives(subject=subject, from_email=sender,
+            body=text, to=[self.presenter.email])
+        msg.attach_alternative(html, "text/html")
+        msg.send()
+
+
 class FieldType(models.Model):
     """
     Abstract model for describing a general field on the registration
@@ -535,52 +585,3 @@ class Session(models.Model):
 
     class Meta:
         ordering = ['-meeting', 'start_time', 'stop_time']
-
-
-def _get_past_meetings():
-    past_meetings = models.Q(start_date__lt=date.today()) &\
-        models.Q(end_date__lt=date.today())
-    if Meeting.latest_or_none():
-        #filter out current meeting
-        past_meetings &= ~models.Q(pk=Meeting.latest_or_none().pk)
-    return past_meetings
-
-
-class Paper(models.Model):
-    AV_CHOICES = (
-        ('N', 'None'),
-        ('L', 'LCD(PowerPoint)'),
-        ('O', 'Overhead Projector'),
-    )
-    presenter = models.ForeignKey(user_model)
-    title = models.CharField(max_length=300)
-    abstract = models.TextField()
-    coauthor = models.CharField(max_length=255, blank=True)
-    is_poster = models.BooleanField(default=False,
-        verbose_name="Is this a poster?")
-    av_info = models.CharField(max_length=1, blank=True, choices=AV_CHOICES,
-        default='N', verbose_name="Audiovisual Requirement")
-    notes = models.TextField(blank=True)
-    accepted = models.BooleanField(default=False)
-    previous_meetings = models.ManyToManyField(Meeting,
-        limit_choices_to=_get_past_meetings(),
-        verbose_name="Presented at the following past meetings")
-    creation_time = models.DateTimeField(auto_now_add=True, editable=False)
-
-    def __unicode__(self):
-        return self.title
-
-    def send_submission_email(self):
-        """
-        Sends e-mail notifying presenter of the submission.
-        """
-        subject = 'Paper Submission Confirmation'
-        sender = settings.DJANGO_CONFERENCE_CONTACT_EMAIL
-        html = render_to_string("django_conference/submit_paper_email.html", {
-            "paper": self,
-        })
-        text = html2text.html2text(html)
-        msg = EmailMultiAlternatives(subject=subject, from_email=sender,
-            body=text, to=[self.presenter.email])
-        msg.attach_alternative(html, "text/html")
-        msg.send()
