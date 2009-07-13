@@ -387,9 +387,24 @@ class PaymentForm(forms.Form):
         return cleaned
 
     def process_payment(self):
-        from newhssonline.apps.donation.virtualmerchant import VirtualMerchant
         if self.payment_data:
             auth = settings.DJANGO_CONFERENCE_PAYMENT_AUTH_FUNCTION
             datadict = self.cleaned_data
             datadict.update(self.payment_data)
             return auth(datadict)
+
+class AddressForm(forms.Form):
+    address_line1 = forms.CharField(required=True, max_length=45)
+    address_line2 = forms.CharField(required=False, max_length=45)
+    city = forms.CharField(required=True, max_length=50)
+    country = forms.CharField(required=True, max_length=2, initial = "US")
+    state_province = forms.CharField(required = False, max_length = 40,
+        label = "State/Province")
+    city = forms.CharField(required = True, max_length = 50)
+    postal_code = forms.CharField(required = True, max_length = 10)
+
+    def __init_(self, user, *args, **kwargs):
+        super(AddressForm, self).__init__(*args, **kwargs)
+
+    def save(self, *args, **kwargs):
+        pass

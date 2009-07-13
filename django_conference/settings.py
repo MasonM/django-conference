@@ -1,5 +1,8 @@
 from django.conf import settings
 
+from django_conference.forms import AddressForm
+
+
 """
 This is the URL prefix for the media files used by django-conference.
 """
@@ -8,7 +11,7 @@ DJANGO_CONFERENCE_MEDIA_ROOT = getattr(settings,
     '/media')
 
 
-""" 
+"""
 Django-conference stores all e-mails as HTML and uses a text-browser to
 convert them to text. The default is W3M, but Elinks would also work well.
 Here's the command string for ELinks: elinks -force-html -stdin -dump -no-home
@@ -24,7 +27,7 @@ the system and for various "contact us for help" links.
 """
 DJANGO_CONFERENCE_CONTACT_EMAIL = getattr(settings,
     'DJANGO_CONFERENCE_CONTACT_EMAIL',
-    'infomanager@hssonline.org')
+    'example@example.com')
 
 
 """
@@ -40,10 +43,23 @@ DJANGO_CONFERENCE_USER_MODEL = getattr(settings,
 
 
 """
-Must be a function that accepts the following parameters: a Registration
-object, an Address object, a credit-card number, a credit-card CCV number,
-and a credit-card expiration date. The return value should be "success"
-if the authentication succeeded, else an error message.
+Must be a function that accepts a dictionary of the following form:
+{
+    'address_line1': <first line of address>,
+    'address_line2': <second line of address>,
+    'postal_code': <postal/zip code>,
+    'city': <city>,
+    'state_province': <state or province ISO code>,
+    'country': <country ISO code>,
+    'total': <total amount to charge>,
+    'email': <email of registrant>,
+    'number': <credit card #>,
+    'holder': <name on credit card>,
+    'expiration': <expiration date as a Python Date object>,
+    'ccv_number': <credit card CCV #>,
+}
+The return value should be "success" if the authentication succeeded,
+else an error message.
 
 Here's an example that uses the PyCC Authorize.NET API
 (http://pycc.sourceforge.net/):
@@ -74,3 +90,14 @@ def authnet_auth(registration, address, cc_num, ccv_num, cc_exp_date):
 DJANGO_CONFERENCE_PAYMENT_AUTH_FUNC = getattr(settings,
     'DJANGO_CONFERENCE_PAYMENT_AUTH_FUNC',
     lambda *args, **kwargs: "DJANGO_CONFERENCE_PAYMENT_AUTH_FUNC not set!")
+
+
+"""
+The form to use for billing addresses. This is override-able so that sites with
+their own address models/forms can integrate with Django-conference.
+Note that the form must have a save() method and accept a "user" parameter in
+the constructor
+"""
+DJANGO_CONFERENCE_ADDRESS_FORM = getattr(settings,
+    'DJANGO_CONFERENCE_ADDRESS_FORM',
+    address_form)

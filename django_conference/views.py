@@ -12,7 +12,6 @@ from django_conference.forms import (PaperForm, MeetingSessions,
     MeetingRegister, MeetingExtras, MeetingDonations, SessionForm,
     SessionCadreForm, PaymentForm)
 from django_conference.models import Meeting, Registration, Paper
-from newhssonline.apps.accounts.forms import AddressForm
 
 
 class RegistrationContainer(object):
@@ -145,28 +144,14 @@ def payment(request, reg_id=None):
         cont = pickle.loads(request.session['regContainer'])
         meeting = Meeting.objects.latest()
 
-    # force user to enter billing address if they don't have one saved already
-    billing_addr = request.user.addresses.filter(address_type="B")
-    address_form = None
+    address_form = settings.DJANGO_CONFERENCE_ADDRESS_FORM
 
     if 'payMeeting' in request.POST:
         payment_data = None
-        if not billing_addr:
-            address_form = AddressForm(data=request.POST)
-            if address_form.is_valid():
-                payment_data = address_form.clean()
-        else:
-            billing_addr = billing_addr[0].address
-            payment_data = {
-                'address_line1': billing_addr.address_line1,
-                'address_line2': billing_addr.address_line2,
-                'postal_code': billing_addr.postal_code,
-                'city': billing_addr.city,
-                'state_province': billing_addr.state_province,
-                'country': billing_addr.country,
-            }
+        address_form = address_form(request.POST)
         payment_form = PaymentForm(data=request.POST)
-        if payment_data:
+        if address_form.is_valid():
+            payment_data = address_form.clean()
             payment_data.update({
                 'total': cont.get_total(),
                 'email': request.user.email,
@@ -188,8 +173,7 @@ def payment(request, reg_id=None):
     else:
         initial_data = request.POST or {}
         payment_form = PaymentForm(initial=initial_data)
-        if not billing_addr:
-            address_form = AddressForm(initial=initial_data)
+        address_form = address_form(initial=initial_data)
 
     return render_to_response('django_conference/payment.html', {
         'payment_form': payment_form,
@@ -294,7 +278,7 @@ def edit_paper(request, paper_id):
         notice = 'According to our records, you are not the presenter for '+\
             'the paper "%s" and thus may not edit it. If you believe this '+\
             'to be an error, please contact <a href="mailto:%s">%s</a>.'
-        notice = notice % (unicode(paper), email, %email)
+        notice = notice % (unicode(paper), email, email)
     else:
         paper_form = PaperForm(request.POST or None, instance=paper)
         if request.POST and paper_form.is_valid():
