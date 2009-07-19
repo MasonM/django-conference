@@ -86,8 +86,8 @@ def register(request):
                 session_form.get_sessions(),
                 request.POST)
             if cont.get_total() == Decimal("0.00"):
-                # if they didn't buy and extras or donate anything and they
-                # registered with a free option, save and take to success page
+                # they must have registered with a free option, so no
+                # payment is necessary
                 cont.registration.payment_type = "na"
                 cont.save()
                 cont.registration.send_register_email()

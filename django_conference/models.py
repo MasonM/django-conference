@@ -17,10 +17,10 @@ user_model = get_model(*settings.DJANGO_CONFERENCE_USER_MODEL)
 def meeting_stat(stat_func):
     """
     Decorator for a method that returns a list of dictionaries representing
-    statistics for a given meeting, each dictionary containing 3 entires:
+    statistics for a given meeting, each dictionary containing 3 entries:
         1) A description
         2) A quantity
-        3) A income
+        3) A price
     The decorator appends a "Total" dict to the end if the returned list
     is non-empty.
     """
@@ -37,7 +37,7 @@ def meeting_stat(stat_func):
 
 
 class Meeting(models.Model):
-    """Model for meetings"""
+    """Model for conferences/meetings"""
     location = models.CharField(max_length=45,
         help_text='General location for where this meeting is taking '+\
                   'place, e.g. "Gainesville, FL"')
@@ -97,6 +97,18 @@ class Meeting(models.Model):
             return Meeting.objects.latest()
         except Meeting.DoesNotExist:
             return None
+
+    @staticmethod
+    def get_past_meetings():
+        """
+        Returns a Q object which represents all past meetings.
+        """
+        past_meetings = models.Q(start_date__lt=date.today()) &\
+            models.Q(end_date__lt=date.today())
+        if Meeting.latest_or_none():
+            #filter out current meeting
+            past_meetings &= ~models.Q(pk=Meeting.latest_or_none().pk)
+        return past_meetings
 
     @meeting_stat
     def get_registration_stats(self):
@@ -225,15 +237,6 @@ class Meeting(models.Model):
         ordering = ['start_date']
 
 
-def _get_past_meetings():
-    past_meetings = models.Q(start_date__lt=date.today()) &\
-        models.Q(end_date__lt=date.today())
-    if Meeting.latest_or_none():
-        #filter out current meeting
-        past_meetings &= ~models.Q(pk=Meeting.latest_or_none().pk)
-    return past_meetings
-
-
 class ManyToManyField_NoTable(models.ManyToManyField):
     """
     A Many2Many field that doesn't result in the creation of a new table.
@@ -262,7 +265,7 @@ class Paper(models.Model):
     accepted = models.BooleanField(default=False)
     previous_meetings = models.ManyToManyField(Meeting, blank=True,
         related_name="meeting_papers",
-        limit_choices_to=_get_past_meetings(),
+        limit_choices_to=Meeting.get_past_meetings(),
         verbose_name="Presented at the following past meetings")
     creation_time = models.DateTimeField(auto_now_add=True, editable=False)
     sessions = ManyToManyField_NoTable("Session", blank=True,
