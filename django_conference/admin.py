@@ -149,7 +149,7 @@ class SessionAdmin(admin.ModelAdmin):
         }),
     ]
     search_fields = ('title', 'abstract', 'notes', 'papers__title',
-        'papers__abstract', 'papers__coauthor', 'coauthor__notes',
+        'papers__abstract', 'papers__coauthor', 'papers__notes',
         'chair__first_name', 'chair__last_name', 'chair__institution')
     ordering = ['title']
     filter_horizontal = ['papers', 'organizers', 'commentators']
