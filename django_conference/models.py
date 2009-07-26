@@ -3,6 +3,7 @@ from decimal import Decimal
 import re
 
 from django.db import models
+from django.db.models import Q
 from django.db.models import get_model
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
@@ -103,11 +104,11 @@ class Meeting(models.Model):
         """
         Returns a Q object which represents all past meetings.
         """
-        past_meetings = models.Q(start_date__lt=date.today()) &\
-            models.Q(end_date__lt=date.today())
+        past_meetings = Q(start_date__lt=date.today()) &\
+            Q(end_date__lt=date.today())
         if Meeting.latest_or_none():
             #filter out current meeting
-            past_meetings &= ~models.Q(pk=Meeting.latest_or_none().pk)
+            past_meetings &= ~Q(pk=Meeting.latest_or_none().pk)
         return past_meetings
 
     @meeting_stat
