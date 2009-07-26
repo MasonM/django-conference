@@ -391,7 +391,7 @@ class PaymentForm(forms.Form):
         if not self.payment_data or not auth_func_loc:
             return
         auth_func = __import__(name=auth_func_loc[1],
-            from_list=[auth_func_loc[0]])
+            fromlist=[auth_func_loc[0]])
         datadict = self.cleaned_data
         datadict.update(self.payment_data)
         return auth_func(datadict)
