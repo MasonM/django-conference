@@ -92,7 +92,7 @@ DJANGO_CONFERENCE_PAYMENT_AUTH_FUNC = getattr(settings,
 
 """
 A tuple representing the form to use for billing addresses. The first element
-of the tuple should be class name and the second is the package.
+of the tuple should be package and the second is the class name.
 This is override-able so that sites with their own address models/forms can
 integrate with Django-conference.
 Note that the form must have a save() method and accept a "user" parameter in
@@ -100,4 +100,4 @@ the constructor
 """
 DJANGO_CONFERENCE_ADDRESS_FORM = getattr(settings,
     'DJANGO_CONFERENCE_ADDRESS_FORM',
-    ("AddressForm", "django_conference.forms"))
+    ("django_conference.forms", "AddressForm"))

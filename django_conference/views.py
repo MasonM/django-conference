@@ -145,8 +145,8 @@ def payment(request, reg_id=None):
         meeting = Meeting.objects.latest()
 
     address_form_loc = settings.DJANGO_CONFERENCE_ADDRESS_FORM
-    address_form = __import__(name=address_form_loc[0],
-        form_list=[address_form_loc[1]])
+    address_form = __import__(name=address_form_loc[1],
+        form_list=[address_form_loc[0]])
 
     if 'payMeeting' in request.POST:
         payment_data = None
