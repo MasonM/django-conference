@@ -41,7 +41,9 @@ DJANGO_CONFERENCE_USER_MODEL = getattr(settings,
 
 
 """
-Must be a function that accepts a dictionary of the following form:
+A tuple representing the function to use for performing payment authentication.
+The first element of the tuple should be the package and second should be the
+function name. The function must accept a dictionary of the following form:
 {
     'address_line1': <first line of address>,
     'address_line2': <second line of address>,
@@ -49,12 +51,11 @@ Must be a function that accepts a dictionary of the following form:
     'city': <city>,
     'state_province': <state or province ISO code>,
     'country': <country ISO code>,
-    'total': <total amount to charge>,
-    'email': <email of registrant>,
     'number': <credit card #>,
     'holder': <name on credit card>,
     'expiration': <expiration date as a Python Date object>,
     'ccv_number': <credit card CCV #>,
+    'registration': <registration object>,
 }
 The return value should be "success" if the authentication succeeded,
 else an error message.
@@ -62,22 +63,22 @@ else an error message.
 Here's an example that uses the PyCC Authorize.NET API
 (http://pycc.sourceforge.net/):
 
-def authnet_auth(registration, address, cc_num, ccv_num, cc_exp_date):
+def authnet_auth(**kwargs):
     from AuthorizeNet import AuthNet
     authorize_net = AuthNet()
-    registrant = registration.registrant
+    registrant = kwargs['registration'].registrant
     authorize_net.data.update({
-        'amount': str(registration.get_total()),
-        'card_num': cc_num,
-        'exp_date': cc_exp_date,
-        'card_code': ccv_num,
+        'amount': str(kwargs['registration'].get_total()),
+        'card_num': kwargs['number'],
+        'exp_date': kwargs['expiration'].strftime("%m/%Y"),
+        'card_code': kwargs['ccv_number'],
         'first_name': registrant.first_name,
         'last_name': registrant.last_name,
-        'address': address.address_line1+address.address_line2,
-        'city': address.city,
-        'state': str(address.state_province),
-        'zip': address.postal_code,
-        'country': str(adddress.country),
+        'address': kwargs['address_line1']+kwarrgs['address_line2'],
+        'city': kwargs['city'],
+        'state': kwargs['state_province'],
+        'zip': kwargs['postal_code'],
+        'country': kwargs['country'],
         'email': registrant.email,
     })
     authorize_net.execute()
@@ -87,7 +88,7 @@ def authnet_auth(registration, address, cc_num, ccv_num, cc_exp_date):
 """
 DJANGO_CONFERENCE_PAYMENT_AUTH_FUNC = getattr(settings,
     'DJANGO_CONFERENCE_PAYMENT_AUTH_FUNC',
-    lambda *args, **kwargs: "DJANGO_CONFERENCE_PAYMENT_AUTH_FUNC not set!")
+    None)
 
 
 """

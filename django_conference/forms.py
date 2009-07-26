@@ -387,11 +387,14 @@ class PaymentForm(forms.Form):
         return cleaned
 
     def process_payment(self):
-        if self.payment_data:
-            auth = settings.DJANGO_CONFERENCE_PAYMENT_AUTH_FUNCTION
-            datadict = self.cleaned_data
-            datadict.update(self.payment_data)
-            return auth(datadict)
+        auth_func_loc = settings.DJANGO_CONFERENCE_PAYMENT_AUTH_FUNCTION
+        if not self.payment_data or not auth_func_loc:
+            return
+        auth_func = __import__(name=auth_func_loc[1],
+            from_list=[auth_func_loc[0]])
+        datadict = self.cleaned_data
+        datadict.update(self.payment_data)
+        return auth_func(datadict)
 
 
 class AddressForm(forms.Form):
