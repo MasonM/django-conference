@@ -1,0 +1,7 @@
+syntax: glob
+
+*.pyc
+build/*
+dist/*
+django_conference.egg-info/*
+.hgignore
