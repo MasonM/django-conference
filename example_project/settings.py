@@ -84,3 +84,6 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
 )
+
+DJANGO_CONFERENCE_CONTACT_EMAIL = "mason.malone@gmail.com"
+DJANGO_CONFERENCE_MEDIA_ROOT = "/media/conference"
