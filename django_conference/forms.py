@@ -390,8 +390,8 @@ class PaymentForm(forms.Form):
         auth_func_loc = settings.DJANGO_CONFERENCE_PAYMENT_AUTH_FUNCTION
         if not self.payment_data or not auth_func_loc:
             return
-        auth_func = __import__(name=auth_func_loc[1],
-            fromlist=[auth_func_loc[0]])
+        auth_func_module = __import__(auth_func_loc[0], fromlist=[''])
+        auth_func = getattr(auth_func_module, auth_func_loc[1])
         datadict = self.cleaned_data
         datadict.update(self.payment_data)
         return auth_func(datadict)
