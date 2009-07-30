@@ -104,12 +104,9 @@ class Meeting(models.Model):
         """
         Returns a Q object which represents all past meetings.
         """
-        past_meetings = Q(start_date__lt=date.today()) &\
-            Q(end_date__lt=date.today())
-        if Meeting.latest_or_none():
-            #filter out current meeting
-            past_meetings &= ~Q(pk=Meeting.latest_or_none().pk)
-        return past_meetings
+        return Q(start_date__lt=date.today()) &\
+            Q(end_date__lt=date.today()) &\
+            Q(reg_start__lt=date.today())
 
     @meeting_stat
     def get_registration_stats(self):
