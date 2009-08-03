@@ -82,17 +82,6 @@
   float: right;
 }
 
-.meetingSessions select {
-  vertical-align: top;
-  height: 200px;
-}
-
-.meetingSessions .sessionDay {
-  padding: 5px;
-  margin-left: 18px;
-  float: left;
-}
-
 #id_banquets, #id_grad_donation {
   width: 40px;
 }
@@ -103,6 +92,56 @@
 
 #id_expiration_container, #id_ccv_number {
   width: 100px;
+}
+
+#content ol#session_time_slots li {
+  list-style-type: none;
+  margin: 0;
+}
+
+#content ol#session_time_slots li ul li {
+  list-style-type: disc;
+}
+
+ol#session_time_slots li h4 {
+  margin: 0;
+  border: 0;
+}
+
+ol#session_time_slots li h3 {
+  cursor: pointer;
+  border-bottom: 1px dotted #999933;
+  margin: 5px 0;
+  padding-left: 10px;
+}
+
+ol#session_time_slots li img {
+  display: inline;
+}
+
+ol#session_time_slots li h4 input {
+  float: left;
+  width: 10px;
+}
+
+ol#session_time_slots li h4 span {
+  float: right;
+  width: 480px;
+  margin-top: -2px;
+}
+
+ol#session_time_slots li .session_details {
+  padding-top: 10px;
+  padding-left: 15px;
+  clear: both;
+}
+
+.session_details strong {
+  cursor: pointer;
+}
+
+#content ol#session_time_slots li .session_details ul {
+  margin-top: 0;
 }
 
 /* admin styles */

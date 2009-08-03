@@ -4,6 +4,8 @@ from calendar import monthrange
 import re
 
 from django import forms
+from django.utils.safestring import mark_safe
+from django.utils.encoding import force_unicode
 from django.db.models import get_model
 
 from django_conference import settings
@@ -12,47 +14,107 @@ from django_conference.models import (Meeting, Paper, Session, SessionCadre,
     RegistrationGuest, RegistrationOption)
 
 
+class SessionsWidget(forms.CheckboxSelectMultiple):
+    """
+    Widget for representing all the sessions associated with a certain
+    time slot. Sessions titles are displayed in a list, with complete details
+    on the session below the title.
+    """
+    def render(self, name, value, attrs=None, choices=()):
+        if value is None:
+            value = []
+        has_id = attrs and 'id' in attrs
+        final_attrs = self.build_attrs(attrs, name=name)
+        values = set([force_unicode(v) for v in value])
+        session = Session.objects.get(pk=self.choices[0][1])
+        # now, construct description of the time slot represented by this
+        # widget. If both the starting and ending times are on the same day,
+        # then use the format "Sunday, 07:00-07:45 PM", else use
+        # "Sunday 07:00 PM - Monday 01:00AM"
+        if session.start_time.day == session.stop_time.day:
+            description = u"%s-%s" % (session.start_time.strftime("%A, %I:%M"),
+                session.stop_time.strftime("%I:%M %p"))
+        else:
+            format = "%A %I:%M %p"
+            description = u"%s - %s" % (session.start_time.strftime(format),
+                session.stop_time.strftime(format))
+        expand_img = '<img src="%s/img/expand.png" alt="Expand list"/>' % (
+            settings.DJANGO_CONFERENCE_MEDIA_ROOT)
+        output = [u"""
+            <div class="session_list">
+                <h3>%s %s</h3>
+                <ol class="sessions">""" % (expand_img, description)]
+        for (i, session_id) in self.choices:
+            if has_id:
+                final_attrs = dict(final_attrs, id='%s_%s' % (attrs['id'], i))
+            session = Session.objects.get(pk=session_id)
+            cb = forms.CheckboxInput(final_attrs,
+                check_test=lambda v: v in values)
+            rendered_cb = cb.render(name, unicode(session_id))
+            output.append(u"""
+                    <li>
+                        <h4>%s<span>%s</span></h4>
+                        <div class="session_details">"""
+                % (rendered_cb, unicode(session)))
+            cadre_dict = {
+                'Chair': session.chair,
+                'Organizer': session.organizers,
+                'Commentator': session.commentators,
+            }
+            for desc, cadre in cadre_dict.items():
+                if not cadre:
+                    continue
+                if not isinstance(cadre, Session.objects.__class__):
+                    output.append(u'%s: %s<br/>' % (desc, unicode(cadre)))
+                elif cadre.count() == 1:
+                    name = unicode(cadre.all()[0])
+                    output.append(u'%s: %s<br/>' % (desc, name))
+                elif cadre.count() > 1:
+                    output.append(u'%ss:<ul>' % desc)
+                    output.extend([u'<li>%s</li>' %
+                        unicode(o) for o in cadre.all()])
+                    output.append(u'</ul>')
+            if session.papers:
+                output.append(u"""
+                            <strong>%s Papers</strong>
+                            <ul class="papers">""" % expand_img)
+                output.extend([u'<li><em>%s</em>, %s</li>' %
+                    (unicode(p), p.presenter.get_full_name())
+                    for p in session.papers.all()])
+                output.append(u'</ul>')
+            output.append(u"""
+                        </div>
+                    </li>""")
+        output.append(u"""
+                </ol>
+            </div>""")
+        return mark_safe(u'\n'.join(output))
+
+
 class MeetingSessions(forms.Form):
     """
     Form for selecting meeting sessions. All fields are dynamically generated
     by querying for the sessions associated with a given meeting.
     """
-    WEEKDAY_MAP = {
-        0: "Monday",
-        1: "Tuesday",
-        2: "Wednesday",
-        3: "Thursday",
-        4: "Friday",
-        5: "Saturday",
-        6: "Sunday",
-    }
-
     def __init__(self, meeting, *args, **kwargs):
         super(MeetingSessions, self).__init__(*args, **kwargs)
         self.meeting = meeting
         self.set_session_fields()
 
     def set_session_fields(self):
-        # add multi-select fields for choosing which sessions to attend
+        # adds multi-select fields for choosing which sessions to attend,
+        # with one field for each (start_time, stop_time) combo
         meeting_sessions = self.meeting.sessions.filter(accepted=True)
-        # categorize sessions by the day of the week
-        days = [s['start_time'].weekday()
-                for s in meeting_sessions.values("start_time")
-                if s['start_time']]
-        days.sort()
-        for day in days:
-            # @todo change to use filter(start_time__weekday) when Django
-            # supports it
-            sessions = [s for s in meeting_sessions.order_by("start_time")
-                        if s.start_time and s.start_time.weekday() == day]
-            # cut off title so the multi-select fields don't take up the
-            # whole page
-            def trim_title(title):
-                return title if len(title) < 30 else title[:27]+"..."
-            choices = [(s.pk, trim_title(unicode(s))) for s in sessions]
-            field_name = "sessions_%i" % day
-            self.fields[field_name] = forms.MultipleChoiceField(
-                choices=choices, label=self.WEEKDAY_MAP[day], required=False)
+        time_slots = (meeting_sessions.filter(accepted=1).distinct()
+                        .values_list("start_time", "stop_time")
+                        .order_by('start_time', 'stop_time'))
+        for i, time_slot in enumerate(time_slots):
+            sessions = meeting_sessions.filter(start_time=time_slot[0],
+                stop_time=time_slot[1])
+            choices = [(s.pk, s.pk) for s in sessions]
+            field_name = "sessions_%i" % i
+            self.fields[field_name] = forms.MultipleChoiceField(label="",
+                choices=choices, required=False, widget=SessionsWidget)
 
     def get_sessions(self):
         clean = self.clean()

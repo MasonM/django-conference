@@ -557,7 +557,8 @@ class SessionCadre(models.Model):
     institution = models.CharField(max_length=100)
 
     def __unicode__(self):
-        return "%s %s" % (self.first_name, self.last_name)
+        return u"%s %s, %s" % (self.first_name, self.last_name,
+            self.institution)
 
     class Meta:
         verbose_name_plural = "Session cadre"
