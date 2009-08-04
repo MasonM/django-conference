@@ -38,7 +38,7 @@ class SessionsWidget(forms.CheckboxSelectMultiple):
             format = "%A %I:%M %p"
             description = u"%s - %s" % (session.start_time.strftime(format),
                 session.stop_time.strftime(format))
-        expand_img = '<img src="%s/img/expand.png" alt="Expand list"/>' % (
+        expand_img = '<img src="%s/img/expand.gif" alt="Expand list"/>' % (
             settings.DJANGO_CONFERENCE_MEDIA_ROOT)
         output = [u"""
             <div class="session_list">

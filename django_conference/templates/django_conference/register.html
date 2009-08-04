@@ -5,11 +5,19 @@
 <script type="text/javascript">
 $(function() {
    $(".session_list > ol.sessions, .session_details ul.papers").hide();
-   $(".session_list > h3").click(function() {
-      $(this).next("ol").slideToggle("normal")
+   $(".session_list > h3").toggle(function() {
+      $("img", this).attr("src", "{{media_root}}/img/collapse.gif");
+      $(this).next("ol").slideDown("normal")
+   }, function () {
+      $("img", this).attr("src", "{{media_root}}/img/expand.gif");
+      $(this).next("ol").slideUp("normal")
    });
-   $(".session_details > strong").click(function() {
-      $(this).next("ul").slideToggle("fast")
+   $(".session_details > strong").toggle(function() {
+      $("img", this).attr("src", "{{media_root}}/img/collapse.gif");
+      $(this).next("ul").slideDown("fast")
+   }, function () {
+      $("img", this).attr("src", "{{media_root}}/img/expand.gif");
+      $(this).next("ul").slideUp("normal")
    });
 });
 </script>
