@@ -94,6 +94,10 @@
   width: 100px;
 }
 
+#content ol#session_time_slots ol li {
+  margin-left: 20px;
+}
+
 #content ol#session_time_slots li {
   list-style-type: none;
   margin: 0;
@@ -126,12 +130,12 @@ ol#session_time_slots li h4 input {
 
 ol#session_time_slots li h4 span {
   float: right;
-  width: 480px;
+  width: 460px;
   margin-top: -2px;
 }
 
 ol#session_time_slots li .session_details {
-  padding-top: 10px;
+  padding-top: 5px;
   padding-left: 15px;
   clear: both;
 }
@@ -142,6 +146,7 @@ ol#session_time_slots li .session_details {
 
 #content ol#session_time_slots li .session_details ul {
   margin-top: 0;
+  margin-bottom: 0;
 }
 
 /* admin styles */

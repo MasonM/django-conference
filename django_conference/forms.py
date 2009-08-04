@@ -43,7 +43,7 @@ class SessionsWidget(forms.CheckboxSelectMultiple):
         output = [u"""
             <div class="session_list">
                 <h3>%s %s</h3>
-                <ol class="sessions">""" % (expand_img, description)]
+                <ol>""" % (expand_img, description)]
         for (i, session_id) in self.choices:
             if has_id:
                 final_attrs = dict(final_attrs, id='%s_%s' % (attrs['id'], i))
