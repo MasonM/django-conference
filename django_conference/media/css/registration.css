@@ -1,60 +1,3 @@
-/* general styles */
-.section {
-  text-align: left;
-  border: #D3D3D3 1px solid;
-  font-size: 10pt;
-}
-
-.section hr {
-  border: 1px #D3D3D3 solid;
-  width: 98%;
-  margin: 20px 0 10px 0;
-  clear: both;
-}
-
-.title {
-  width: 100%;
-  font-size: 16px;
-  font-weight: bold;
-}
-
-.title-note {
-  color: #696969;
-  font-size: 14px;
-}
-
-#main, #tab_header, .section, .title-note {
-  margin: 0 10px 0 18px;
-}
-
-#content .heading {
-  background-color: #65745a;
-}
-
-#content .heading h3, #content .heading h5  {
-  font-family: sans-serif;
-  padding: 5px;
-  margin: 0;
-  color: white;
-}
-
-.content {
-  padding: 10px 5px;
-  height: 100%;
-}
-
-.form-row {
-  padding: 0;
-  margin: 0 10px 0 18px;
-  font-size: 13px;
-  line-height: 18px;
-}
-
-.form-row .container {
-  clear: both;
-  margin-top: 10px;
-}
-
 /* form styles */
 #regForm .form-row label {
   width: 130px;
@@ -70,10 +13,6 @@
   margin: 0;
   padding: 0;
   margin-left: 130px;
-}
-
-.indent {
-  margin: 10px 0 0 110px;
 }
 
 #orderSummary {
