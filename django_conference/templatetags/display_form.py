@@ -36,11 +36,15 @@ class FormFieldNode(template.Node):
                 'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
             })
         for field in form:
-            output += "<p class='container' id='%s_container'>" % field.auto_id
+            output += u"""
+                <div class='container' id='%s_container'>""" % field.auto_id
             if field.field.required:
                 output += u"<b>%s</b>" % field.label_tag(field.label)
             else:
                 output += field.label_tag(field.label)
-            output += u"%s%s</p>\n" % (field, field.help_text)
+            output += unicode(field)
+            if field.help_text:
+                output += u"<p class='help_text'>%s</p>" % field.help_text
+            output += u"</div>\n"
         output += u"</div>"
         return output

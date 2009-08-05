@@ -43,6 +43,18 @@
   height: 100%;
 }
 
+.form-row {
+  padding: 0;
+  margin: 0 10px 0 18px;
+  font-size: 13px;
+  line-height: 18px;
+}
+
+.form-row .container {
+  clear: both;
+  margin-top: 10px;
+}
+
 /* form styles */
 #regForm .form-row label {
   width: 130px;
@@ -51,6 +63,13 @@
 .form-row .label_container {
   width: 110px;
   float: left;
+}
+
+#content p.help_text {
+  font-style: italic;
+  margin: 0;
+  padding: 0;
+  margin-left: 130px;
 }
 
 .indent {
@@ -80,14 +99,6 @@
   padding: 0;
   width: 250px;
   float: right;
-}
-
-#id_banquets, #id_grad_donation {
-  width: 40px;
-}
-
-#id_abstracts, #id_hunt_tour, #id_creek_trip {
-  width: 35px;
 }
 
 #id_expiration_container, #id_ccv_number {
@@ -147,6 +158,10 @@ ol#session_time_slots li .session_details {
 #content ol#session_time_slots li .session_details ul {
   margin-top: 0;
   margin-bottom: 0;
+}
+
+.container input {
+  width: 5em;
 }
 
 /* admin styles */
