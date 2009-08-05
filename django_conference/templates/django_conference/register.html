@@ -39,14 +39,18 @@ $(function() {
       If you'd like to include any of the following extras in your order, please
       indicate the quantity.
     </p>
-    {% display_form extras_form %}
+    <div class="extra_form">
+       {% display_form extras_form %}
+    </div>
     {% endif %}
     {% if donations_form.fields %}
     <hr align="left"/>
     <p>
       Please consider making a donation to assist with the following causes.
     </p>
-    {% display_form donations_form %}
+    <div class="donation_form">
+       {% display_form donations_form %}
+    </div>
     {% endif %}
     <hr align="left"/>
     <p>

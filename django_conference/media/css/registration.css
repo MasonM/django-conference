@@ -40,6 +40,10 @@
   float: right;
 }
 
+.donation_form input, .extra_form input {
+  width: 5em;
+}
+
 #id_expiration_container, #id_ccv_number {
   width: 100px;
 }
@@ -97,10 +101,6 @@ ol#session_time_slots li .session_details {
 #content ol#session_time_slots li .session_details ul {
   margin-top: 0;
   margin-bottom: 0;
-}
-
-.container input {
-  width: 5em;
 }
 
 /* admin styles */
