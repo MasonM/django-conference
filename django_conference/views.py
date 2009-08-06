@@ -154,7 +154,10 @@ def payment(request, reg_id=None):
         payment_form = PaymentForm(data=request.POST)
         if address_form.is_valid():
             payment_data = address_form.clean()
-            payment_data.update({'registration': cont})
+            payment_data.update({
+                'total': cont.get_total(),
+                'registrant': request.user,
+            })
             payment_form.payment_data = payment_data
             if payment_form.is_valid():
                 #save registration and send an e-mail
