@@ -26,18 +26,10 @@ class SessionsWidget(forms.CheckboxSelectMultiple):
         has_id = attrs and 'id' in attrs
         final_attrs = self.build_attrs(attrs, name=name)
         values = set([force_unicode(v) for v in value])
+        # since all the sessions have the same time slot,
+        # use the first in the list to get the description
         session = Session.objects.get(pk=self.choices[0][1])
-        # now, construct description of the time slot represented by this
-        # widget. If both the starting and ending times are on the same day,
-        # then use the format "Sunday, 07:00-07:45 PM", else use
-        # "Sunday 07:00 PM - Monday 01:00AM"
-        if session.start_time.day == session.stop_time.day:
-            description = u"%s-%s" % (session.start_time.strftime("%A, %I:%M"),
-                session.stop_time.strftime("%I:%M %p"))
-        else:
-            format = "%A %I:%M %p"
-            description = u"%s - %s" % (session.start_time.strftime(format),
-                session.stop_time.strftime(format))
+        description = session.get_time_slot_string()
         expand_img = '<img src="%s/img/expand.gif" alt="Expand list"/>' % (
             settings.DJANGO_CONFERENCE_MEDIA_ROOT)
         output = [u"""

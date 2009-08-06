@@ -12,7 +12,7 @@
     <th align="left">Registration Type:</th>
     <td>{{registration.type}}</td>
   </tr>
-{% if registration.guests %}
+{% if registration.guests.count %}
   <tr>
     <th align="left">Guest Name(s):</th>
     <td>{{registration.guests.all|join:", "}}</td>
@@ -45,7 +45,7 @@
     <th align="left">Sessions:</th>
     <td>
     {% for session in registration.sessions.all %}
-      {{session}}{% if not forloop.last %}, {% endif %}
+      {{session.get_time_slot_string}}{% if not forloop.last %}, {% endif %}
     {% endfor %}
     </td>
   </tr>
