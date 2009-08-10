@@ -57,19 +57,18 @@ class SessionsWidget(forms.CheckboxSelectMultiple):
                         <div class="session_details">"""
                 % (rendered_cb, unicode(session)))
             cadre_dict = {
-                'Chair': session.chair,
+                'Chair': session.chairs,
                 'Organizer': session.organizers,
                 'Commentator': session.commentators,
             }
             for desc, cadre in cadre_dict.items():
-                if not cadre:
+                if not cadre.count():
                     continue
-                if not isinstance(cadre, Session.objects.__class__):
-                    output.append(u'%s: %s<br/>' % (desc, unicode(cadre)))
-                elif cadre.count() == 1:
+                if cadre.count() == 1:
                     name = unicode(cadre.all()[0])
                     output.append(u'%s: %s<br/>' % (desc, name))
                 elif cadre.count() > 1:
+                    desc += "s"
                     output.append(u'%ss:<ul>' % desc)
                     output.extend([u'<li>%s</li>' %
                         unicode(o) for o in cadre.all()])

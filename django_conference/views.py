@@ -206,7 +206,7 @@ def submit_session(request):
         session.organizers.add(organizer)
         if chair_form.has_entered_info():
             chair = chair_form.save()
-            session.chair = chair
+            session.chairs.add(chair)
         if commentator_form.has_entered_info():
             commentator = commentator_form.save()
             session.commentators.add(commentator)

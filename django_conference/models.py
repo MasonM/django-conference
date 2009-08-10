@@ -557,6 +557,11 @@ class SessionCadre(models.Model):
         return u"%s %s, %s" % (self.first_name, self.last_name,
             self.institution)
 
+    def get_full_name(self):
+        if self.mi:
+            return "%s %s %s" % (self.first_name, self.mi, self.last_name)
+        return "%s %s" % (self.first_name, self.last_name)
+
     class Meta:
         verbose_name_plural = "Session cadre"
 
@@ -572,7 +577,7 @@ class Session(models.Model):
     abstract = models.TextField(blank=True)
     creation_time = models.DateTimeField(auto_now_add=True, editable=False)
     accepted = models.BooleanField(default=False)
-    chair = models.ForeignKey(SessionCadre, null=True, blank=True,
+    chairs = models.ManyToManyField(SessionCadre, null=True, blank=True,
         related_name="sessions_chaired")
     organizers = models.ManyToManyField(SessionCadre, blank=True,
         related_name="sessions_organized")
