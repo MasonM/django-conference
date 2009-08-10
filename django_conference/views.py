@@ -150,7 +150,7 @@ def payment(request, reg_id=None):
 
     if 'payMeeting' in request.POST:
         payment_data = None
-        address_form = address_form(request.POST)
+        address_form = address_form(data=request.POST)
         payment_form = PaymentForm(data=request.POST)
         if address_form.is_valid():
             payment_data = address_form.clean()
