@@ -26,18 +26,10 @@ class SessionsWidget(forms.CheckboxSelectMultiple):
         has_id = attrs and 'id' in attrs
         final_attrs = self.build_attrs(attrs, name=name)
         values = set([force_unicode(v) for v in value])
+        # since all the sessions have the same time slot,
+        # use the first in the list to get the description
         session = Session.objects.get(pk=self.choices[0][1])
-        # now, construct description of the time slot represented by this
-        # widget. If both the starting and ending times are on the same day,
-        # then use the format "Sunday, 07:00-07:45 PM", else use
-        # "Sunday 07:00 PM - Monday 01:00AM"
-        if session.start_time.day == session.stop_time.day:
-            description = u"%s-%s" % (session.start_time.strftime("%A, %I:%M"),
-                session.stop_time.strftime("%I:%M %p"))
-        else:
-            format = "%A %I:%M %p"
-            description = u"%s - %s" % (session.start_time.strftime(format),
-                session.stop_time.strftime(format))
+        description = session.get_time_slot_string()
         expand_img = '<img src="%s/img/expand.gif" alt="Expand list"/>' % (
             settings.DJANGO_CONFERENCE_MEDIA_ROOT)
         output = [u"""
@@ -432,13 +424,14 @@ class PaymentForm(forms.Form):
         cleaned = super(PaymentForm, self).clean()
         if not self.errors:
             result = self.process_payment()
-            if not result:
+            if result is None:
                 email = settings.DJANGO_CONFERENCE_CONTACT_EMAIL
                 err = """
                     We encountered an error while processing your credit card.
                     Please contact <a href="mailto:%s">%s</a> for assistance.
                 """
-                raise forms.ValidationError(err % (email, email))
+                err = mark_safe(err % (email, email))
+                raise forms.ValidationError(err)
             if result and result[0] == 'Card declined':
                 raise forms.ValidationError('Your credit card was declined.')
             elif result and result[0] == 'Processing error':
@@ -448,14 +441,14 @@ class PaymentForm(forms.Form):
         return cleaned
 
     def process_payment(self):
-        auth_func_loc = settings.DJANGO_CONFERENCE_PAYMENT_AUTH_FUNCTION
+        auth_func_loc = settings.DJANGO_CONFERENCE_PAYMENT_AUTH_FUNC
         if not self.payment_data or not auth_func_loc:
-            return
+            return False
         auth_func_module = __import__(auth_func_loc[0], fromlist=[''])
         auth_func = getattr(auth_func_module, auth_func_loc[1])
         datadict = self.cleaned_data
         datadict.update(self.payment_data)
-        return auth_func(datadict)
+        return auth_func(**datadict)
 
 
 class AddressForm(forms.Form):

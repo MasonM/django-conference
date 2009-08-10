@@ -588,6 +588,20 @@ class Session(models.Model):
     def __unicode__(self):
         return self.title
 
+    def get_time_slot_string(self):
+        # If both the starting and ending times are on the same day,
+        # then use the format "Sunday, 07:00-07:45 PM", else use
+        # "Sunday 07:00 PM - Monday 01:00 AM"
+        if self.start_time.day == self.stop_time.day:
+            return u"%s-%s" % (
+                self.start_time.strftime("%A, %I:%M"),
+                self.stop_time.strftime("%I:%M %p"))
+        else:
+            format = "%A %I:%M %p"
+            return u"%s - %s" % (
+                self.start_time.strftime(format),
+                self.stop_time.strftime(format))
+
     def send_submission_email(self):
         """
         Sends e-mail notifying organizer(s) of the submission.

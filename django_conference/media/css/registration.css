@@ -40,7 +40,7 @@
   float: right;
 }
 
-.donation_form input, .extra_form input {
+.donation_form input[type="text"], .extra_form input[type="text"] {
   width: 5em;
 }
 

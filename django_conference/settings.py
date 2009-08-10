@@ -55,7 +55,8 @@ function name. The function must accept a dictionary of the following form:
     'holder': <name on credit card>,
     'expiration': <expiration date as a Python Date object>,
     'ccv_number': <credit card CCV #>,
-    'registration': <registration object>,
+    'total': <total amount to charge as a Decimal object>,
+    'registrant': <User object>,
 }
 The return value should be "success" if the authentication succeeded,
 else an error message.
