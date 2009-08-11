@@ -60,7 +60,6 @@ class SessionsWidget(forms.CheckboxSelectMultiple):
                     name = unicode(cadre.all()[0])
                     output.append(u'%s: %s<br/>' % (desc, name))
                 elif cadre.count() > 1:
-                    desc += "s"
                     output.append(u'%ss:<ul>' % desc)
                     output.extend([u'<li>%s</li>' %
                         unicode(o) for o in cadre.all()])
