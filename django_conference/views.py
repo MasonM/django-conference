@@ -157,6 +157,7 @@ def payment(request, reg_id=None):
             payment_data.update({
                 'total': cont.get_total(),
                 'registrant': request.user,
+                'description': cont.get_description(),
             })
             payment_form.payment_data = payment_data
             if payment_form.is_valid():
