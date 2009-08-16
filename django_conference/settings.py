@@ -104,3 +104,9 @@ the constructor
 DJANGO_CONFERENCE_ADDRESS_FORM = getattr(settings,
     'DJANGO_CONFERENCE_ADDRESS_FORM',
     ("django_conference.forms", "AddressForm"))
+
+
+"""
+URL to redirect registrants to who are not logged in.
+"""
+LOGIN_URL = getattr(settings, 'LOGIN_URL', '/account')
