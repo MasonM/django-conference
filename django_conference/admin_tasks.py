@@ -12,23 +12,23 @@ class AdminTask(object):
     """
     Represents an administrative task that can be performed.
     """
-    def __init__(self, template, desc, formats=["html"], allow_limit=False):
+    def __init__(self, template, desc, formats=["html"], show_user_limit=True):
         self.template = template
         self.description = desc
         self.formats = formats
-        self.allow_limit = allow_limit
+        self.show_user_limit = show_user_limit
 
 
 admin_tasks = [
-    AdminTask("django_conference/stats.html", "Meeting Statistics"),
-    AdminTask("django_conference/spreadsheet.html", "Meeting Speeadsheet",
-        ["xls"], True),
+    AdminTask("django_conference/stats.html", "Meeting Statistics", False),
+    AdminTask("django_conference/spreadsheet.html", "Meeting Spreadsheet",
+        ["xls"]),
     AdminTask("django_conference/name_badges.xml", "Generate Name Badges",
-        ["xml"], True),
+        ["xml"]),
     AdminTask("django_conference/packet_labels.xml", "Generate Packet Labels",
-        ["xml"], True),
+        ["xml"]),
     AdminTask("django_conference/receipts.html", "Generate Receipts",
-        ["html"], True),
+        ["html"]),
 ]
 
 
@@ -52,7 +52,7 @@ class AdminTaskOptionsForm(forms.Form):
 
     def __init__(self, task, *args, **kwargs):
         super(AdminTaskOptionsForm, self).__init__(*args, **kwargs)
-        if not task.allow_limit:
+        if not task.show_user_limit:
             del self.fields['user_limit']
         formats = [(f, f.upper()) for f in task.formats]
         self.fields['format'].choices = formats
@@ -90,7 +90,7 @@ def do_task(request, meeting_id, task_id):
         url = reverse('django_conference_choose_admin_task', kwargs=kwargs)
         return HttpResponseRedirect(url)
     form = None
-    if len(task.formats) > 1 or task.allow_limit:
+    if len(task.formats) > 1 or task.show_user_limit:
         form = AdminTaskOptionsForm(task, request.POST or None)
 
     if request.POST and form.is_valid():

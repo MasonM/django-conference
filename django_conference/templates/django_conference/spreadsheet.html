@@ -1,3 +1,4 @@
+{% load money_format %}
 <table>
   <tr>
     <th colspan="9">{{meeting}}</th>
@@ -17,7 +18,7 @@
     <td>{{reg.date_entered}}</td>
     <td>{{reg.entered_by}}</td>
     <td>{{reg.get_payment_type_display}}</td>
-    <td>${{reg.get_total}}</td>
+    <td>${{reg.get_total|money_format}}</td>
   </tr>
   {% endfor %}
 </table>
