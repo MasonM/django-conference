@@ -423,20 +423,18 @@ class PaymentForm(forms.Form):
         cleaned = super(PaymentForm, self).clean()
         if not self.errors:
             result = self.process_payment()
-            if result is None:
+            if not result:
                 email = settings.DJANGO_CONFERENCE_CONTACT_EMAIL
-                err = """
+                err = u"""
                     We encountered an error while processing your credit card.
                     Please contact <a href="mailto:%s">%s</a> for assistance.
                 """
                 err = mark_safe(err % (email, email))
                 raise forms.ValidationError(err)
-            if result and result[0] == 'Card declined':
-                raise forms.ValidationError('Your credit card was declined.')
-            elif result and result[0] == 'Processing error':
+            elif result != 'success':
                 raise forms.ValidationError(
-                    'We encountered the following error while processing '+\
-                    'your credit card: '+result[1])
+                    u'We encountered the following error while processing '+\
+                    u'your credit card: '+result)
         return cleaned
 
     def process_payment(self):
