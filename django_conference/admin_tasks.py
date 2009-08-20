@@ -20,15 +20,15 @@ class AdminTask(object):
 
 
 admin_tasks = [
-    AdminTask("django_conference/stats.html", "Meeting Statistics", False),
+    AdminTask("django_conference/stats.html", "Meeting Statistics",
+        show_user_limit=False),
     AdminTask("django_conference/spreadsheet.html", "Meeting Spreadsheet",
         ["xls"]),
     AdminTask("django_conference/name_badges.xml", "Generate Name Badges",
         ["xml"]),
     AdminTask("django_conference/packet_labels.xml", "Generate Packet Labels",
         ["xml"]),
-    AdminTask("django_conference/receipts.html", "Generate Receipts",
-        ["html"]),
+    AdminTask("django_conference/receipts.html", "Generate Receipts"),
 ]
 
 
