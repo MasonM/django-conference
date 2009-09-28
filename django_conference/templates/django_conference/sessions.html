@@ -1,0 +1,73 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" 
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+  <title>Accepted Session Details</title>
+</head>
+<body>
+  <h1>Accepted Session Details for Meeting {{meeting}}</h1>
+  {% for session in meeting.sessions.all %}
+  {% if session.accepted %}
+  <table border="1">
+    <tr>
+      <th>Title</th>
+      <td>{{session}}</td>
+    </tr>
+    <tr>
+      <th>Time slot</th>
+      <td>{{session.get_time_slot_string}}</td>
+    </tr>
+    {% if session.abstract %}
+    <tr>
+      <th>Abstract</th>
+      <td>{{session.abstract|linebreaksbr}}</td>
+    </tr>
+    {% endif %}
+    {% if session.room_no %}
+    <tr>
+      <th>Room #</th>
+      <td>{{session.room_no}}</td>
+    </tr>
+    {% endif %}
+    {% ifnotequal session.notes|cut:" "|length 0 %}
+    <tr>
+      <th>Notes</th>
+      <td>{{session.notes}}</td>
+    </tr>
+    {% endifnotequal %}
+    {% if session.chairs.all %}
+    <tr>
+      <th>Chair(s)</th>
+      <td>
+        <ul>
+          {% for chair in session.chairs.all %}<li>{{chair}}</li>{% endfor %}
+        </ul>
+      </td>
+    </tr>
+    {% endif %}
+    {% if session.organizers.all %}
+    <tr>
+      <th>Organizer(s)</th>
+      <td>
+        <ul>
+          {% for organizer in session.organizers.all %}<li>{{organizer}}</li>{% endfor %}
+        </ul>
+      </td>
+    </tr>
+    {% endif %}
+    {% if session.commentators.all %}
+    <tr>
+      <th>Commentator(s)</th>
+      <td>
+        <ul>
+          {% for commentator in session.commentators.all %}<li>{{commentator}}</li>{% endfor %}
+        </ul>
+      </td>
+    </tr>
+    {% endif %}
+  </table>
+  <br/>
+  {% endif %}
+  {% endfor %}
+</body>
+</html>

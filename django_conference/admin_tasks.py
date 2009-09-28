@@ -29,6 +29,8 @@ admin_tasks = [
     AdminTask("django_conference/packet_labels.xml", "Generate Packet Labels",
         ["xml"]),
     AdminTask("django_conference/receipts.html", "Generate Receipts"),
+    AdminTask("django_conference/sessions.html", "Accepted Session Details",
+        show_user_limit=False),
 ]
 
 
