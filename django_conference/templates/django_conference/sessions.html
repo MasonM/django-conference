@@ -14,9 +14,6 @@
   {% if session.room_no %}
   <b>Room #:</b> {{session.room_no}}<br/><br/>
   {% endif %}
-  {% ifnotequal session.notes|cut:" "|length 0 %}
-  <b>Notes:</b> {{session.notes}}<br/><br/>
-  {% endifnotequal %}
   {% if session.chairs.all %}
   <b>Chair(s):</b><br/>
     <ul>
