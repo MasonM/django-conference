@@ -11,9 +11,6 @@
   {% if session.accepted %}
   <b>Title:</b> {{session}}<br/><br/>
   <b>Time slot:</b> {{session.get_time_slot_string}} <br/><br/>
-  {% if session.abstract %}
-  <b>Abstract:</b> {{session.abstract|linebreaksbr}}<br/><br/>
-  {% endif %}
   {% if session.room_no %}
   <b>Room #:</b> {{session.room_no}}<br/><br/>
   {% endif %}
@@ -50,31 +47,16 @@
   <b>Papers:</b><br/>
   <ol>
   {% for paper in session.papers.all %}
+  {% if paper.accepted %}
     <li>
       <b>Title:</b> {{paper}}<br/>
       <b>Presenter:</b> {{paper.presenter}}, {{paper.presenter.institution}}<br/>
-      <b>Abstract:</b> {{paper.abstract|linebreaksbr}}<br/>
       {% if paper.coauthor %}
       <b>Coauthor:</b> {{paper.coauthor}}<br/>
       {% endif %}
-      <b>Is poster?:</b> {{paper.is_poster|yesno:"Yes,No"}}<br/>
-      {% if paper.av_info %}
-      <b>Audiovisual Requirements:</b> {{paper.get_av_info_display}}<br/>
-      {% endif %}
-      {% if paper.notes %}
-      <b>Notes:</b> {{paper.notes}}<br/>
-      {% endif %}
-      <b>Accepted?:</b> {{paper.accepted|yesno:"Yes,No"}}<br/>
-      {% if paper.previous_meetings.all %}
-      <b>Previous Meetings:</b><br/>
-      <ul>
-        {% for prev_meeting in paper.previous_meetings.all %}
-        <li>{{prev_meeting}}</li>
-        {% endfor %}
-      </ul>
-      {% endif %}
       <br/>
     </li>
+  {% endif %}
   {% endfor %}
   </ol>
   {% endif %}
