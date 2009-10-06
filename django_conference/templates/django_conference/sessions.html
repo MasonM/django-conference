@@ -9,10 +9,9 @@
   <div>
   {% for session in meeting.sessions.all %}
   {% if session.accepted %}
-  <b>Title:</b> {{session}}<br/><br/>
   <b>Time slot:</b> {{session.get_time_slot_string}} <br/><br/>
+  <b>Title:</b> {{session}}<br/><br/>
   {% if session.room_no %}
-  <b>Room #:</b> {{session.room_no}}<br/><br/>
   {% endif %}
   {% if session.chairs.all %}
   <b>Chair(s):</b><br/>
@@ -45,14 +44,7 @@
   <ol>
   {% for paper in session.papers.all %}
   {% if paper.accepted %}
-    <li>
-      <b>Title:</b> {{paper}}<br/>
-      <b>Presenter:</b> {{paper.presenter}}, {{paper.presenter.institution}}<br/>
-      {% if paper.coauthor %}
-      <b>Coauthor:</b> {{paper.coauthor}}<br/>
-      {% endif %}
-      <br/>
-    </li>
+    <li>{{paper.presenter.get_full_name}}, {{paper}}, {{paper.presenter.institution}}</li>
   {% endif %}
   {% endfor %}
   </ol>
