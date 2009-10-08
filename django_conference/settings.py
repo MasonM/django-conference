@@ -117,7 +117,7 @@ List of additional admin tasks. Each item in the list must be an tuple of the
 following form:
   ("template path", "description", [list of formats], True for user limit)
 The supported formats are "html", "xls", and "xml"
-the AdminTask object. Example:
+Example:
 [("receipts.html", "Generate Receipts", ["html"], True),
  ("packet_labels.xml", "Generate Packet Labels", ["xml"], False)]
 """
