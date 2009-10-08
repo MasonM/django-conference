@@ -6,6 +6,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.admin.views.decorators import staff_member_required
 
 from django_conference.models import Meeting, Registration
+from django_conference import settings
 
 
 class AdminTask(object):
@@ -24,13 +25,8 @@ admin_tasks = [
         show_user_limit=False),
     AdminTask("django_conference/spreadsheet.html", "Meeting Spreadsheet",
         ["xls"]),
-    AdminTask("django_conference/name_badges.xml", "Generate Name Badges",
-        ["xml"]),
-    AdminTask("django_conference/packet_labels.xml", "Generate Packet Labels",
-        ["xml"]),
-    AdminTask("django_conference/receipts.html", "Generate Receipts"),
-    AdminTask("django_conference/sessions.html", "Accepted Session Details",
-        show_user_limit=False),
+] + [
+    AdminTask(*args) for args in settings.DJANGO_CONFERENCE_ADMIN_TASKS
 ]
 
 

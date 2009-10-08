@@ -110,3 +110,17 @@ DJANGO_CONFERENCE_ADDRESS_FORM = getattr(settings,
 URL to redirect registrants to who are not logged in.
 """
 LOGIN_URL = getattr(settings, 'LOGIN_URL', '/account')
+
+
+"""
+List of additional admin tasks. Each item in the list must be an tuple of the
+following form:
+  ("template path", "description", [list of formats], True for user limit)
+The supported formats are "html", "xls", and "xml"
+the AdminTask object. Example:
+[("receipts.html", "Generate Receipts", ["html"], True),
+ ("packet_labels.xml", "Generate Packet Labels", ["xml"], False)]
+"""
+DJANGO_CONFERENCE_ADMIN_TASKS = getattr(settings,
+    'DJANGO_CONFERENCE_ADMIN_TASKS',
+    [])

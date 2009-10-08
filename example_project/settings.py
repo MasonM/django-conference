@@ -87,3 +87,7 @@ INSTALLED_APPS = (
 
 DJANGO_CONFERENCE_CONTACT_EMAIL = "mason.malone@gmail.com"
 DJANGO_CONFERENCE_MEDIA_ROOT = "/media/conference"
+DJANGO_CONFERENCE_ADMIN_TASKS = [
+   ("receipts.html", "Generate Receipts", ["html"], True),
+   ("sessions.html", "Accepted Session Details", ["html"], False),
+]
