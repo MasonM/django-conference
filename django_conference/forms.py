@@ -36,7 +36,8 @@ class SessionsWidget(forms.CheckboxSelectMultiple):
             <div class="session_list">
                 <h3>%s %s</h3>
                 <ol>""" % (expand_img, description)]
-        for (i, session_id) in self.choices:
+        for (i, choice) in enumerate(self.choices):
+            session_id = choice[0]
             if has_id:
                 final_attrs = dict(final_attrs, id='%s_%s' % (attrs['id'], i))
             session = Session.objects.get(pk=session_id)
@@ -57,8 +58,8 @@ class SessionsWidget(forms.CheckboxSelectMultiple):
                 if not cadre.count():
                     continue
                 if cadre.count() == 1:
-                    name = unicode(cadre.all()[0])
-                    output.append(u'%s: %s<br/>' % (desc, name))
+                    cadre_name = unicode(cadre.all()[0])
+                    output.append(u'%s: %s<br/>' % (desc, cadre_name))
                 elif cadre.count() > 1:
                     output.append(u'%ss:<ul>' % desc)
                     output.extend([u'<li>%s</li>' %
