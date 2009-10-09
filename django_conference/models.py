@@ -218,14 +218,14 @@ class Meeting(models.Model):
         """
         Returns list of dictionaries for each accepted session, with each
         dictionary containing two entries:
-            1) The session type/name (key="type")
+            1) The session (key="type")
             2) The total # of people who said they'd attend the
                session (key="quantity")
         """
         stats = []
         for sess in self.sessions.filter(accepted=True):
             stats.append({
-                "type": unicode(sess),
+                "type": sess,
                 "quantity": sess.regsessions.count(),
             })
         return stats

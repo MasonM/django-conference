@@ -92,6 +92,11 @@
       <th>Quantity</th>
     </tr>
     {% for stat_row in meeting.get_session_stats %}
+    {% ifchanged %}
+    <tr>
+      <th colspan="2">{{stat_row.type.get_time_slot_string}}</th>
+    </tr>
+    {% endifchanged %}
     <tr>
       <td>{{stat_row.type}}</td>
       <td>{{stat_row.quantity}}</td>
