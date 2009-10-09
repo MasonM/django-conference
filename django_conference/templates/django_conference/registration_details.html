@@ -45,7 +45,7 @@
     <th align="left">Sessions:</th>
     <td>
     {% for session in registration.sessions.all %}
-      {{session.get_time_slot_string}}{% if not forloop.last %}, {% endif %}
+      "{{session|truncatewords:5}}"{% if not forloop.last %}, {% endif %}
     {% endfor %}
     </td>
   </tr>
