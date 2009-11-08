@@ -13,7 +13,7 @@ def num_extras(registration, extra_type_name):
     name of the extra type.
     """
     try:
-        extra_type = models.ExtraType.get(name = extra_type_name)
+        extra_type = ExtraType.objects.get(name = extra_type_name)
     except ExtraType.DoesNotExist:
         err = 'num_extras received invalid extra type'
         raise template.TemplateSyntaxError(err)
@@ -22,3 +22,15 @@ def num_extras(registration, extra_type_name):
         return regextra.quantity
     except RegistrationExtra.DoesNotExist:
         return 0
+
+
+@register.simple_tag
+def has_extra(registration, extra_type_name):
+    """
+    Same as num_extras, except it returns "Yes" if given registration includes
+    one or more of the given extra_type, else returns "No"
+    """
+    num = num_extras(registration, extra_type_name)
+    if num > 0:
+        return "Yes"
+    return "No" 
