@@ -113,13 +113,15 @@ LOGIN_URL = getattr(settings, 'LOGIN_URL', '/account')
 
 
 """
-List of additional admin tasks. Each item in the list must be an tuple of the
-following form:
-  ("template path", "description", [list of formats], True for user limit)
-The supported formats are "html", "xls", and "xml"
+List of additional admin tasks. Each item in the list can must be a tuple of
+the following form: ("description", view_func)
+Where "description" is what should appear in the task selection drop-down and
+view_func is the view function. The view function will be passed the request
+and selected meeting (in that order) and must return a response.
 Example:
-[("receipts.html", "Generate Receipts", ["html"], True),
- ("packet_labels.xml", "Generate Packet Labels", ["xml"], False)]
+[("Checklist", lambda request, meeting: show_checklist(request, meeting)),
+ ("Generate Receipts", generate_receipts),
+ ("Generate Packet Labels", generate_packet_labels)]
 """
 DJANGO_CONFERENCE_ADMIN_TASKS = getattr(settings,
     'DJANGO_CONFERENCE_ADMIN_TASKS',
