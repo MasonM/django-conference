@@ -117,11 +117,15 @@ List of additional admin tasks. Each item in the list can must be a tuple of
 the following form: ("description", view_func)
 Where "description" is what should appear in the task selection drop-down and
 view_func is the view function. The view function will be passed the request
-and selected meeting (in that order) and must return a response.
+and selected meeting (in that order) and must return a response. If view_func
+is a list or a tuple, the view function will be dynamically imported by using
+the first element as the module and the second as the function name.
+view function.
 Example:
 [("Checklist", lambda request, meeting: show_checklist(request, meeting)),
  ("Generate Receipts", generate_receipts),
- ("Generate Packet Labels", generate_packet_labels)]
+ ("Generate Packet Labels", generate_packet_labels),
+ ("Dynamically imported task", ("my_project.module", "view_function")]
 """
 DJANGO_CONFERENCE_ADMIN_TASKS = getattr(settings,
     'DJANGO_CONFERENCE_ADMIN_TASKS',

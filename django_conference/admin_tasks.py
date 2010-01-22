@@ -14,6 +14,9 @@ class AdminTask(object):
     """
     def __init__(self, description, view_func):
         self.description = description
+        if isinstance(view_func, (list, tuple)):
+            views = __import__(view_func[0], {}, {}, [view_func[1]])
+            view_func = getattr(views, view_func[1])
         self.view_func = view_func
 
 
