@@ -411,7 +411,7 @@ class Registration(models.Model):
                           'accepted': True})
 
     def __unicode__(self):
-        return self.registrant.get_full_name()+": "+str(self.date_entered)
+        return self.registrant.get_full_name()+": "+unicode(self.date_entered)
 
     def save(self):
         if not self.id:
@@ -444,7 +444,7 @@ class Registration(models.Model):
         Sends e-mail to registrant with registration details. E-mail will
         contain both an HTML and text version.
         """
-        subject = str(self.meeting.start_date.year)+" Meeting Registration"
+        subject = unicode(self.meeting.start_date.year)+" Meeting Registration"
         html = render_to_string("django_conference/register_email.html", {
             "meeting": self.meeting,
             "registration": self,
