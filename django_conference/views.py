@@ -197,7 +197,8 @@ def submit_session(request):
 
     session_form = SessionForm(request.POST or None)
     organizer_form = SessionCadreForm(request.POST or None, optional=False)
-    chair_form = SessionCadreForm(request.POST or None, prefix="chair")
+    chair_form = SessionCadreForm(request.POST or None, optional=False,
+        prefix="chair")
     commentator_form = SessionCadreForm(request.POST or None,
         prefix="commentator")
 
@@ -207,9 +208,8 @@ def submit_session(request):
         session = session_form.save(meeting=meeting)
         organizer = organizer_form.save()
         session.organizers.add(organizer)
-        if chair_form.has_entered_info():
-            chair = chair_form.save()
-            session.chairs.add(chair)
+        chair = chair_form.save()
+        session.chairs.add(chair)
         if commentator_form.has_entered_info():
             commentator = commentator_form.save()
             session.commentators.add(commentator)
