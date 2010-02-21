@@ -2,8 +2,7 @@
 {% load display_form %}
 {% load show_notice %}
 {% block main %}
-<form action="{% url django_conference_edit_paper paper_id=paper_form.instance.pk %}"
-      method="post">
+<form method="post">
     <div class="section">
         <div class="heading">
             <h3>Edit Paper/Poster</h3>
