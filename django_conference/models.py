@@ -64,9 +64,9 @@ class Meeting(models.Model):
     def __unicode__(self):
         return self.location+" "+unicode(self.start_date.year)
 
-    def deadline_passed(self):
-        """Returns True if reg_deadline is in past. For the templates."""
-        return self.reg_deadline <= date.today()
+    def registration_active(self):
+        """Returns True if today is between registration start and end dates"""
+        return self.reg_start <= date.today() <= self.reg_deadline
 
     def has_registered(self, account):
         """Returns True if given account has a registration for this meeting"""
@@ -77,8 +77,7 @@ class Meeting(models.Model):
         Returns True if today is after or on the start_date and the given
         account hasn't already registered.
         """
-        return (self.reg_start <= date.today() <= self.reg_deadline) and \
-               not self.has_registered(account)
+        return self.registration_active() and not self.has_registered(account)
 
     def can_submit_paper(self):
         return (self.paper_submission_start <= datetime.now() <=

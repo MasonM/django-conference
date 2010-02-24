@@ -9,7 +9,7 @@
 </h3>
 <br/>
 <p>
-{% if not meeting.deadline_passed %}
+{% if meeting.registration_active %}
     <a href="{% url django_conference_register %}">Register for the Meeting</a>
 {% else %}
     Deadline for registration is over
