@@ -565,6 +565,7 @@ class SessionCadre(models.Model):
 
 
 class Session(models.Model):
+    submitter = models.ForeignKey(user_model, blank=True, null=True)
     meeting = models.ForeignKey(Meeting, related_name="sessions",
         default=Meeting.latest_or_none())
     start_time = models.DateTimeField(blank=True, null=True)

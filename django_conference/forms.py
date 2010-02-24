@@ -306,8 +306,9 @@ class SessionForm(forms.ModelForm):
         model = Session
         fields = ['title', 'notes', 'abstract']
 
-    def save(self, meeting, commit=True):
+    def save(self, meeting, submitter, commit=True):
         self.instance.meeting = meeting
+        self.instance.submitter = submitter
         return super(SessionForm, self).save(commit)
 
 

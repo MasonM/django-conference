@@ -255,6 +255,7 @@ def submit_paper(request):
         kwargs = {'id': paper.id}
         url = reverse('django_conference_submission_success', kwargs=kwargs)
         return HttpResponseRedirect(url)
+
     return render_to_response('django_conference/submit_paper.html', {
         'paper_form': paper_form,
         'meeting': meeting,

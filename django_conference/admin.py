@@ -141,7 +141,7 @@ class SessionAdmin(admin.ModelAdmin):
             'fields': ['meeting', 'title', 'abstract', 'accepted'],
         }),
         ('People', {
-            'fields': ['chairs', 'organizers', 'commentators']
+            'fields': ['submitter', 'chairs', 'organizers', 'commentators']
         }),
         ('Additional Info', {
             'fields': ['room_no', 'start_time', 'stop_time', 'notes',
@@ -150,11 +150,12 @@ class SessionAdmin(admin.ModelAdmin):
     ]
     search_fields = ('title', 'abstract', 'notes', 'papers__title',
         'papers__abstract', 'papers__coauthor', 'papers__notes',
-        'chairs__first_name', 'chairs__last_name', 'chairs__institution')
+        'chairs__first_name', 'chairs__last_name', 'chairs__institution',
+        'submitter__first_name', 'submitter__last_name')
     ordering = ['title']
     filter_horizontal = ['papers', 'chairs', 'organizers', 'commentators']
-    list_display = ('title', 'meeting', 'accepted', 'get_chair_string',
-        'start_time', 'stop_time', 'creation_time')
+    list_display = ('title', 'submitter', 'meeting', 'accepted',
+        'get_chair_string', 'start_time', 'stop_time', 'creation_time')
     list_filter = ['meeting', 'accepted']
 
     def get_chair_string(self, obj):
