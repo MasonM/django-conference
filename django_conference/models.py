@@ -278,13 +278,11 @@ class Paper(models.Model):
         """
         subject = 'Paper Submission Confirmation'
         sender = settings.DJANGO_CONFERENCE_CONTACT_EMAIL
-        html = render_to_string("django_conference/submit_paper_email.html", {
+        body = render_to_string("django_conference/submit_paper_email.html", {
             "paper": self,
         })
-        text = html2text.html2text(html)
         msg = EmailMultiAlternatives(subject=subject, from_email=sender,
             body=text, to=[self.presenter.email])
-        msg.attach_alternative(html, "text/html")
         msg.send()
 
 
@@ -608,12 +606,10 @@ class Session(models.Model):
         """
         subject = 'Session Submission Confirmation'
         sender = settings.DJANGO_CONFERENCE_CONTACT_EMAIL
-        html = render_to_string("django_conference/submit_session_email.html",
+        body = render_to_string("django_conference/submit_session_email.html",
             {"session": self})
-        text = html2text.html2text(html)
         msg = EmailMultiAlternatives(subject=subject, from_email=sender,
-            body=text, to=[o.email for o in self.organizers.all()])
-        msg.attach_alternative(html, "text/html")
+            body=body, to=[o.email for o in self.organizers.all()])
         msg.send()
 
     class Meta:
