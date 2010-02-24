@@ -1,15 +1,18 @@
 {% extends "django_conference/submit_base.html" %}
 {% load display_form %}
 {% block main %}
-<form action="{% url django_conference_submit_paper %}" method="post">
-    <div class="section">
+<form method="post">
+   {% for form in forms %}
+   <div class="section">
        <div class="heading">
           <h3>Paper/Poster Information</h3>
        </div>
        <div class="content">
-          {% display_form paper_form %}
+          {% display_form form %}
        </div>
     </div>
+    <br/>
+    {% endfor %}
     <p><input type="submit" value="Submit"></p>
 </form>
 {% endblock %}

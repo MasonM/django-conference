@@ -2,6 +2,9 @@
 {% load display_form %}
 {% block main %}
 <form action="{% url django_conference_submit_session %}" method="post">
+  {% if error_dict %}
+    {% include "django_conference/errors.html" %}
+  {% endif %}
    <div class="section">
       <div class="heading">
          <h3>Session Information</h3>
@@ -15,6 +18,12 @@
             Fields in bold are required.
          </p>
          {% display_form session_form %}
+         <p>
+           You will be prompted to enter in paper abstracts for this session
+           on the next page. Please remember that sessions with 3 papers must
+           have a commentator. Incomplete session proposals are not eligible
+           for consideration.
+         </p>
       </div>
    </div>
    <br/>

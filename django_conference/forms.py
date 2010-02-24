@@ -302,9 +302,13 @@ class PaperForm(forms.ModelForm):
 
 
 class SessionForm(forms.ModelForm):
+    NUM_PAPERS_RANGE = [(x, x) for x in range(3, 11)]
+    num_papers = forms.ChoiceField(choices=NUM_PAPERS_RANGE, required=True,
+        label="Paper Abstracts")
+
     class Meta:
         model = Session
-        fields = ['title', 'notes', 'abstract']
+        fields = ['title', 'abstract', 'notes', 'num_papers']
 
     def save(self, meeting, submitter, commit=True):
         self.instance.meeting = meeting

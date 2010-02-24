@@ -201,23 +201,18 @@ def submit_session(request):
         prefix="chair")
     commentator_form = SessionCadreForm(request.POST or None,
         prefix="commentator")
+    errors = {}
 
     if request.POST and all(f.is_valid() for f in [session_form,
         organizer_form, chair_form, commentator_form]):
-
-        session = session_form.save(meeting=meeting)
-        organizer = organizer_form.save()
-        session.organizers.add(organizer)
-        chair = chair_form.save()
-        session.chairs.add(chair)
-        if commentator_form.has_entered_info():
-            commentator = commentator_form.save()
-            session.commentators.add(commentator)
-        session.save()
-        session.send_submission_email()
-        kwargs = {'id': session.id}
-        url = reverse('django_conference_submission_success', kwargs=kwargs)
-        return HttpResponseRedirect(url)
+        num_papers = session_form.cleaned_data['num_papers']
+        if int(num_papers) == 3 and not commentator_form.has_entered_info():
+            errors = {'Paper Abstracts': ['Sessions with 3 papers '+\
+                'must have a commentator.']}
+        else:
+            request.session['session_data'] = pickle.dumps(request.POST)
+            url = reverse('django_conference_submit_session_papers')
+            return HttpResponseRedirect(url)
 
     return render_to_response('django_conference/submit_session.html', {
         'session_form': session_form,
@@ -226,6 +221,56 @@ def submit_session(request):
         'commentator_form': commentator_form,
         'meeting': meeting,
         'contact_email': settings.DJANGO_CONFERENCE_CONTACT_EMAIL,
+        'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
+        'error_dict': errors.items(),
+    })
+
+
+@login_required
+def submit_session_papers(request):
+    meeting = Meeting.objects.latest()
+    if not meeting.can_submit_session() or \
+        'session_data' not in request.session:
+        return HttpResponseRedirect(reverse("django_conference_home"))
+
+    session_data = pickle.loads(request.session['session_data'])
+    num = int(session_data['num_papers'])
+    forms = []
+    for i in range(num):
+        form = PaperForm(request.POST or None, prefix=i)
+        forms.append(form)
+
+    if request.POST and all([x.is_valid() for x in forms]):
+        session_form = SessionForm(session_data)
+        session = session_form.save(meeting=meeting, submitter=request.user)
+
+        organizer_form = SessionCadreForm(session_data)
+        organizer = organizer_form.save()
+        session.organizers.add(organizer)
+
+        chair_form = SessionCadreForm(session_data, prefix="chair")
+        chair = chair_form.save()
+        session.chairs.add(chair)
+
+        commentator_form = SessionCadreForm(session_data, prefix="commentator")
+        commentator_form.is_valid()
+        if commentator_form.has_entered_info():
+            commentator = commentator_form.save()
+            session.commentators.add(commentator)
+
+        for paper_form in forms:
+            paper = paper_form.save(request.user)
+            session.papers.add(paper)
+
+        session.save()
+        session.send_submission_email()
+        kwargs = {'id': session.id}
+        url = reverse('django_conference_submission_success', kwargs=kwargs)
+        return HttpResponseRedirect(url)
+
+    return render_to_response('django_conference/submit_paper.html', {
+        'forms': forms,
+        'meeting': meeting,
         'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
     })
 
@@ -258,7 +303,7 @@ def submit_paper(request):
         return HttpResponseRedirect(url)
 
     return render_to_response('django_conference/submit_paper.html', {
-        'paper_form': paper_form,
+        'forms': [paper_form],
         'meeting': meeting,
         'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
     })
