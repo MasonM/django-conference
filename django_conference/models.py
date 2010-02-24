@@ -251,7 +251,8 @@ class Paper(models.Model):
         ('L', 'LCD(PowerPoint)'),
         ('O', 'Overhead Projector'),
     )
-    presenter = models.ForeignKey(user_model)
+    submitter = models.ForeignKey(user_model, blank=True, null=True)
+    presenter = models.CharField(max_length=255)
     title = models.CharField(max_length=300)
     abstract = models.TextField()
     coauthor = models.CharField(max_length=255, blank=True)

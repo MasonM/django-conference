@@ -70,7 +70,7 @@ class SessionsWidget(forms.CheckboxSelectMultiple):
                             <strong>%s Papers</strong>
                             <ul class="papers">""" % expand_img)
                 output.extend([u'<li><em>%s</em>, %s</li>' %
-                    (unicode(p), p.presenter.get_full_name())
+                    (unicode(p), p.presenter)
                     for p in session.papers.all()])
                 output.append(u'</ul>')
             output.append(u"""
@@ -285,7 +285,7 @@ class SessionCadreForm(forms.ModelForm):
 class PaperForm(forms.ModelForm):
     class Meta:
         model = Paper
-        exclude = ['creation_time', 'presenter', 'accepted', 'sessions']
+        exclude = ['creation_time', 'submitter', 'accepted', 'sessions']
 
     def clean_paper_abstract(self):
         data = self.cleaned_data['paper_abstract']
@@ -296,8 +296,8 @@ class PaperForm(forms.ModelForm):
             raise forms.ValidationError(message % num_words)
         return data
 
-    def save(self, presenter, commit=True):
-        self.instance.presenter = presenter
+    def save(self, submitter, commit=True):
+        self.instance.submitter = submitter
         return super(PaperForm, self).save(commit)
 
 

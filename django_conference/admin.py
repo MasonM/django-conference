@@ -118,17 +118,18 @@ admin.site.register(SessionCadre, SessionCadreAdmin)
 
 class PaperAdmin(admin.ModelAdmin):
     fieldsets = [
-        (None, {'fields': ['title', 'abstract', 'presenter', 'accepted']}),
+        (None, {'fields': ['title', 'abstract', 'submitter', 'presenter',
+            'accepted']}),
         ('Additional Info', {
             'fields': ['coauthor', 'is_poster', 'av_info', 'notes',
                        'previous_meetings', 'sessions'],
         }),
     ]
-    list_display = ('title', 'presenter', 'is_poster', 'accepted',
+    list_display = ('title', 'submitter', 'presenter', 'is_poster', 'accepted',
         'av_info', 'creation_time')
     list_filter = ['accepted', 'is_poster']
-    search_fields = ['title', 'presenter__first_name', 'presenter__last_name',
-        'presenter__email', 'abstract', 'notes', 'coauthor']
+    search_fields = ['title', 'presenter', 'notes', 'submitter__first_name',
+        'submitter__last_name', 'submitter__email', 'abstract', 'coauthor']
     date_hierarchy = 'creation_time'
     filter_horizontal = ['previous_meetings', 'sessions']
     ordering = ['title']

@@ -247,6 +247,7 @@ def submit_paper(request):
     meeting = Meeting.objects.latest()
     if not meeting.can_submit_paper():
         return HttpResponseRedirect(reverse("django_conference_home"))
+
     paper_form = PaperForm(request.POST or None)
 
     if request.POST and paper_form.is_valid():
@@ -275,9 +276,9 @@ def edit_paper(request, paper_id):
         return HttpResponseRedirect(reverse("django_conference_home"))
     notice = ""
     paper_form = None
-    if paper.presenter != request.user:
+    if paper.submitter != request.user:
         email = settings.DJANGO_CONFERENCE_CONTACT_EMAIL
-        notice = 'According to our records, you are not the presenter for '+\
+        notice = 'According to our records, you are not the submitter for '+\
             'the paper "%s" and thus may not edit it. If you believe this '+\
             'to be an error, please contact <a href="mailto:%s">%s</a>.'
         notice = notice % (unicode(paper), email, email)
