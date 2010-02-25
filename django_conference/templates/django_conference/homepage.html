@@ -12,21 +12,35 @@
 {% if meeting.registration_active %}
     <a href="{% url django_conference_register %}">Register for the Meeting</a>
 {% else %}
-    Deadline for registration is over
+  {% if reg_deadline_passed %}
+    The deadline for registration is over
+  {% else %}
+    Registration will open {{meeting.reg_start|date}}.
+  {% endif %}
 {% endif %}
 </p>
 <p>
 {% if meeting.can_submit_paper %}
     <a href="{% url django_conference_submit_paper %}">Submit Paper or Poster</a>
 {% else %}
-    Deadline for Paper/Poster submission is over
+  {% if paper_deadline_passed %}
+    The deadline for paper/poster submission is over
+  {% else %}
+    Paper submissions will be accepted starting
+    {{meeting.paper_submission_start|date}}.
+  {% endif %}
 {% endif %}
 </p>
 <p>
 {% if meeting.can_submit_session %}
     <a href="{% url django_conference_submit_session %}">Submit Session</a>
 {% else %}
-    Deadline for Session submission is over
+  {% if paper_deadline_passed %}
+    The deadline for session submission is over
+  {% else %}
+    Sessions submissions will be accepted starting
+    {{meeting.session_submission_start|date}}.
+  {% endif %}
 </p>
 {% endif %}
 {% endblock %}

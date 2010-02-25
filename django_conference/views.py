@@ -1,5 +1,6 @@
 import pickle
 from decimal import Decimal
+from datetime import datetime, date
 
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, get_object_or_404
@@ -341,7 +342,14 @@ def edit_paper(request, paper_id):
 
 
 def homepage(request):
+    meeting = Meeting.objects.latest()
+    reg_deadline_passed = date.today() > meeting.reg_deadline
+    session_deadline_passed = datetime.now() > meeting.session_submission_end
+    paper_deadline_passed = datetime.now() > meeting.paper_submission_end
     return render_to_response('django_conference/homepage.html', {
-        'meeting': Meeting.objects.latest(),
+        'meeting': meeting,
         'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
+        'reg_deadline_passed': reg_deadline_passed,
+        'session_deadline_passed': session_deadline_passed,
+        'paper_deadline_passed': paper_deadline_passed,
     })
