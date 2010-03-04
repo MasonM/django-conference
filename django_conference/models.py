@@ -282,7 +282,7 @@ class Paper(models.Model):
             "paper": self,
         })
         msg = EmailMultiAlternatives(subject=subject, from_email=sender,
-            body=text, to=[self.presenter.email])
+            body=body, to=[self.submitter.email])
         msg.send()
 
 
