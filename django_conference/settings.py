@@ -130,3 +130,11 @@ Example:
 DJANGO_CONFERENCE_ADMIN_TASKS = getattr(settings,
     'DJANGO_CONFERENCE_ADMIN_TASKS',
     [])
+
+
+"""
+Limit for the number of words (determined by splitting on spaces) abstracts may
+have. Default is zero, which means no limit.
+"""
+DJANGO_CONFERENCE_ABSTRACT_MAX_WORDS = getattr(settings,
+    'DJANGO_CONFERENCE_ABSTRACT_MAX_WORDS', 0)

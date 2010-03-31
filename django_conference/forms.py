@@ -282,26 +282,38 @@ class SessionCadreForm(forms.ModelForm):
         model = SessionCadre
 
 
-class PaperForm(forms.ModelForm):
+class AbstractForm(forms.ModelForm):
+    """
+    Base form for models that contain abstracts
+    """
+    def __init__(self, *args, **kwargs):
+        super(AbstractForm, self).__init__(*args, **kwargs)
+        max_words = settings.DJANGO_CONFERENCE_ABSTRACT_MAX_WORDS
+        if max_words > 0:
+            self.fields['abstract'].help_text = "%i words maximum" % max_words
+
+    def clean_abstract(self):
+        data = self.cleaned_data['abstract']
+        num_words = len(data.split())
+        max_words = settings.DJANGO_CONFERENCE_ABSTRACT_MAX_WORDS
+        if num_words > max_words:
+            message = "Abstract can contain a maximum of %i words. "+\
+                      "You supplied %i words."
+            raise forms.ValidationError(message % (max_words, num_words))
+        return data
+
+
+class PaperForm(AbstractForm):
     class Meta:
         model = Paper
         exclude = ['creation_time', 'submitter', 'accepted', 'sessions']
-
-    def clean_paper_abstract(self):
-        data = self.cleaned_data['paper_abstract']
-        num_words = len(data.split())
-        if num_words > 250:
-            message = "Abstract can contain max 250 words. "+\
-                      "You supplied %i words."
-            raise forms.ValidationError(message % num_words)
-        return data
 
     def save(self, submitter, commit=True):
         self.instance.submitter = submitter
         return super(PaperForm, self).save(commit)
 
 
-class SessionForm(forms.ModelForm):
+class SessionForm(AbstractForm):
     NUM_PAPERS_RANGE = [(x, x) for x in range(3, 11)]
     num_papers = forms.ChoiceField(choices=NUM_PAPERS_RANGE, required=True,
         label="Paper Abstracts")
