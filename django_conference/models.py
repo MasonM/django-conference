@@ -587,6 +587,12 @@ class Session(models.Model):
     def __unicode__(self):
         return self.title
 
+    def enumerate_papers(self):
+        """
+        Returns enumerator for the papers associated with this session
+        """
+        return enumerate(self.papers.all())
+
     def get_time_slot_string(self):
         # If both the starting and ending times are on the same day,
         # then use the format "Sunday, 07:00-07:45 PM", else use
