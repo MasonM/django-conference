@@ -591,7 +591,8 @@ class Session(models.Model):
         """
         Returns enumerator for the papers associated with this session
         """
-        return enumerate(self.papers.all())
+        return enumerate(self.papers.all()
+            .order_by('submitter__last_name', 'submitter__first_name'))
 
     def get_time_slot_string(self):
         # If both the starting and ending times are on the same day,
