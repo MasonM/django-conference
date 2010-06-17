@@ -259,9 +259,12 @@ def submit_session_papers(request):
             commentator = commentator_form.save()
             session.commentators.add(commentator)
 
+        position = 1
         for paper_form in forms:
             paper = paper_form.save(request.user)
-            session.papers.add(paper)
+            SessionPapers.objects.create(session=session, paper=paper,
+                position=position)
+            position += 1
 
         session.save()
         session.send_submission_email()

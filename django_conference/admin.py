@@ -5,7 +5,7 @@ from django_conference import settings
 from django_conference.models import (DonationType, ExtraType, Meeting,
     MeetingDonation, MeetingExtra, MeetingInstitution, Paper, Registration,
     RegistrationDonation, RegistrationExtra, RegistrationGuest,
-    RegistrationOption, Session, SessionCadre)
+    RegistrationOption, Session, SessionCadre, SessionPapers)
 
 
 admin.site.register(DonationType)
@@ -116,22 +116,26 @@ class SessionCadreAdmin(admin.ModelAdmin):
 admin.site.register(SessionCadre, SessionCadreAdmin)
 
 
+class SessionPapersInline(admin.TabularInline):
+    model = SessionPapers
+    extra = 3
 class PaperAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ['title', 'abstract', 'submitter', 'presenter',
             'accepted']}),
         ('Additional Info', {
             'fields': ['coauthor', 'is_poster', 'av_info', 'notes',
-                       'previous_meetings', 'sessions'],
+                       'previous_meetings'],
         }),
     ]
     list_display = ('title', 'submitter', 'presenter', 'is_poster', 'accepted',
         'av_info', 'creation_time')
+    inlines = [SessionPapersInline]
     list_filter = ['accepted', 'is_poster']
     search_fields = ['title', 'presenter', 'notes', 'submitter__first_name',
         'submitter__last_name', 'submitter__email', 'abstract', 'coauthor']
     date_hierarchy = 'creation_time'
-    filter_horizontal = ['previous_meetings', 'sessions']
+    filter_horizontal = ['previous_meetings']
     ordering = ['title']
 admin.site.register(Paper, PaperAdmin)
 
@@ -145,8 +149,7 @@ class SessionAdmin(admin.ModelAdmin):
             'fields': ['submitter', 'chairs', 'organizers', 'commentators']
         }),
         ('Additional Info', {
-            'fields': ['room_no', 'start_time', 'stop_time', 'notes',
-                       'papers']
+            'fields': ['room_no', 'start_time', 'stop_time', 'notes']
         }),
     ]
     search_fields = ('title', 'abstract', 'notes', 'papers__title',
@@ -154,7 +157,8 @@ class SessionAdmin(admin.ModelAdmin):
         'chairs__first_name', 'chairs__last_name', 'chairs__institution',
         'submitter__first_name', 'submitter__last_name')
     ordering = ['title']
-    filter_horizontal = ['papers', 'chairs', 'organizers', 'commentators']
+    inlines = [SessionPapersInline]
+    filter_horizontal = ['chairs', 'organizers', 'commentators']
     list_display = ('title', 'submitter', 'meeting', 'accepted',
         'get_chair_string', 'start_time', 'stop_time', 'creation_time')
     list_filter = ['meeting', 'accepted']

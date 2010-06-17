@@ -234,16 +234,6 @@ class Meeting(models.Model):
         ordering = ['start_date']
 
 
-class ManyToManyField_NoTable(models.ManyToManyField):
-    """
-    A Many2Many field that doesn't result in the creation of a new table.
-    Allows having a Many2Many relation on both tables involved.
-    """
-    def __init__(self, *args, **kwargs):
-        super(ManyToManyField_NoTable, self).__init__(*args, **kwargs)
-        self.creates_table = False
-
-
 class Paper(models.Model):
     AV_CHOICES = (
         ('N', 'None'),
@@ -266,8 +256,7 @@ class Paper(models.Model):
         limit_choices_to=Meeting.get_past_meetings(),
         verbose_name="Presented at the following past meetings")
     creation_time = models.DateTimeField(auto_now_add=True, editable=False)
-    sessions = ManyToManyField_NoTable("Session", blank=True,
-        db_table="django_conference_session_papers")
+    sessions = models.ManyToManyField("Session", blank=True, through="SessionPapers")
 
     def __unicode__(self):
         return self.title
@@ -582,7 +571,7 @@ class Session(models.Model):
         related_name="sessions_organized")
     commentators = models.ManyToManyField(SessionCadre, blank=True,
         related_name="sessions_commentated")
-    papers = models.ManyToManyField("Paper", blank=True)
+    papers = models.ManyToManyField("Paper", blank=True, through="SessionPapers")
 
     def __unicode__(self):
         return self.title
@@ -622,3 +611,12 @@ class Session(models.Model):
 
     class Meta:
         ordering = ['-meeting', 'start_time', 'stop_time']
+
+
+class SessionPapers(models.Model):
+    session = models.ForeignKey(Session)
+    paper = models.ForeignKey(Paper)
+    position = models.PositiveSmallIntegerField()
+
+    def __unicode__(self):
+        return "session paper #%i" % self.position
