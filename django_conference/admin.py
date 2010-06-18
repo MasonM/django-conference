@@ -152,9 +152,8 @@ class SessionAdmin(admin.ModelAdmin):
             'fields': ['room_no', 'start_time', 'stop_time', 'notes']
         }),
     ]
-    search_fields = ('title', 'abstract', 'notes', 'papers__title',
-        'papers__abstract', 'papers__coauthor', 'papers__notes',
-        'chairs__first_name', 'chairs__last_name', 'chairs__institution',
+    search_fields = ('title', 'abstract', 'notes', 'chairs__first_name',
+        'chairs__last_name', 'chairs__institution',
         'submitter__first_name', 'submitter__last_name')
     ordering = ['title']
     inlines = [SessionPapersInline]
