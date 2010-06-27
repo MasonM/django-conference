@@ -609,6 +609,16 @@ class Session(models.Model):
             body=body, to=[o.email for o in self.organizers.all()])
         msg.send()
 
+    def save(self):
+        """
+        When a session is saved, all papers should have their "accepted" field
+        adjusted accordingly
+        """
+        super(Session, self).save()
+        for paper in self.papers.all():
+            paper.accepted = self.accepted
+            paper.save()
+
     class Meta:
         ordering = ['-meeting', 'start_time', 'stop_time']
 
