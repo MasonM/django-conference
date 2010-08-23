@@ -10,16 +10,6 @@ DJANGO_CONFERENCE_MEDIA_ROOT = getattr(settings,
 
 
 """
-Django-conference stores all e-mails as HTML and uses a text-browser to
-convert them to text. The default is W3M, but Elinks would also work well.
-Here's the command string for ELinks: elinks -force-html -stdin -dump -no-home
-"""
-DJANGO_CONFERENCE_HTML2TEXT_CMD = getattr(settings,
-    'DJANGO_CONFERENCE_HTML2TEXT_CMD',
-    'w3m -dump -T text/html -cols 80 -O ascii')
-
-
-"""
 Contact e-mail address used to set the "From" address for e-mails sent by
 the system and for various "contact us for help" links.
 """

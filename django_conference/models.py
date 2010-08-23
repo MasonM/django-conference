@@ -5,10 +5,9 @@ import re
 from django.db import models
 from django.db.models import Q
 from django.db.models import get_model
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
 
-from django_conference.templatetags import html2text
 from django_conference import settings
 
 
@@ -432,15 +431,13 @@ class Registration(models.Model):
         contain both an HTML and text version.
         """
         subject = unicode(self.meeting.start_date.year)+" Meeting Registration"
-        html = render_to_string("django_conference/register_email.html", {
+        text = render_to_string("django_conference/register_email.html", {
             "meeting": self.meeting,
             "registration": self,
         })
-        text = html2text.html2text(html)
         sender = settings.DJANGO_CONFERENCE_CONTACT_EMAIL
-        msg = EmailMultiAlternatives(subject=subject, body=text,
+        msg = EmailMessage(subject=subject, body=text,
             from_email=sender, to=[self.registrant.email])
-        msg.attach_alternative(html, "text/html")
         msg.send()
 
     def has_special_needs(self):
