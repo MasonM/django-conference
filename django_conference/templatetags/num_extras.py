@@ -24,13 +24,31 @@ def num_extras(registration, extra_type_name):
         return 0
 
 
-@register.simple_tag
-def has_extra(registration, extra_type_name):
+@register.tag
+def has_extra(parser, token):
     """
     Same as num_extras, except it returns "Yes" if given registration includes
-    one or more of the given extra_type, else returns "No"
+    one or more of one of the given extra_type, else returns "No"
     """
-    num = num_extras(registration, extra_type_name)
-    if num > 0:
-        return "Yes"
-    return "No" 
+    args = token.split_contents()[1:]
+    if len(args) < 2:
+        raise template.TemplateSyntaxError, "has_extra takes at least 2 args"
+    return HasExtraNode(args[0], [arg[1:-1] for arg in args[1:]])
+
+
+class HasExtraNode(template.Node):
+    def __init__(self, registration, extras):
+        self.registration = template.Variable(registration)
+        self.extras = extras
+
+    def render(self, context):
+        try:
+            registration = self.registration.resolve(context)
+        except template.VariableDoesNotExist:
+            return 'No'
+
+        for extra_type_name in self.extras:
+            num = num_extras(registration, extra_type_name)
+            if num > 0:
+                return "Yes"
+        return "No" 
