@@ -228,8 +228,13 @@ class MeetingDonations(forms.Form):
         for donation in donations:
             field = donation.donate_type
             self.fields[field.name] = forms.DecimalField(required=False,
-                decimal_places=2, min_value=Decimal("0.0"), max_digits=6,
-                label=field.label, help_text=donation.help_text, initial=0)
+                widget = self.MoneyWidget(), decimal_places=2,
+                min_value=Decimal("0.0"), max_digits=6, label=field.label,
+                help_text=donation.help_text, initial=0)
+
+    class MoneyWidget(forms.TextInput):
+        def render(self, *args, **kwargs):
+            return '$' + super(self.__class__, self).render(*args, **kwargs)
 
     def get_donations(self):
         """
