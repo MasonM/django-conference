@@ -37,7 +37,8 @@ class FormFieldNode(template.Node):
             })
         for field in form:
             output += u"""
-                <div class='container' id='%s_container'>""" % field.auto_id
+                <div class='container %s' id='%s_container'>""" % (
+                    field.name, field.auto_id)
             if field.field.required:
                 output += u"<b>%s</b>" % field.label_tag(field.label)
             else:

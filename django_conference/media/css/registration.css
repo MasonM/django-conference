@@ -101,6 +101,20 @@ ol#session_time_slots li .session_details {
 #content ol#session_time_slots li .session_details ul {
   margin-top: 0;
   margin-bottom: 0;
+} 
+
+.prior_sundays.container {
+  padding: 10px 0;
+}
+
+
+.prior_sundays.container label {
+  float: none;
+}
+
+
+.prior_sundays.container select {
+  display: block;
 }
 
 /* admin styles */
@@ -108,3 +122,5 @@ table.stats {
   display: inline;
   padding: 3px;
 }
+
+

@@ -239,6 +239,12 @@ class Paper(models.Model):
         ('L', 'LCD(PowerPoint)'),
         ('O', 'Overhead Projector'),
     )
+    PRIOR_SUNDAY_CHOICES = (
+        ('0', 0),
+        ('1', 1),
+        ('2', 2),
+        ('M','More'),
+    )
     submitter = models.ForeignKey(user_model, blank=True, null=True)
     presenter = models.CharField(max_length=255)
     presenter_email = models.EmailField(max_length=100)
@@ -255,6 +261,10 @@ class Paper(models.Model):
         related_name="meeting_papers",
         limit_choices_to=Meeting.get_past_meetings(),
         verbose_name="Presented at the following past meetings")
+    prior_sundays = models.CharField(default='0', max_length=1, blank=False,
+        choices=PRIOR_SUNDAY_CHOICES, verbose_name="How many times over the "+\
+        "past 5 years have you been assigned to a Sunday morning slot on "+\
+        "the program?")
     creation_time = models.DateTimeField(auto_now_add=True, editable=False)
     sessions = models.ManyToManyField("Session", blank=True, through="SessionPapers")
 
