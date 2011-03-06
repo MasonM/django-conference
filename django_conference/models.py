@@ -241,6 +241,7 @@ class Paper(models.Model):
     )
     submitter = models.ForeignKey(user_model, blank=True, null=True)
     presenter = models.CharField(max_length=255)
+    presenter_email = models.EmailField(max_length=100)
     title = models.CharField(max_length=300)
     abstract = models.TextField()
     coauthor = models.CharField(max_length=255, blank=True)

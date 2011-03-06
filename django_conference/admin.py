@@ -122,7 +122,7 @@ class SessionPapersInline(admin.TabularInline):
 class PaperAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ['title', 'abstract', 'submitter', 'presenter',
-            'accepted']}),
+            'presenter_email', 'accepted']}),
         ('Additional Info', {
             'fields': ['coauthor', 'is_poster', 'av_info', 'notes',
                        'previous_meetings'],
