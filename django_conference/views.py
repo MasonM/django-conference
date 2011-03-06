@@ -11,7 +11,8 @@ from django_conference import settings
 from django_conference.forms import (PaperForm, MeetingSessions,
     MeetingRegister, MeetingExtras, MeetingDonations, SessionForm,
     SessionCadreForm, PaymentForm)
-from django_conference.models import Meeting, Registration, Paper
+from django_conference.models import (Meeting, Registration, Paper,
+    SessionPapers)
 
 
 class RegistrationContainer(object):

@@ -262,14 +262,14 @@ class Paper(models.Model):
 
     def send_submission_email(self):
         """
-        Sends e-mail notifying presenter of the submission.
+        Sends e-mail notifying submitter of the submission.
         """
         subject = 'Paper Submission Confirmation'
         sender = settings.DJANGO_CONFERENCE_CONTACT_EMAIL
-        body = render_to_string("django_conference/submit_paper_email.html", {
+        body = render_to_string("django_conference/submit_paper_email.txt", {
             "paper": self,
         })
-        msg = EmailMultiAlternatives(subject=subject, from_email=sender,
+        msg = EmailMessage(subject=subject, from_email=sender,
             body=body, to=[self.submitter.email])
         msg.send()
 
@@ -602,7 +602,7 @@ class Session(models.Model):
         sender = settings.DJANGO_CONFERENCE_CONTACT_EMAIL
         body = render_to_string("django_conference/submit_session_email.html",
             {"session": self})
-        msg = EmailMultiAlternatives(subject=subject, from_email=sender,
+        msg = EmailMessage(subject=subject, from_email=sender,
             body=body, to=[o.email for o in self.organizers.all()])
         msg.send()
 
