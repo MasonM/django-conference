@@ -103,17 +103,17 @@ ol#session_time_slots li .session_details {
   margin-bottom: 0;
 } 
 
-.prior_sundays.container {
+.container_prior_sundays {
   padding: 10px 0;
 }
 
 
-.prior_sundays.container label {
+.container_prior_sundays label {
   float: none;
 }
 
 
-.prior_sundays.container select {
+.container_prior_sundays select {
   display: block;
 }
 
