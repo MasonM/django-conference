@@ -503,10 +503,11 @@ class RegistrationGuest(models.Model):
     Represents guests the registrant is bringing.
     """
     registration = models.ForeignKey(Registration, related_name="guests")
-    name = models.CharField(blank=False, max_length=45)
+    first_name = models.CharField(blank=False, max_length=45)
+    last_name = models.CharField(blank=False, max_length=45)
 
     def __unicode__(self):
-        return self.name
+        return self.first_name + " " + self.last_name
 
 
 class RegistrationDonation(models.Model):

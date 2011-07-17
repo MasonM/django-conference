@@ -126,7 +126,8 @@ class MeetingRegister(forms.Form):
     """
     Main form for meeting registrations.
     """
-    guest_name = forms.CharField(required=False, max_length=45)
+    guest_first_name = forms.CharField(required=False, max_length=45)
+    guest_last_name = forms.CharField(required=False, max_length=45)
     special_needs = forms.CharField(required=False, widget=forms.Textarea)
 
     def __init__(self, meeting, *args, **kwargs):
@@ -151,12 +152,13 @@ class MeetingRegister(forms.Form):
     def get_guest(self):
         """
         Returns unsaved RegistrationGuest object if user entered something
-        for the guest_name field, else returns None.
+        for the guest_first_name field, else returns None.
         """
         clean = self.clean()
-        if not clean.get('guest_name'):
+        if not clean.get('guest_first_name'):
             return None
-        return RegistrationGuest(name=clean['guest_name'])
+        return RegistrationGuest(first_name=clean['guest_first_name'],
+            last_name=clean['guest_last_name'])
 
     def get_registration(self, registrant):
         """
