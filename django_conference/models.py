@@ -324,12 +324,16 @@ class MeetingExtra(models.Model):
     max_quantity = models.PositiveIntegerField(default=1,
         help_text="The maximum of this extra that a registrant can order. "+\
         "If set to 1, it will be shown as a checkbox.")
+    position = models.PositiveSmallIntegerField(default=1,
+        help_text="Used for determining position of the extra on the "+\
+        "registration page")
 
     def __unicode__(self):
         return "%s: %.2f" % (unicode(self.extra_type), self.price)
 
     class Meta:
         unique_together = ('meeting', 'extra_type')
+        ordering = ["meeting", "position"]
 
 
 class DonationType(FieldType):
