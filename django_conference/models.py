@@ -425,11 +425,9 @@ class Registration(models.Model):
         """Calculates total cost for the meeting registration only
            (i.e. without banquets, abstracts, donations added in)"""
         #if we're past the early reg deadline, charge regular price
-        deadline = datetime.combine(
-            self.meeting.early_reg_deadline, time(0))
         if self.date_entered.date() > self.meeting.start_date:
             cost = self.type.onsite_price
-        elif self.date_entered < deadline:
+        elif self.date_entered.date() <= self.meeting.early_reg_deadline:
             cost = self.type.early_price
         else:
             cost = self.type.regular_price
