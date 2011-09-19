@@ -49,7 +49,7 @@ class MeetingAdmin(admin.ModelAdmin):
     change_form_template = "django_conference/meeting_change_form.html"
     fieldsets = (
        ("Location and General Information", {
-           'fields': ('location', 'start_date', 'end_date'),
+           'fields': ('location', 'start_date', 'end_date', 'is_active'),
        }),
        ("Registration Information", {
            'fields': ('reg_start', 'early_reg_deadline', 'reg_deadline'),

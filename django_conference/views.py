@@ -66,7 +66,7 @@ class RegistrationContainer(object):
 
 @login_required
 def register(request):
-    meeting = Meeting.objects.latest()
+    meeting = Meeting.current_or_none()
     if not meeting or not meeting.can_register(request.user):
         #if user can't register, take them back
         return HttpResponseRedirect(settings.LOGIN_URL)
@@ -143,7 +143,7 @@ def payment(request, reg_id=None):
         return HttpResponseRedirect(reverse("django_conference_register"))
     else:
         cont = pickle.loads(request.session['regContainer'])
-        meeting = Meeting.objects.latest()
+        meeting = Meeting.current()
 
     address_form_loc = settings.DJANGO_CONFERENCE_ADDRESS_FORM
     address_form_module = __import__(address_form_loc[0], fromlist=[''])
@@ -193,7 +193,7 @@ def submit_session(request):
     """
     Allows users to submit a session for approval
     """
-    meeting = Meeting.objects.latest()
+    meeting = Meeting.current()
     if not meeting.can_submit_session():
         return HttpResponseRedirect(reverse("django_conference_home"))
 
@@ -230,7 +230,7 @@ def submit_session(request):
 
 @login_required
 def submit_session_papers(request):
-    meeting = Meeting.objects.latest()
+    meeting = Meeting.current()
     if not meeting.can_submit_session() or \
         'session_data' not in request.session:
         return HttpResponseRedirect(reverse("django_conference_home"))
@@ -284,7 +284,7 @@ def submission_success(request, id=None):
     message = 'Your reference number is %s.' % id
     return render_to_response('django_conference/submission_success.html', {
         'message': message,
-        'meeting': Meeting.objects.latest(),
+        'meeting': Meeting.current(),
         'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
     })
 
@@ -294,7 +294,7 @@ def submit_paper(request):
     """
     Allow users to submit a paper for approval
     """
-    meeting = Meeting.objects.latest()
+    meeting = Meeting.current()
     if not meeting.can_submit_paper():
         return HttpResponseRedirect(reverse("django_conference_home"))
 
@@ -346,7 +346,7 @@ def edit_paper(request, paper_id):
 
 
 def homepage(request):
-    meeting = Meeting.objects.latest()
+    meeting = Meeting.current()
     reg_deadline_passed = date.today() > meeting.reg_deadline
     session_deadline_passed = datetime.now() > meeting.session_submission_end
     paper_deadline_passed = datetime.now() > meeting.paper_submission_end
