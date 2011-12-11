@@ -262,9 +262,7 @@ class Paper(models.Model):
         verbose_name="Is this a poster?")
     av_info = models.CharField(max_length=1, blank=True, choices=AV_CHOICES,
         default='N', verbose_name="Audiovisual Requirement")
-    notes = models.TextField(blank=True, help_text="If you would like "+\
-        "your proposal to be considered by SHOT and/or 4S as well, please "+\
-        "indicate it here.")
+    notes = models.TextField(blank=True)
     accepted = models.BooleanField(default=False)
     previous_meetings = models.ManyToManyField(Meeting, blank=True,
         related_name="meeting_papers",

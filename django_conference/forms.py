@@ -146,8 +146,6 @@ class MeetingRegister(forms.Form):
                   str(x.regular_price if early_reg_passed else x.early_price))
                  for x in self.meeting.regoptions.filter(admin_only=False)]
         type_field = forms.ChoiceField(choices=TYPES, required=True,
-            help_text="*Discounted fee for those who paid the full "+\
-            "registration for SHOT and/or 4S and who are presenting at HSS",
             label="Registration Type")
         self.fields.insert(0, 'type', type_field)
 
