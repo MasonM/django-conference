@@ -105,13 +105,15 @@ class Meeting(models.Model):
             return None
 
     @staticmethod
-    def get_past_meetings():
+    def get_past_meetings(years_ago):
         """
-        Returns a Q object which represents all past meetings.
+        Returns a Q object which represents all past meetings for the
+        past years_ago years
         """
         return Q(start_date__lt=date.today()) &\
             Q(end_date__lt=date.today()) &\
-            Q(reg_start__lt=date.today())
+            Q(reg_start__lt=date.today()) &\
+            Q(start_date__gte=date(date.today().year - years_ago, 1, 1))
 
     @meeting_stat
     def get_registration_stats(self):
@@ -267,7 +269,8 @@ class Paper(models.Model):
     accepted = models.BooleanField(default=False)
     previous_meetings = models.ManyToManyField(Meeting, blank=True,
         related_name="meeting_papers",
-        limit_choices_to=Meeting.get_past_meetings(),
+        # only look at past 2 meetings
+        limit_choices_to=Meeting.get_past_meetings(2),
         verbose_name="Presented at the following past meetings")
     prior_sundays = models.CharField(default='0', max_length=1, blank=False,
         choices=PRIOR_SUNDAY_CHOICES, verbose_name="How many times over the "+\
