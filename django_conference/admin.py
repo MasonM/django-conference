@@ -121,20 +121,22 @@ class SessionPapersInline(admin.TabularInline):
     extra = 3
 class PaperAdmin(admin.ModelAdmin):
     fieldsets = [
-        (None, {'fields': ['title', 'abstract', 'submitter', 'presenter',
+        (None, {'fields': ['title', 'abstract', 'submitter',
+            'presenter_first_name', 'presenter_last_name',
             'presenter_email', 'accepted']}),
         ('Additional Info', {
             'fields': ['coauthor', 'is_poster', 'av_info', 'notes',
                 'prior_sundays', 'previous_meetings'],
         }),
     ]
-    list_display = ('title', 'submitter', 'presenter', 'is_poster', 'accepted',
-        'av_info', 'creation_time')
+    list_display = ('title', 'submitter', 'presenter_first_name', 
+        'presenter_last_name', 'is_poster', 'accepted', 'av_info',
+        'creation_time')
     inlines = [SessionPapersInline]
     list_filter = ['accepted', 'is_poster']
-    search_fields = ['title', 'presenter', 'presenter_email', 'notes',
-        'submitter__first_name', 'submitter__last_name', 'submitter__email',
-        'abstract', 'coauthor']
+    search_fields = ['title', 'presenter_first_name', 'presenter_last_name',
+        'presenter_email', 'notes', 'submitter__first_name',
+        'submitter__last_name', 'submitter__email', 'abstract', 'coauthor']
     date_hierarchy = 'creation_time'
     filter_horizontal = ['previous_meetings']
     ordering = ['title']

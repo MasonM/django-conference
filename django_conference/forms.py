@@ -70,7 +70,7 @@ class SessionsWidget(forms.CheckboxSelectMultiple):
                             <strong>%s Papers</strong>
                             <ul class="papers">""" % expand_img)
                 output.extend([u'<li><em>%s</em>, %s</li>' %
-                    (unicode(p), p.presenter)
+                    (unicode(p), p.get_presenter())
                     for p in session.papers.all()])
                 output.append(u'</ul>')
             output.append(u"""

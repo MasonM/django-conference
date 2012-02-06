@@ -253,7 +253,8 @@ class Paper(models.Model):
         ('M','More'),
     )
     submitter = models.ForeignKey(user_model, blank=True, null=True)
-    presenter = models.CharField(max_length=255)
+    presenter_first_name = models.CharField(blank=False, max_length=45)
+    presenter_last_name = models.CharField(blank=False, max_length=45)
     presenter_email = models.EmailField(max_length=100)
     title = models.CharField(max_length=300)
     abstract = models.TextField()
@@ -277,6 +278,9 @@ class Paper(models.Model):
 
     def __unicode__(self):
         return self.title
+
+    def get_presenter(self):
+        return self.presenter_first_name + " " + self.presenter_last_name
 
     def send_submission_email(self):
         """
