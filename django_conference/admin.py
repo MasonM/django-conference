@@ -110,7 +110,7 @@ admin.site.register(Registration, RegistrationAdmin)
 
 
 class SessionCadreAdmin(admin.ModelAdmin):
-    list_display = ('first_name', 'last_name', 'institution', 'email')
+    list_display = ('first_name', 'last_name', 'gender', 'institution', 'email')
     search_fields = ['last_name', 'first_name', 'institution', 'email']
     ordering = ['last_name', 'first_name']
 admin.site.register(SessionCadre, SessionCadreAdmin)
