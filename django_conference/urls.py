@@ -5,7 +5,7 @@ from django_conference import views, admin_tasks
 
 
 urlpatterns = patterns('',
-    url(r'edit_paper/(?P<paper_id>\d+)/',
+    url(r'edit_paper/(?P<paper_id>\d+)',
         views.edit_paper,
         name="django_conference_edit_paper"),
     url(r'submit_paper',

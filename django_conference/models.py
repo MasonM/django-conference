@@ -5,7 +5,7 @@ import re
 from django.db import models
 from django.db.models import Q
 from django.db.models import get_model
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.template.loader import render_to_string
 
 from django_conference import settings
@@ -291,11 +291,15 @@ class Paper(models.Model):
         """
         subject = 'Paper Submission Confirmation'
         sender = settings.DJANGO_CONFERENCE_CONTACT_EMAIL
-        body = render_to_string("django_conference/submit_paper_email.txt", {
+        txt_body = render_to_string("django_conference/submit_paper_email.txt", {
             "paper": self,
         })
-        msg = EmailMessage(subject=subject, from_email=sender,
-            body=body, to=[self.submitter.email])
+        html_body = render_to_string("django_conference/submit_paper_email.html", {
+            "paper": self,
+        })
+        msg = EmailMultiAlternatives(subject=subject, from_email=sender,
+            body=txt_body, to=[self.submitter.email])
+        msg.attach_alternative(html_body, "text/html")
         msg.send()
 
 
