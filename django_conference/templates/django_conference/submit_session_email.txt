@@ -1,3 +1,3 @@
 We have received your session submission titled "{{session.title}}."
 
-Your reference number is S{{session.pk}}.
+Your reference number is {{session.pk}}.
