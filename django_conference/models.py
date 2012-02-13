@@ -628,7 +628,7 @@ class Session(models.Model):
         """
         subject = 'Session Submission Confirmation'
         sender = settings.DJANGO_CONFERENCE_CONTACT_EMAIL
-        body = render_to_string("django_conference/submit_session_email.html",
+        body = render_to_string("django_conference/submit_session_email.txt",
             {"session": self})
         msg = EmailMessage(subject=subject, from_email=sender,
             body=body, to=[o.email for o in self.organizers.all()])
