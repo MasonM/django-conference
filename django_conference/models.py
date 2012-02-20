@@ -570,8 +570,8 @@ class SessionCadre(models.Model):
     institution = models.CharField(max_length=100)
 
     def __unicode__(self):
-        return u"%s %s, %s" % (self.first_name, self.last_name,
-            self.institution)
+        return u"%s %s, %s (%s)" % (self.first_name, self.last_name,
+            self.institution, self.gender)
 
     def get_full_name(self):
         if self.mi:
