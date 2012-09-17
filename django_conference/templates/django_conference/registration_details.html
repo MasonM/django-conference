@@ -10,7 +10,7 @@
   </tr>
   <tr>
     <th align="left">Registration Type:</th>
-    <td>{{registration.type}}</td>
+    <td>{{registration.type}} ({{registration.get_meeting_cost|money_format}})</td>
   </tr>
 {% if registration.guests.count %}
   <tr>
@@ -21,7 +21,7 @@
 {% for extra in registration.regextras.all %}
   <tr>
     <th align="left">{{extra}}:</th>
-    <td>{{extra.quantity}}</td>
+    <td>{{extra.quantity}} @ {{extra.get_price|money_format}}/each</td>
   </tr>
 {% endfor %}
 {% for donation in registration.regdonations.all %}

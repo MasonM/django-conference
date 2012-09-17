@@ -496,8 +496,10 @@ class RegistrationExtra(models.Model):
         null=True, blank=True, decimal_places=2)
 
     def get_total(self):
-        price = self.price if self.price is not None else self.extra.price
-        return Decimal(self.quantity * price)
+        return Decimal(self.quantity * self.get_price())
+
+    def get_price(self):
+        return self.price if self.price is not None else self.extra.price
 
     def is_price_override(self):
         """
