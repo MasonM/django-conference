@@ -580,6 +580,9 @@ class SessionCadre(models.Model):
             return "%s %s %s" % (self.first_name, self.mi, self.last_name)
         return "%s %s" % (self.first_name, self.last_name)
 
+    def get_name_and_email(self):
+        return '"%s %s" <%s>' % (self.first_name, self.last_name, self.email)
+
     class Meta:
         verbose_name_plural = "Session cadre"
 
