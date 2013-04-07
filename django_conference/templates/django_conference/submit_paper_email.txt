@@ -2,4 +2,4 @@ We have received your paper/poster submission titled "{{paper.title}}."
 
 Your reference number is {{paper.pk}}. Go to the following URL to edit your paper/poster submission: https://www.hssweb.org/callforpapers/edit_paper/{{paper.pk}}
 
-No modifications after September 2012 will be accepted.
+No modifications after September 2013 will be accepted.
