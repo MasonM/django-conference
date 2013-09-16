@@ -31,69 +31,19 @@ DJANGO_CONFERENCE_USER_MODEL = getattr(settings,
 
 
 """
-A tuple representing the function to use for performing payment authentication.
-The first element of the tuple should be the package and second should be the
-function name. The function must accept a dictionary of the following form:
-{
-    'address_line1': <first line of address>,
-    'address_line2': <second line of address>,
-    'postal_code': <postal/zip code>,
-    'city': <city>,
-    'state_province': <state or province ISO code>,
-    'country': <country ISO code>,
-    'number': <credit card #>,
-    'holder': <name on credit card>,
-    'expiration': <expiration date as a Python Date object>,
-    'ccv_number': <credit card CCV #>,
-    'total': <total amount to charge as a Decimal object>,
-    'registrant': <User object>,
-    'description': <descriptive string describing registration>,
-}
-The return value should be "success" if the authentication succeeded,
-else an error message.
-
-Here's an example that uses the PyCC Authorize.NET API
-(http://pycc.sourceforge.net/):
-
-def authnet_auth(**kwargs):
-    from AuthorizeNet import AuthNet
-    authorize_net = AuthNet()
-    registrant = kwargs['registration'].registrant
-    authorize_net.data.update({
-        'amount': str(kwargs['registration'].get_total()),
-        'card_num': kwargs['number'],
-        'exp_date': kwargs['expiration'].strftime("%m/%Y"),
-        'card_code': kwargs['ccv_number'],
-        'first_name': registrant.first_name,
-        'last_name': registrant.last_name,
-        'address': kwargs['address_line1']+kwarrgs['address_line2'],
-        'city': kwargs['city'],
-        'state': kwargs['state_province'],
-        'zip': kwargs['postal_code'],
-        'country': kwargs['country'],
-        'email': registrant.email,
-    })
-    authorize_net.execute()
-    if authorize_net.status == '1':
-        return "success"
-    return authorize_net.error
+Publishable key for Stripe
 """
-DJANGO_CONFERENCE_PAYMENT_AUTH_FUNC = getattr(settings,
-    'DJANGO_CONFERENCE_PAYMENT_AUTH_FUNC',
-    None)
+DJANGO_CONFERENCE_STRIPE_PUBLISHABLE_KEY = getattr(settings,
+    'DJANGO_CONFERENCE_STRIPE_PUBLISHABLE_KEY',
+    '')
 
 
 """
-A tuple representing the form to use for billing addresses. The first element
-of the tuple should be package and the second is the class name.
-This is override-able so that sites with their own address models/forms can
-integrate with Django-conference.
-Note that the form must have a save() method and accept a "user" parameter in
-the constructor
+Secret key for Stripe
 """
-DJANGO_CONFERENCE_ADDRESS_FORM = getattr(settings,
-    'DJANGO_CONFERENCE_ADDRESS_FORM',
-    ("django_conference.forms", "AddressForm"))
+DJANGO_CONFERENCE_STRIPE_SECRET_KEY = getattr(settings,
+    'DJANGO_CONFERENCE_STRIPE_SECRET_KEY',
+    '')
 
 
 """

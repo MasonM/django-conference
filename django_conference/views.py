@@ -145,46 +145,34 @@ def payment(request, reg_id=None):
         cont = pickle.loads(request.session['regContainer'])
         meeting = Meeting.current()
 
-    address_form_loc = settings.DJANGO_CONFERENCE_ADDRESS_FORM
-    address_form_module = __import__(address_form_loc[0], fromlist=[''])
-    address_form = getattr(address_form_module, address_form_loc[1])
-
-    if 'payMeeting' in request.POST:
-        payment_data = None
-        address_form = address_form(data=request.POST)
+    if 'stripeToken' in request.POST:
         payment_form = PaymentForm(data=request.POST)
-        if address_form.is_valid():
-            payment_data = address_form.clean()
-            payment_data.update({
-                'total': cont.get_total(),
-                'registrant': request.user,
-                'description': cont.get_description(),
-            })
-            payment_form.payment_data = payment_data
-            if payment_form.is_valid():
-                #save registration and send an e-mail
-                if address_form and address_form.is_valid():
-                    address_form.save(request.user, "B")
-                if reg_id:
-                    url = reverse("django_conference_paysuccess")
-                else:
-                    cont.save()
-                    cont.registration.send_register_email()
-                    del request.session['regContainer']
-                    url = reverse("django_conference_register_success")
-                return HttpResponseRedirect(url)
+        payment_form.payment_data = {
+            'total': cont.get_total(),
+            'description': cont.get_description(),
+            'stripeToken': request.POST['stripeToken'],
+        }
+        if payment_form.is_valid():
+            #save registration and send an e-mail
+            if reg_id:
+                url = reverse("django_conference_paysuccess")
+            else:
+                cont.save()
+                cont.registration.send_register_email()
+                del request.session['regContainer']
+                url = reverse("django_conference_register_success")
+            return HttpResponseRedirect(url)
     else:
         initial_data = request.POST or {}
         payment_form = PaymentForm(initial=initial_data)
-        address_form = address_form(initial=initial_data)
 
     return render_to_response('django_conference/payment.html', {
         'payment_form': payment_form,
-        'address_form': address_form,
         'meeting': meeting,
         'regCont': cont,
         'notice': notice,
         'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
+        'stripe_key': settings.DJANGO_CONFERENCE_STRIPE_PUBLISHABLE_KEY,
     })
 
 

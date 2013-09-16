@@ -2,6 +2,49 @@
 {% load display_form %}
 {% load money_format %}
 {% load show_notice %}
+{% block javascript %}
+<script type="text/javascript" src="{{media_root}}/js/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+<script type="text/javascript">
+Stripe.setPublishableKey("{{stripe_key}}");
+$(function() {
+  var stripeResponseHandler = function(status, response) {
+    var $form = $('#regForm');
+
+    if (response.error) {
+      // Show the errors on the form
+      $form.find('.payment-errors').show().find('.error-text').text(response.error.message);
+      $form.find('input[type=submit]').removeAttr('disabled');
+    } else {
+      // token contains id, last4, and card type
+      var token = response.id;
+      // Insert the token into the form so it gets submitted to the server
+      $form.append($('<input type="hidden" name="stripeToken" />').val(token));
+      // and submit
+      $form.get(0).submit();
+    }
+  };
+  $('#regForm').submit(function(event) {
+    event.preventDefault();
+    var $form = $(this);
+
+    // Disable the submit button to prevent repeated clicks
+    $form.find('input[type=submit]').attr('disabled', 'disabled');
+
+    Stripe.createToken({
+      number: $form.find('input[name=number]').val(),
+      cvc: $form.find('input[name=cvc]').val(),
+      exp_month: $form.find('select[name=expiration_0]').val(),
+      exp_year: $form.find('select[name=expiration_1]').val(),
+      name: $form.find('input[name=holder]').val()
+    }, stripeResponseHandler);
+
+    // Prevent the form from submitting with the default action
+    return false;
+  });
+});
+</script>
+{% endblock %}
 {% block main %}
 <form method="post" id="regForm"
       action="{% url django_conference_payment reg_id=regCont.registration.id%}">
@@ -44,11 +87,16 @@
         </td>
       </tr>
     </table>
+    <br/>
     <div class="section" id="paymentInfo">
       <div class="heading">
         Payment Information
       </div>
       <div class="content">
+        <div class="notice payment-errors">
+          <img alt="Error" src="/registration_media/img/error.gif">
+	  <span class="error-text"></span>
+        </div>
         <p>
           Please enter your credit card information. We accept, Visa, MasterCard,
           and American Express.
@@ -57,18 +105,7 @@
       </div>
     </div>
     <div class="clearer"></div>
-    {% if address_form %}
-      <hr align="left"/>
-      <p>
-        Please enter your credit card billing address. 
-        Fields in bold are required.
-      </p>
-      {% display_form address_form %}
-    {% endif %}
     <br/>
-    {% if not regCont.registration.id %}
-      <input type="submit" name="previous" value="Previous"/>
-    {% endif %}
     <input type="submit" name="payMeeting" value="Submit"/>
   </div>
 </div>

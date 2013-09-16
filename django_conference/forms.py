@@ -2,6 +2,7 @@ from datetime import date, datetime
 from decimal import Decimal
 from calendar import monthrange
 import re
+import stripe
 
 from django import forms
 from django.utils.safestring import mark_safe
@@ -231,8 +232,8 @@ class MeetingDonations(forms.Form):
             field = donation.donate_type
             self.fields[field.name] = forms.DecimalField(required=False,
                 widget = self.MoneyWidget(), decimal_places=2,
-                min_value=Decimal("0.0"), max_digits=6, label=field.label,
-                help_text=donation.help_text, initial=0)
+                min_value=Decimal("0.0"), max_digits=6,
+                label=field.label, help_text=donation.help_text, initial=0)
 
     class MoneyWidget(forms.TextInput):
         def render(self, *args, **kwargs):
@@ -335,47 +336,6 @@ class SessionForm(AbstractForm):
         return super(SessionForm, self).save(commit)
 
 
-class CreditCardField(forms.IntegerField):
-    @staticmethod
-    def get_cc_type(number):
-        """
-        Gets credit card type given number. Based on values from Wikipedia page
-        "Credit card number".
-        http://en.wikipedia.org/w/index.php?title=Credit_card_number
-        """
-        number = str(number)
-        #group checking by ascending length of number
-        if len(number) == 13:
-            if number[0] == "4":
-                return "Visa"
-        elif len(number) == 14:
-            if number[:2] == "36":
-                return "MasterCard"
-        elif len(number) == 15:
-            if number[:2] in ("34", "37"):
-                return "American Express"
-        elif len(number) == 16:
-            if number[:4] == "6011":
-                return "Discover"
-            if number[:2] in ("51", "52", "53", "54", "55"):
-                return "MasterCard"
-            if number[0] == "4":
-                return "Visa"
-        return "Unknown"
-
-    def clean(self, value):
-        """Check if given CC number is valid and one of the
-           card types we accept"""
-        if value and (len(value) < 13 or len(value) > 16):
-            raise forms.ValidationError("Please enter in a valid "+\
-                "credit card number.")
-        elif self.get_cc_type(value) not in ("Visa", "MasterCard",
-                                             "American Express"):
-            raise forms.ValidationError("Please enter in a Visa, "+\
-                "Master Card, or American Express credit card number.")
-        return super(CreditCardField, self).clean(value)
-
-
 class CCExpWidget(forms.MultiWidget):
     """ Widget containing two select boxes for selecting the month and year"""
     def decompress(self, value):
@@ -387,7 +347,7 @@ class CCExpWidget(forms.MultiWidget):
 
 
 class CCExpField(forms.MultiValueField):
-    EXP_MONTH = [(x, x) for x in xrange(1, 13)]
+    EXP_MONTH = [(str(x).rjust(2, "0"), x) for x in xrange(1, 13)]
     EXP_YEAR = [(x, x) for x in xrange(date.today().year,
                                        date.today().year + 15)]
     default_error_messages = {
@@ -433,11 +393,11 @@ class CCExpField(forms.MultiValueField):
 
 
 class PaymentForm(forms.Form):
-    number = CreditCardField(required = True, label = "Card Number")
+    number = forms.IntegerField(required = True, label = "Card Number")
     holder = forms.CharField(required = True, label = "Card Holder Name",
         max_length = 60)
     expiration = CCExpField(required = True, label = "Expiration")
-    ccv_number = forms.RegexField(required = True, label = "CCV Number",
+    cvc = forms.RegexField(required = True, label = "CVC Number",
         regex = r'^\d{2,4}$', widget = forms.TextInput(attrs={'size': '4'}))
 
     def __init__(self, *args, **kwargs):
@@ -463,28 +423,21 @@ class PaymentForm(forms.Form):
         return cleaned
 
     def process_payment(self):
-        auth_func_loc = settings.DJANGO_CONFERENCE_PAYMENT_AUTH_FUNC
-        if not self.payment_data or not auth_func_loc:
+        if not self.payment_data or 'stripeToken' not in self.payment_data:
             return False
-        auth_func_module = __import__(auth_func_loc[0], fromlist=[''])
-        auth_func = getattr(auth_func_module, auth_func_loc[1])
-        datadict = self.cleaned_data
-        datadict.update(self.payment_data)
-        return auth_func(**datadict)
-
-
-class AddressForm(forms.Form):
-    address_line1 = forms.CharField(required=True, max_length=45)
-    address_line2 = forms.CharField(required=False, max_length=45)
-    city = forms.CharField(required=True, max_length=50)
-    country = forms.CharField(required=True, max_length=2, initial = "US")
-    state_province = forms.CharField(required = False, max_length = 40,
-        label = "State/Province")
-    city = forms.CharField(required = True, max_length = 50)
-    postal_code = forms.CharField(required = True, max_length = 10)
-
-    def __init_(self, user, *args, **kwargs):
-        super(AddressForm, self).__init__(*args, **kwargs)
-
-    def save(self, *args, **kwargs):
-        pass
+        stripe.api_key = settings.DJANGO_CONFERENCE_STRIPE_SECRET_KEY
+        two_places = Decimal('0.01')
+        total_rounded = self.payment_data['total'].quantize(two_places)
+        total_cents = str(total_rounded).replace('.', '')
+        # Create the charge on Stripe's servers - this will charge the user's card
+        try:
+            charge = stripe.Charge.create(
+                currency="usd",
+                amount=total_cents,
+                card=self.payment_data['stripeToken'],
+                description=self.payment_data['description'],
+            )
+            return 'success'
+        except stripe.CardError, e:
+          # The card has been declined
+            return unicode(e)
