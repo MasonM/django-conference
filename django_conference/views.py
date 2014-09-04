@@ -145,13 +145,13 @@ def payment(request, reg_id=None):
         cont = pickle.loads(request.session['regContainer'])
         meeting = Meeting.current()
 
+    payment_error = ''
     if 'stripeToken' in request.POST:
-        payment_form = PaymentForm(data=request.POST)
-        payment_form.payment_data = {
+        payment_form = PaymentForm({
             'total': cont.get_total(),
             'description': cont.get_description(),
             'stripeToken': request.POST['stripeToken'],
-        }
+        })
         if payment_form.is_valid():
             #save registration and send an e-mail
             if reg_id:
@@ -162,12 +162,11 @@ def payment(request, reg_id=None):
                 del request.session['regContainer']
                 url = reverse("django_conference_register_success")
             return HttpResponseRedirect(url)
-    else:
-        initial_data = request.POST or {}
-        payment_form = PaymentForm(initial=initial_data)
+        else:
+            payment_error = payment_form.last_error
 
     return render_to_response('django_conference/payment.html', {
-        'payment_form': payment_form,
+        'payment_error': payment_error,
         'meeting': meeting,
         'regCont': cont,
         'notice': notice,

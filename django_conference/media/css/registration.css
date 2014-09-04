@@ -35,7 +35,7 @@
   padding: 0;
 }
 
-.payment-errors {
+.payment-errors.no-error {
   display: none;
  }
 

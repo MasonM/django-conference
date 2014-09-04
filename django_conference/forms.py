@@ -392,35 +392,26 @@ class CCExpField(forms.MultiValueField):
         return None
 
 
-class PaymentForm(forms.Form):
-    number = forms.IntegerField(required = True, label = "Card Number")
-    holder = forms.CharField(required = True, label = "Card Holder Name",
-        max_length = 60)
-    expiration = CCExpField(required = True, label = "Expiration")
-    cvc = forms.RegexField(required = True, label = "CVC Number",
-        regex = r'^\d{2,4}$', widget = forms.TextInput(attrs={'size': '4'}))
+class PaymentForm:
+    def __init__(self, payment_data):
+        self.last_error = ''
+        self.payment_data = payment_data
 
-    def __init__(self, *args, **kwargs):
-        self.payment_data = kwargs.pop('payment_data', None)
-        super(PaymentForm, self).__init__(*args, **kwargs)
-
-    def clean(self):
-        cleaned = super(PaymentForm, self).clean()
-        if not self.errors:
-            result = self.process_payment()
-            if not result:
-                email = settings.DJANGO_CONFERENCE_CONTACT_EMAIL
-                err = u"""
-                    We encountered an error while processing your credit card.
-                    Please contact <a href="mailto:%s">%s</a> for assistance.
-                """
-                err = mark_safe(err % (email, email))
-                raise forms.ValidationError(err)
-            elif result != 'success':
-                raise forms.ValidationError(
-                    u'We encountered the following error while processing '+\
-                    u'your credit card: '+result)
-        return cleaned
+    def is_valid(self):
+        result = self.process_payment()
+        if not result:
+            email = settings.DJANGO_CONFERENCE_CONTACT_EMAIL
+            error = u"""
+                We encountered an error while processing your credit card.
+                Please contact <a href="mailto:%s">%s</a> for assistance.
+            """
+            self.last_error = mark_safe(error % (email, email))
+            return False
+        elif result != 'success':
+            self.last_error = u'We encountered the following error while '+\
+                u'processing your credit card: '+result
+            return False
+        return True
 
     def process_payment(self):
         if not self.payment_data or 'stripeToken' not in self.payment_data:

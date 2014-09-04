@@ -31,13 +31,7 @@ $(function() {
     // Disable the submit button to prevent repeated clicks
     $form.find('input[type=submit]').attr('disabled', 'disabled');
 
-    Stripe.createToken({
-      number: $form.find('input[name=number]').val(),
-      cvc: $form.find('input[name=cvc]').val(),
-      exp_month: $form.find('select[name=expiration_0]').val(),
-      exp_year: $form.find('select[name=expiration_1]').val(),
-      name: $form.find('input[name=holder]').val()
-    }, stripeResponseHandler);
+    Stripe.card.createToken($form, stripeResponseHandler);
 
     // Prevent the form from submitting with the default action
     return false;
@@ -93,14 +87,31 @@ $(function() {
         Payment Information
       </div>
       <div class="content">
-        <div class="notice payment-errors">
+        <div class="notice payment-errors{% if not payment_error %} no-error{% endif %}">
           <img alt="Error" src="/registration_media/img/error.gif">
-	  <span class="error-text"></span>
+          <span class="error-text">{{payment_error}}</span>
         </div>
         <p>
           Please enter your credit card information. We accept, Visa, MasterCard,
           and American Express.
-          {% display_form payment_form %}
+          <div class="form-row">
+            <div class='container'>
+              <b><label for="id_number">Card Number</label></b>
+              <input type="text" id="id_number" data-stripe="number" />
+            </div>
+            <div class='container'>
+              <b><label for="id_holder">Card Holder Name</label></b>
+              <input id="id_holder" type="text" maxlength="60" data-stripe="name" />
+            </div>
+            <div class='container'>
+              <b><label for="id_exp_month">Expiration</label></b>
+              <span style="white-space: nowrap"><input id="id_exp_month" type="text" size="2" data-stripe="exp-month"/> / <input type="text" size="4" data-stripe="exp-year"/></span>
+            </div>
+            <div class='container'>
+              <b><label for="id_ccv_number">CCV Number</label></b>
+              <input id="id_ccv_number" type="text" size="4" data-stripe="cvc"/>
+            </div>
+          </div>
         </p>
       </div>
     </div>
