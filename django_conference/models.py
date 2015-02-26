@@ -242,6 +242,59 @@ class Meeting(models.Model):
         ordering = ['start_date']
 
 
+class PaperPresenterTimePeriod(models.Model):
+    time_period = models.CharField(blank=False, max_length=100)
+    def __unicode__(self): return self.time_period
+
+
+class PaperPresenterRegion(models.Model):
+    region = models.CharField(blank=False, max_length=100)
+    def __unicode__(self): return self.region
+
+
+class PaperPresenterSubject(models.Model):
+    subject = models.CharField(blank=False, max_length=100)
+    def __unicode__(self): return self.subject
+
+
+class PaperPresenter(models.Model):
+    GENDER_CHOICES = (
+        ('M', 'Male'),
+        ('F', 'Female'),
+        ('O', 'Other'),
+    )
+    BIRTH_YEAR_CHOICES = (
+        ('<46', 'Born before 1946'),
+        ('46-64', '1946 - 1964'),
+        ('65-81', '1965 - 1981'),
+        ('82-95', '1982 - 1995'),
+        ('>95', 'After 1995'),
+    )
+    STATUS_CHOICES = (
+        ('TT', 'Tenure-Track Faculty'),
+        ('CF', 'Contigent Faculty'),
+        ('PD', 'Postdoc'),
+        ('GS', 'Grad student'),
+        ('IS', 'Independent Scholar'),
+        ('O', 'Other'),
+    )
+    first_name = models.CharField(blank=False, max_length=100)
+    last_name = models.CharField(blank=False, max_length=100)
+    email = models.EmailField(max_length=100)
+    gender = models.CharField(max_length=1, blank=True,
+        choices=GENDER_CHOICES)
+    birth_year = models.CharField(max_length=6, blank=True,
+        choices=BIRTH_YEAR_CHOICES)
+    status = models.CharField(max_length=2, blank=True,
+        choices=STATUS_CHOICES)
+    time_periods = models.ManyToManyField(PaperPresenterTimePeriod, blank=True)
+    regions = models.ManyToManyField(PaperPresenterRegion, blank=True)
+    subjects = models.ManyToManyField(PaperPresenterSubject, blank=True)
+
+    def __unicode__(self):
+        return self.first_name + " " + self.last_name
+
+
 class Paper(models.Model):
     AV_CHOICES = (
         ('N', 'None'),
@@ -252,12 +305,11 @@ class Paper(models.Model):
         ('0', 0),
         ('1', 1),
         ('2', 2),
-        ('M','More'),
+        ('M', 'More'),
     )
+
     submitter = models.ForeignKey(user_model, blank=True, null=True)
-    presenter_first_name = models.CharField(blank=False, max_length=45)
-    presenter_last_name = models.CharField(blank=False, max_length=45)
-    presenter_email = models.EmailField(max_length=100)
+    presenter = models.ForeignKey(PaperPresenter)
     title = models.CharField(max_length=300)
     abstract = models.TextField()
     coauthor = models.CharField(max_length=255, blank=True)
@@ -283,7 +335,7 @@ class Paper(models.Model):
         return self.title
 
     def get_presenter(self):
-        return self.presenter_first_name + " " + self.presenter_last_name
+        return self.presenter.first_name + " " + self.presenter.last_name
 
     def send_submission_email(self):
         """

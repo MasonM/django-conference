@@ -3,9 +3,10 @@ from django.contrib import admin
 
 from django_conference import settings
 from django_conference.models import (DonationType, ExtraType, Meeting,
-    MeetingDonation, MeetingExtra, MeetingInstitution, Paper, Registration,
-    RegistrationDonation, RegistrationExtra, RegistrationGuest,
-    RegistrationOption, Session, SessionCadre, SessionPapers)
+    MeetingDonation, MeetingExtra, MeetingInstitution, Paper, PaperPresenter,
+    Registration, RegistrationDonation, RegistrationExtra, RegistrationGuest,
+    RegistrationOption, Session, SessionCadre, SessionPapers,
+    PaperPresenterRegion, PaperPresenterTimePeriod, PaperPresenterSubject)
 
 
 admin.site.register(DonationType)
@@ -122,26 +123,32 @@ class SessionPapersInline(admin.TabularInline):
 class PaperAdmin(admin.ModelAdmin):
     fieldsets = [
         (None, {'fields': ['title', 'abstract', 'submitter',
-            'presenter_first_name', 'presenter_last_name',
-            'presenter_email', 'accepted']}),
+            'presenter', 'accepted']}),
         ('Additional Info', {
             'fields': ['coauthor', 'is_poster', 'av_info', 'notes',
                 'prior_sundays', 'previous_meetings'],
         }),
     ]
-    list_display = ('title', 'submitter', 'presenter_first_name', 
-        'presenter_last_name', 'is_poster', 'accepted', 'av_info',
-        'creation_time')
+    list_display = ('title', 'submitter', 'presenter', 'is_poster', 'accepted',
+        'av_info', 'creation_time')
     inlines = [SessionPapersInline]
     list_filter = ['accepted', 'is_poster']
-    search_fields = ['title', 'presenter_first_name', 'presenter_last_name',
-        'presenter_email', 'notes', 'submitter__first_name',
+    search_fields = ['title', 'presenter__first_name', 'presenter__last_name',
+        'presenter__email', 'notes', 'submitter__first_name',
         'submitter__last_name', 'submitter__email', 'abstract', 'coauthor']
     date_hierarchy = 'creation_time'
     filter_horizontal = ['previous_meetings']
     ordering = ['title']
 admin.site.register(Paper, PaperAdmin)
 
+
+class PaperPresenterAdmin(admin.ModelAdmin):
+    list_display = ('first_name', 'last_name', 'email')
+admin.site.register(PaperPresenter, PaperPresenterAdmin)
+
+admin.site.register(PaperPresenterTimePeriod)
+admin.site.register(PaperPresenterRegion)
+admin.site.register(PaperPresenterSubject)
 
 class SessionAdmin(admin.ModelAdmin):
     fieldsets = [

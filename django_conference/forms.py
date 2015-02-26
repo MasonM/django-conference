@@ -12,7 +12,7 @@ from django.db.models import get_model
 from django_conference import settings
 from django_conference.models import (Meeting, Paper, Session, SessionCadre,
     RegistrationDonation, Registration, RegistrationExtra,
-    RegistrationGuest, RegistrationOption)
+    RegistrationGuest, RegistrationOption, PaperPresenter)
 
 
 class SessionsWidget(forms.CheckboxSelectMultiple):
@@ -311,13 +311,23 @@ class AbstractForm(forms.ModelForm):
         return data
 
 
+class PaperPresenterForm(forms.ModelForm):
+    header = "Presenter Information"
+    class Meta:
+        model = PaperPresenter
+
+
 class PaperForm(AbstractForm):
+    header = "Paper/Poster Information"
+
     class Meta:
         model = Paper
-        exclude = ['creation_time', 'submitter', 'accepted', 'sessions']
+        exclude = ['creation_time', 'submitter', 'presenter', 'accepted', 'sessions']
 
-    def save(self, submitter, commit=True):
+    def save(self, submitter, presenter=None, commit=True):
         self.instance.submitter = submitter
+        if presenter:
+            self.instance.presenter = presenter
         return super(PaperForm, self).save(commit)
 
 

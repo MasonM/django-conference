@@ -10,7 +10,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django_conference import settings
 from django_conference.forms import (PaperForm, MeetingSessions,
     MeetingRegister, MeetingExtras, MeetingDonations, SessionForm,
-    SessionCadreForm, PaymentForm)
+    SessionCadreForm, PaymentForm, PaperPresenterForm)
 from django_conference.models import (Meeting, Registration, Paper,
     SessionPapers)
 
@@ -186,6 +186,7 @@ def submit_session(request):
 
     session_form = SessionForm(request.POST or None)
     organizer_form = SessionCadreForm(request.POST or None, optional=False)
+    organizer_form.fields['gender'].required = False
     chair_form = SessionCadreForm(request.POST or None, optional=False,
         prefix="chair")
     commentator_form = SessionCadreForm(request.POST or None,
@@ -226,8 +227,8 @@ def submit_session_papers(request):
     num = int(session_data['num_papers'])
     forms = []
     for i in range(num):
-        form = PaperForm(request.POST or None, prefix=i)
-        forms.append(form)
+        forms.append(PaperPresenterForm(request.POST or None, prefix=i))
+        forms.append(PaperForm(request.POST or None, prefix=i))
 
     if request.POST and all([x.is_valid() for x in forms]):
         session_form = SessionForm(session_data)
@@ -248,8 +249,9 @@ def submit_session_papers(request):
             session.commentators.add(commentator)
 
         position = 1
-        for paper_form in forms:
-            paper = paper_form.save(request.user)
+        for i in range(0, num * 2, 2):
+            paper_presenter = forms[i].save()
+            paper = forms[i + 1].save(request.user, paper_presenter)
             SessionPapers.objects.create(session=session, paper=paper,
                 position=position)
             position += 1
@@ -286,16 +288,18 @@ def submit_paper(request):
         return HttpResponseRedirect(reverse("django_conference_home"))
 
     paper_form = PaperForm(request.POST or None)
+    paper_presenter_form = PaperPresenterForm(request.POST or None)
 
     if request.POST and paper_form.is_valid():
-        paper = paper_form.save(request.user)
+        presenter = paper_presenter_form.save()
+        paper = paper_form.save(request.user, presenter)
         paper.send_submission_email()
         kwargs = {'id': paper.id}
         url = reverse('django_conference_submission_success', kwargs=kwargs)
         return HttpResponseRedirect(url)
 
     return render_to_response('django_conference/submit_paper.html', {
-        'forms': [paper_form],
+        'forms': [paper_presenter_form, paper_form],
         'meeting': meeting,
         'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
     })
