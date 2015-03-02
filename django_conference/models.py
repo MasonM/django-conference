@@ -271,12 +271,13 @@ class PaperPresenter(models.Model):
         ('>95', 'After 1995'),
     )
     STATUS_CHOICES = (
-        ('TT', 'Tenure-Track Faculty'),
-        ('CF', 'Contigent Faculty'),
-        ('PD', 'Postdoc'),
-        ('GS', 'Grad student'),
-        ('IS', 'Independent Scholar'),
         ('O', 'Other'),
+        ('F', 'Faculty Member'),
+        ('I', 'Independent Scholar'),
+        ('G', 'Graduate Student'),
+        ('A', 'Administrator'),
+        ('P', 'Post-Doctoral Fellow'),
+        ('H', 'Public Historian'),
     )
     first_name = models.CharField(blank=False, max_length=100)
     last_name = models.CharField(blank=False, max_length=100)
