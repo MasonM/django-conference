@@ -1,7 +1,7 @@
 {% extends "django_conference/submit_base.html" %}
 {% load display_form %}
 {% block main %}
-<form method="post">
+<form method="post">{% csrf_token %}
    {% for form in forms %}
    <div class="section">
        <div class="heading">

@@ -4,6 +4,7 @@ from datetime import datetime, date
 
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, get_object_or_404
+from django.template import RequestContext
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseRedirect
 
@@ -118,7 +119,7 @@ def register(request):
         'meeting': meeting,
         'registrant': request.user,
         'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
-    })
+    }, context_instance=RequestContext(request))
 
 
 @login_required
@@ -172,7 +173,7 @@ def payment(request, reg_id=None):
         'notice': notice,
         'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
         'stripe_key': settings.DJANGO_CONFERENCE_STRIPE_PUBLISHABLE_KEY,
-    })
+    }, context_instance=RequestContext(request))
 
 
 @login_required
@@ -213,7 +214,7 @@ def submit_session(request):
         'contact_email': settings.DJANGO_CONFERENCE_CONTACT_EMAIL,
         'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
         'error_dict': errors.items(),
-    })
+    }, context_instance=RequestContext(request))
 
 
 @login_required
@@ -266,7 +267,7 @@ def submit_session_papers(request):
         'forms': forms,
         'meeting': meeting,
         'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
-    })
+    }, context_instance=RequestContext(request))
 
 
 def submission_success(request, id=None):
@@ -302,7 +303,7 @@ def submit_paper(request):
         'forms': [paper_presenter_form, paper_form],
         'meeting': meeting,
         'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
-    })
+    }, context_instance=RequestContext(request))
 
 
 @login_required
@@ -333,7 +334,7 @@ def edit_paper(request, paper_id):
         'paper_form': paper_form,
         'notice': notice,
         'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
-    })
+    }, context_instance=RequestContext(request))
 
 
 def homepage(request):

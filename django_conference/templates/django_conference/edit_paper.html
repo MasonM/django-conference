@@ -2,7 +2,7 @@
 {% load display_form %}
 {% load show_notice %}
 {% block main %}
-<form method="post">
+<form method="post">{% csrf_token %}
     <div class="section">
         <div class="heading">
             <h3>Edit Paper/Poster</h3>
