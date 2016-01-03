@@ -21,8 +21,7 @@ class BaseTestCase(TestCase):
         user = self.create_user()
         self.client.login(username=user.username, password='foo')
 
-    def create_active_meeting(
-        self,
+    def create_active_meeting(self,
         location="SOMEWHERE",
         start=datetime(2010, 9, 9),
         end=datetime(2011, 9, 9)
@@ -117,6 +116,15 @@ class HomepageTestCase(BaseTestCase):
 
 class SubmitPaperTestCase(BaseTestCase):
     "Tests submit_paper() view"
+    post_data_for_valid_paper = {
+        'first_name': 'foo',
+        'last_name': 'bar',
+        'email': 'foo@bar.com',
+        'title': 'TITLE',
+        'abstract': 'ABSTRACT',
+        'prior_sundays': '0',
+    }
+
     def __do_post(self, **kwargs):
         return self.client.post('/conference/submit_paper', kwargs,
             follow=True)
@@ -138,43 +146,31 @@ class SubmitPaperTestCase(BaseTestCase):
         response = self.client.get('/conference/submit_paper')
         self.assertRedirects(response, '/conference/')
 
-    def test_missing_field_error_handling(self):
-        self.login()
-        self.create_active_meeting()
-        data = {'first_name': 'f'}
-        self.assertContains(self.__do_post(**data), 'This field is required')
-
-        data['last_name'] = 'b'
-        data['email'] = 'f@b.com'
-        self.assertContains(self.__do_post(**data), 'This field is required')
-
-        data['title'] = 'hi'
-        self.assertContains(self.__do_post(**data), 'This field is required')
-
     def test_invalid_email_error_handling(self):
         self.login()
         self.create_active_meeting()
         response = self.__do_post(email="foo")
         self.assertContains(response, 'Enter a valid e-mail address.')
 
-    def test_invalid_email_error_handling(self):
+    def test_abstract_too_long_error_handling(self):
         self.login()
         self.create_active_meeting()
         response = self.__do_post(abstract="hi " * 100)
         self.assertContains(response, "Abstract can contain a maximum " +
             "of 10 words.")
 
+    def test_missing_field_error_handling(self):
+        self.login()
+        self.create_active_meeting()
+        for field in self.post_data_for_valid_paper.keys():
+            data = self.post_data_for_valid_paper.copy()
+            del data[field]
+            self.assertContains(self.__do_post(**data), 'This field is required')
+
     def test_submit_minimal_valid_paper(self):
         self.login()
         self.create_active_meeting()
-        response = self.__do_post(
-            first_name="foo",
-            last_name="bar",
-            email="foo@bar.com",
-            title="TITLE",
-            abstract="ABSTRACT",
-            prior_sundays="0",
-        )
+        response = self.__do_post(**self.post_data_for_valid_paper)
         self.assertEqual(Paper.objects.count(), 1)
         paper_id = Paper.objects.all()[0].id
         self.assertRedirects(response, 
@@ -189,19 +185,123 @@ class SubmitPaperTestCase(BaseTestCase):
     def test_submit_complete_valid_paper(self):
         self.login()
         self.create_active_meeting()
-        response = self.__do_post(
-            first_name="foo bar baz",
-            last_name="bam foo bar",
-            email="foo@bar.co.uk",
-            title="SOME TITLE",
-            abstract="ABSTRACT HELLO",
-            coauthor="foo2 bar2",
-            av_info="L",
-            notes="NOTES",
-            prior_sundays="1",
-        )
+        post_data = self.post_data_for_valid_paper.copy()
+        post_data.update({
+            'coauthor': "foo2 bar2",
+            'av_info': "L",
+            'notes': "NOTES",
+        })
+        response = self.__do_post(**post_data)
         self.assertEqual(Paper.objects.count(), 1)
         paper_id = Paper.objects.all()[0].id
         self.assertRedirects(response, 
             '/conference/submit_success/%d/' % paper_id)
         self.assertContains(response, 'Your reference number is %d' % paper_id)
+
+
+class SubmitSessionTestCase(BaseTestCase):
+    "Tests submit_session() and submit_session_papers() views"
+    post_data_for_valid_session = {
+        'title': 'session title',
+        'num_papers': 4,
+        'first_name': 'b',
+        'last_name': 'b',
+        'type': 'O',
+        'email': 'f@b.com',
+        'institution': 'UFL',
+        'chair-first_name': 'c',
+        'chair-last_name': 'c',
+        'chair-gender': 'O',
+        'chair-type': 'O',
+        'chair-email': 'g@c.com',
+        'chair-institution': 'UW',
+    }
+
+    def __do_post(self, **kwargs):
+        return self.client.post('/conference/submit_session', kwargs,
+            follow=True)
+
+    def test_not_logged_in(self):
+        response = self.client.get('/conference/submit_session')
+        self.assertRedirects(response,
+            '/accounts/login/?next=/conference/submit_session')
+
+    def test_with_no_active_meeting(self):
+        self.login()
+        response = self.client.get('/conference/submit_session')
+        self.assertRedirects(response, '/conference/')
+
+        meeting = self.create_active_meeting()
+        meeting.session_submission_start = datetime(3000, 1, 1)
+        meeting.session_submission_end = datetime(4000, 1, 1)
+        meeting.save()
+        response = self.client.get('/conference/submit_session')
+        self.assertRedirects(response, '/conference/')
+
+    def test_missing_field_error_handling(self):
+        self.login()
+        self.create_active_meeting()
+        for field in self.post_data_for_valid_session.keys():
+            data = self.post_data_for_valid_session.copy()
+            del data[field]
+            self.assertContains(self.__do_post(**data), 'This field is required')
+
+    def test_needs_commentator_error_handling(self):
+        self.login()
+        self.create_active_meeting()
+
+        post_data = self.post_data_for_valid_session.copy()
+        post_data['num_papers'] = 3
+        self.assertContains(self.__do_post(**post_data),
+            'must have a commentator')
+
+        post_data_for_valid_commentator = {
+            'commentator-first_name': 'd',
+            'commentator-last_name': 'd',
+            'commentator-email': 'h@d.com',
+            'commentator-institution': 'UM',
+        }
+        for field in post_data_for_valid_commentator.keys():
+            post_data.update(post_data_for_valid_commentator)
+            del post_data[field]
+            self.assertContains(self.__do_post(**post_data),
+                'Please fill in all the')
+
+    def test_invalid_email_error_handling(self):
+        self.login()
+        self.create_active_meeting()
+        response = self.__do_post(email="foo")
+        self.assertContains(response, 'Enter a valid e-mail address.')
+
+    def test_abstract_too_long_error_handling(self):
+        self.login()
+        self.create_active_meeting()
+        response = self.__do_post(abstract="hi " * 100)
+        self.assertContains(response, "Abstract can contain a maximum " +
+            "of 10 words.")
+
+    def test_submit_complete_session(self):
+        self.login()
+        self.create_active_meeting()
+        response = self.__do_post(**self.post_data_for_valid_session)
+        self.assertRedirects(response, '/conference/submit_session_papers')
+
+        paper_post_data = SubmitPaperTestCase.post_data_for_valid_paper
+        post_data = paper_post_data.copy()
+        for paper_num in range(1, 4):
+            post_data.update(dict([
+                ('%d-%s' % (paper_num, field), value)
+                for field, value in paper_post_data.iteritems()
+            ]))
+        response = self.client.post('/conference/submit_session_papers',
+            post_data, follow=True)
+        self.assertEqual(Session.objects.count(), 1)
+        session_id = Session.objects.all()[0].id
+        self.assertRedirects(response, 
+            '/conference/submit_success/%d/' % session_id)
+        msg = 'Your reference number is %d' % session_id
+        self.assertContains(response, msg)
+
+        self.assertEqual(mail.outbox[0].subject, "Session Submission Confirmation")
+        self.assertEqual(mail.outbox[0].to, ['f@b.com'])
+        self.assertIn(msg, mail.outbox[0].body)

@@ -181,8 +181,8 @@ def submit_session(request):
     """
     Allows users to submit a session for approval
     """
-    meeting = Meeting.current()
-    if not meeting.can_submit_session():
+    meeting = Meeting.current_or_none()
+    if not meeting or not meeting.can_submit_session():
         return HttpResponseRedirect(reverse("django_conference_home"))
 
     session_form = SessionForm(request.POST or None)
@@ -291,7 +291,8 @@ def submit_paper(request):
     paper_form = PaperForm(request.POST or None)
     paper_presenter_form = PaperPresenterForm(request.POST or None)
 
-    if request.POST and paper_form.is_valid():
+    if request.POST and paper_form.is_valid() and \
+        paper_presenter_form.is_valid():
         presenter = paper_presenter_form.save()
         paper = paper_form.save(request.user, presenter)
         paper.send_submission_email()
