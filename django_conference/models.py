@@ -105,6 +105,15 @@ class Meeting(models.Model):
             return None
 
     @staticmethod
+    def active_q():
+        """
+        Returns Q object for filtering by currently-active meetings 
+        """
+        return Q(is_active=1) &\
+            Q(end_date__gte=date.today()) &\
+            Q(start_date__lte=date.today())
+
+    @staticmethod
     def get_past_meetings(years_ago):
         """
         Returns a Q object which represents all past meetings for the
@@ -467,9 +476,9 @@ class Registration(models.Model):
         ("mo", "Money Order"),
     )
     meeting = models.ForeignKey(Meeting, related_name='registrations',
-        default=Meeting.current_or_none())
+        default=Meeting.current_or_none)
     type = models.ForeignKey(RegistrationOption,
-        limit_choices_to={'meeting': Meeting.current_or_none()})
+        limit_choices_to={'meeting': Meeting.active_q()})
     special_needs = models.TextField(blank=True)
     date_entered = models.DateTimeField()
     payment_type = models.CharField(max_length=2, choices=PAYMENT_TYPES,
@@ -479,7 +488,7 @@ class Registration(models.Model):
         limit_choices_to={'is_staff': True})
     sessions = models.ManyToManyField("Session", blank=True,
         related_name="regsessions",
-        limit_choices_to={'meeting': Meeting.current_or_none(),
+        limit_choices_to={'meeting': Meeting.active_q(),
                           'accepted': True})
 
     def __unicode__(self):
@@ -542,7 +551,7 @@ class Registration(models.Model):
 class RegistrationExtra(models.Model):
     registration = models.ForeignKey(Registration, related_name="regextras")
     extra = models.ForeignKey(MeetingExtra,
-        limit_choices_to={'meeting': Meeting.current_or_none()})
+        limit_choices_to={'meeting': Meeting.active_q()})
     quantity = models.PositiveIntegerField()
     # allow price to be NULL, which indicates we should use extra.price instead
     price = models.DecimalField("Price override", max_digits=6,
@@ -587,7 +596,7 @@ class RegistrationDonation(models.Model):
     registration = models.ForeignKey(Registration,
         related_name="regdonations")
     donate_type = models.ForeignKey(MeetingDonation,
-        limit_choices_to={'meeting': Meeting.current_or_none()})
+        limit_choices_to={'meeting': Meeting.active_q()})
     total = models.DecimalField(max_digits=6, decimal_places=2)
 
     def __unicode__(self):
@@ -643,7 +652,7 @@ class SessionCadre(models.Model):
 class Session(models.Model):
     submitter = models.ForeignKey(user_model, blank=True, null=True)
     meeting = models.ForeignKey(Meeting, related_name="sessions",
-        default=Meeting.current_or_none())
+        default=Meeting.current_or_none)
     start_time = models.DateTimeField(blank=True, null=True)
     stop_time = models.DateTimeField(blank=True, null=True)
     room_no = models.CharField(max_length=30, blank=True, null=True)
