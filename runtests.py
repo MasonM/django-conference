@@ -4,7 +4,7 @@ import os
 from os.path import dirname, abspath
 from optparse import OptionParser
 
-from django.conf import settings, global_settings
+from django.conf import settings
 
 if not settings.configured and not os.environ.get('DJANGO_SETTINGS_MODULE'):
     settings.configure(
@@ -30,15 +30,17 @@ if not settings.configured and not os.environ.get('DJANGO_SETTINGS_MODULE'):
         STATIC_URL = '/media/',
         ROOT_URLCONF = 'django_conference.urls',
         DJANGO_CONFERENCE_ABSTRACT_MAX_WORDS = 10,
-        DEBUG=True,
-        SITE_ID=1,
+        DEBUG = True,
+        SITE_ID = 1,
     )
 
+from django.test.utils import setup_test_environment
 from django.test.simple import DjangoTestSuiteRunner
 
 def runtests(options):
     parent = dirname(abspath(__file__))
     sys.path.insert(0, parent)
+    setup_test_environment()
     test_runner = DjangoTestSuiteRunner(**options)
     failures = test_runner.run_tests(['django_conference'])
     sys.exit(failures)
