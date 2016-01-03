@@ -11,6 +11,16 @@ setup(name='django-conference',
     url='http://bitbucket.org/MasonM/hssonline-conference/',
     packages=find_packages(exclude=['example_project', 'example_project.*']),
     include_package_data=True,
+    tests_require=[
+        'django>=1.2,<1.3',
+        'freezegun',
+        'unittest2',
+    ],
+    test_suite='runtests.runtests',
+    install_requires=[
+        'django>=1.2,<1.3',
+        'setuptools',
+    ],
     zip_safe=False,
     classifiers=[
         'Development Status :: 4 - Beta',
