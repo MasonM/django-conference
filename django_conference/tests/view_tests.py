@@ -20,6 +20,7 @@ class BaseTestCase(TestCase):
     def login(self):
         user = self.create_user()
         self.client.login(username=user.username, password='foo')
+        return user
 
     def create_active_meeting(self,
         location="SOMEWHERE",
@@ -183,7 +184,7 @@ class SubmitPaperTestCase(BaseTestCase):
         self.assertIn(msg, mail.outbox[0].body)
 
     def test_submit_complete_valid_paper(self):
-        self.login()
+        user = self.login()
         self.create_active_meeting()
         post_data = self.post_data_for_valid_paper.copy()
         post_data.update({
@@ -193,10 +194,20 @@ class SubmitPaperTestCase(BaseTestCase):
         })
         response = self.__do_post(**post_data)
         self.assertEqual(Paper.objects.count(), 1)
-        paper_id = Paper.objects.all()[0].id
+        paper = Paper.objects.all()[0]
         self.assertRedirects(response, 
-            '/conference/submit_success/%d/' % paper_id)
-        self.assertContains(response, 'Your reference number is %d' % paper_id)
+            '/conference/submit_success/%d/' % paper.id)
+        self.assertContains(response, 'Your reference number is %d' % paper.id)
+        self.assertEqual(paper.submitter, user)
+        self.assertEqual(paper.presenter.first_name, post_data['first_name'])
+        self.assertEqual(paper.presenter.last_name, post_data['last_name'])
+        self.assertEqual(paper.presenter.email, post_data['email'])
+        self.assertEqual(paper.title, post_data['title'])
+        self.assertEqual(paper.abstract, post_data['abstract'])
+        self.assertEqual(paper.coauthor, post_data['coauthor'])
+        self.assertEqual(paper.av_info, post_data['av_info'])
+        self.assertEqual(paper.notes, post_data['notes'])
+        self.assertEqual(paper.prior_sundays, post_data['prior_sundays'])
 
 
 class SubmitSessionTestCase(BaseTestCase):
@@ -215,6 +226,12 @@ class SubmitSessionTestCase(BaseTestCase):
         'chair-type': 'O',
         'chair-email': 'g@c.com',
         'chair-institution': 'UW',
+    }
+    post_data_for_valid_commentator = {
+        'commentator-first_name': 'd',
+        'commentator-last_name': 'd',
+        'commentator-email': 'h@d.com',
+        'commentator-institution': 'UM',
     }
 
     def __do_post(self, **kwargs):
@@ -255,14 +272,8 @@ class SubmitSessionTestCase(BaseTestCase):
         self.assertContains(self.__do_post(**post_data),
             'must have a commentator')
 
-        post_data_for_valid_commentator = {
-            'commentator-first_name': 'd',
-            'commentator-last_name': 'd',
-            'commentator-email': 'h@d.com',
-            'commentator-institution': 'UM',
-        }
-        for field in post_data_for_valid_commentator.keys():
-            post_data.update(post_data_for_valid_commentator)
+        for field in self.post_data_for_valid_commentator.keys():
+            post_data.update(self.post_data_for_valid_commentator)
             del post_data[field]
             self.assertContains(self.__do_post(**post_data),
                 'Please fill in all the')
@@ -280,11 +291,29 @@ class SubmitSessionTestCase(BaseTestCase):
         self.assertContains(response, "Abstract can contain a maximum " +
             "of 10 words.")
 
+    def assertSessionMatchesPostData(self, session, post_data):
+        self.assertEqual(session.title, post_data['title'])
+        self.assertEqual(session.papers.count(), post_data['num_papers'])
+        for cadre, post_prefix in {
+            session.organizers: '',
+            session.chairs: 'chair-',
+            session.commentators: 'commentator-',
+        }.iteritems():
+            self.assertEqual(cadre.count(), 1)
+            for field in ['first_name', 'last_name', 'email', 'institution']:
+                self.assertEqual(getattr(cadre.all()[0], field),
+                    post_data[post_prefix + field])
+
     def test_submit_complete_session(self):
-        self.login()
-        self.create_active_meeting()
-        response = self.__do_post(**self.post_data_for_valid_session)
+        user = self.login()
+        meeting = self.create_active_meeting()
+        session_post_data = self.post_data_for_valid_session.copy()
+        session_post_data.update(self.post_data_for_valid_commentator)
+        response = self.__do_post(**session_post_data)
         self.assertRedirects(response, '/conference/submit_session_papers')
+
+        # Should wait until the papers have been submitted before creation
+        self.assertEqual(Session.objects.count(), 0)
 
         paper_post_data = SubmitPaperTestCase.post_data_for_valid_paper
         post_data = paper_post_data.copy()
@@ -296,10 +325,15 @@ class SubmitSessionTestCase(BaseTestCase):
         response = self.client.post('/conference/submit_session_papers',
             post_data, follow=True)
         self.assertEqual(Session.objects.count(), 1)
-        session_id = Session.objects.all()[0].id
+        session = Session.objects.all()[0]
+        self.assertEqual(session.meeting, meeting)
+        self.assertEqual(session.submitter, user)
+        self.assertFalse(session.accepted)
+        self.assertSessionMatchesPostData(session, session_post_data)
+
         self.assertRedirects(response, 
-            '/conference/submit_success/%d/' % session_id)
-        msg = 'Your reference number is %d' % session_id
+            '/conference/submit_success/%d/' % session.id)
+        msg = 'Your reference number is %d' % session.id
         self.assertContains(response, msg)
 
         self.assertEqual(mail.outbox[0].subject, "Session Submission Confirmation")
