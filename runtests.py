@@ -28,7 +28,7 @@ if not settings.configured and not os.environ.get('DJANGO_SETTINGS_MODULE'):
         SERIALIZATION_MODULES = {},
         MEDIA_URL = '/media/',
         STATIC_URL = '/media/',
-        ROOT_URLCONF = 'tests.urls',
+        ROOT_URLCONF = 'django_conference.urls',
 
         DJANGO_MODERATION_MODERATORS = (
             'test@example.com',
