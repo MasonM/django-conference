@@ -338,14 +338,13 @@ def edit_paper(request, paper_id):
 
 
 def homepage(request):
-    meeting = Meeting.current()
-    reg_deadline_passed = date.today() > meeting.reg_deadline
-    session_deadline_passed = datetime.now() > meeting.session_submission_end
-    paper_deadline_passed = datetime.now() > meeting.paper_submission_end
+    meeting = Meeting.current_or_none()
     return render_to_response('django_conference/homepage.html', {
         'meeting': meeting,
         'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
-        'reg_deadline_passed': reg_deadline_passed,
-        'session_deadline_passed': session_deadline_passed,
-        'paper_deadline_passed': paper_deadline_passed,
+        'reg_deadline_passed': meeting and date.today() > meeting.reg_deadline,
+        'session_deadline_passed': meeting and \
+            datetime.now() > meeting.session_submission_end,
+        'paper_deadline_passed': meeting and \
+            datetime.now() > meeting.paper_submission_end,
     })

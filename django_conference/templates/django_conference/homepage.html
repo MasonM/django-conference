@@ -4,43 +4,50 @@
 <link rel="stylesheet" type="text/css" href="{{media_root}}/css/registration.css"/>
 {% endblock %}
 {% block content %}
+{% if not meeting %}
 <h3 class="title">
-    {{meeting}} Meeting
+  Meeting Homepage
 </h3>
-<br/>
-<p>
-{% if meeting.registration_active %}
-    <a href="{% url django_conference_register %}">Register for the Meeting</a>
+<div class="notice">No meetings found. Please check back later</div>
 {% else %}
-  {% if reg_deadline_passed %}
-    The deadline for registration is over
+  <h3 class="title">
+      {{meeting}} Meeting Homepage
+  </h3>
+  <br/>
+  <p>
+  {% if meeting.registration_active %}
+      <a href="{% url django_conference_register %}">Register for the Meeting</a>
   {% else %}
-    Registration will open {{meeting.reg_start|date}}.
+    {% if reg_deadline_passed %}
+      The deadline for registration is over
+    {% else %}
+      Registration will open {{meeting.reg_start|date}}.
+    {% endif %}
   {% endif %}
-{% endif %}
-</p>
-<p>
-{% if meeting.can_submit_paper %}
-    <a href="{% url django_conference_submit_paper %}">Submit Paper or Poster</a>
-{% else %}
-  {% if paper_deadline_passed %}
-    The deadline for paper/poster submission is over
+  </p>
+  <p>
+  {% if meeting.can_submit_paper %}
+      <a href="{% url django_conference_submit_paper %}">Submit Paper or Poster</a>
   {% else %}
-    Paper submissions will be accepted starting
-    {{meeting.paper_submission_start|date}}.
+    {% if paper_deadline_passed %}
+      The deadline for paper/poster submission is over
+    {% else %}
+      Paper submissions will be accepted starting
+      {{meeting.paper_submission_start|date}}.
+    {% endif %}
   {% endif %}
-{% endif %}
-</p>
-<p>
-{% if meeting.can_submit_session %}
-    <a href="{% url django_conference_submit_session %}">Submit Session</a>
-{% else %}
-  {% if paper_deadline_passed %}
-    The deadline for session submission is over
+  </p>
+  <p>
+  {% if meeting.can_submit_session %}
+      <a href="{% url django_conference_submit_session %}">Submit Session</a>
   {% else %}
-    Sessions submissions will be accepted starting
-    {{meeting.session_submission_start|date}}.
+    {% if session_deadline_passed %}
+      The deadline for session submission is over
+    {% else %}
+      Session submissions will be accepted starting
+      {{meeting.session_submission_start|date}}.
+    {% endif %}
+  </p>
   {% endif %}
-</p>
 {% endif %}
 {% endblock %}
