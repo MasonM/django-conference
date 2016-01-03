@@ -332,7 +332,7 @@ class Paper(models.Model):
     accepted = models.BooleanField(default=False)
     previous_meetings = models.ManyToManyField(Meeting, blank=True,
         related_name="meeting_papers",
-        # only look at past 2 meetings
+        # only look at meetings from the past 2 years
         limit_choices_to=Meeting.get_past_meetings(2),
         verbose_name="Presented at the following past meetings")
     prior_sundays = models.CharField(default='0', max_length=1, blank=False,

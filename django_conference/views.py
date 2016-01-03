@@ -284,8 +284,8 @@ def submit_paper(request):
     """
     Allow users to submit a paper for approval
     """
-    meeting = Meeting.current()
-    if not meeting.can_submit_paper():
+    meeting = Meeting.current_or_none()
+    if not meeting or not meeting.can_submit_paper():
         return HttpResponseRedirect(reverse("django_conference_home"))
 
     paper_form = PaperForm(request.POST or None)
