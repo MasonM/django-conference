@@ -8,7 +8,7 @@ from django.conf import settings, global_settings
 
 if not settings.configured and not os.environ.get('DJANGO_SETTINGS_MODULE'):
     settings.configure(
-        DATABASES={
+        DATABASES = {
             'default': {
                 "ENGINE": 'django.db.backends.mysql',
                 "NAME": 'conference',
@@ -16,7 +16,7 @@ if not settings.configured and not os.environ.get('DJANGO_SETTINGS_MODULE'):
                 "PASSWORD": 'conferencePass',
             }
         },
-        INSTALLED_APPS=[
+        INSTALLED_APPS = [
             'django.contrib.auth',
             'django.contrib.admin',
             'django.contrib.contenttypes',
@@ -29,33 +29,28 @@ if not settings.configured and not os.environ.get('DJANGO_SETTINGS_MODULE'):
         MEDIA_URL = '/media/',
         STATIC_URL = '/media/',
         ROOT_URLCONF = 'django_conference.urls',
-
-        DJANGO_MODERATION_MODERATORS = (
-            'test@example.com',
-        ),
+        DJANGO_CONFERENCE_ABSTRACT_MAX_WORDS = 10,
         DEBUG=True,
         SITE_ID=1,
     )
 
 from django.test.simple import DjangoTestSuiteRunner
 
-def runtests(*test_args, **kwargs):
-    if not test_args:
-        test_args = ['django_conference']
+def runtests(options):
     parent = dirname(abspath(__file__))
     sys.path.insert(0, parent)
-    test_runner = DjangoTestSuiteRunner(
-        verbosity=kwargs.get('verbosity', 1),
-        interactive=kwargs.get('interactive', False),
-        failfast=kwargs.get('failfast')
-    )
-    failures = test_runner.run_tests(test_args)
+    test_runner = DjangoTestSuiteRunner(**options)
+    failures = test_runner.run_tests(['django_conference'])
     sys.exit(failures)
 
 if __name__ == '__main__':
     parser = OptionParser()
-    parser.add_option('--failfast', action='store_true', default=False, dest='failfast')
+    parser.add_option('--verbosity', default=1, dest='verbosity')
+    parser.add_option('--interactive', action='store_true', default=False,
+        dest='interactive')
+    parser.add_option('--failfast', action='store_true', default=False,
+        dest='failfast')
 
     (options, args) = parser.parse_args()
 
-    runtests(failfast=options.failfast, *args)
+    runtests(vars(options))
