@@ -105,13 +105,14 @@ class Meeting(models.Model):
             return None
 
     @staticmethod
-    def active_q():
+    def related_active_q():
         """
-        Returns Q object for filtering by currently-active meetings 
+        Returns Q object for filtering by currently-active meetings on related
+        models (e.g. Registration)
         """
-        return Q(is_active=1) &\
-            Q(end_date__gte=date.today()) &\
-            Q(start_date__lte=date.today())
+        return Q(meeting__is_active=1) &\
+            Q(meeting__end_date__gte=date.today()) &\
+            Q(meeting__start_date__lte=date.today())
 
     @staticmethod
     def get_past_meetings(years_ago):
@@ -478,7 +479,7 @@ class Registration(models.Model):
     meeting = models.ForeignKey(Meeting, related_name='registrations',
         default=Meeting.current_or_none)
     type = models.ForeignKey(RegistrationOption,
-        limit_choices_to={'meeting': Meeting.active_q()})
+        limit_choices_to=Meeting.related_active_q())
     special_needs = models.TextField(blank=True)
     date_entered = models.DateTimeField()
     payment_type = models.CharField(max_length=2, choices=PAYMENT_TYPES,
@@ -488,8 +489,7 @@ class Registration(models.Model):
         limit_choices_to={'is_staff': True})
     sessions = models.ManyToManyField("Session", blank=True,
         related_name="regsessions",
-        limit_choices_to={'meeting': Meeting.active_q(),
-                          'accepted': True})
+        limit_choices_to=Q(accepted=True) & Meeting.related_active_q())
 
     def __unicode__(self):
         return self.registrant.get_full_name()+": "+unicode(self.date_entered)
@@ -551,7 +551,7 @@ class Registration(models.Model):
 class RegistrationExtra(models.Model):
     registration = models.ForeignKey(Registration, related_name="regextras")
     extra = models.ForeignKey(MeetingExtra,
-        limit_choices_to={'meeting': Meeting.active_q()})
+        limit_choices_to=Meeting.related_active_q())
     quantity = models.PositiveIntegerField()
     # allow price to be NULL, which indicates we should use extra.price instead
     price = models.DecimalField("Price override", max_digits=6,
@@ -596,7 +596,7 @@ class RegistrationDonation(models.Model):
     registration = models.ForeignKey(Registration,
         related_name="regdonations")
     donate_type = models.ForeignKey(MeetingDonation,
-        limit_choices_to={'meeting': Meeting.active_q()})
+        limit_choices_to=Meeting.related_active_q())
     total = models.DecimalField(max_digits=6, decimal_places=2)
 
     def __unicode__(self):
