@@ -339,3 +339,24 @@ class SubmitSessionTestCase(BaseTestCase):
         self.assertEqual(mail.outbox[0].subject, "Session Submission Confirmation")
         self.assertEqual(mail.outbox[0].to, ['f@b.com'])
         self.assertIn(msg, mail.outbox[0].body)
+
+
+class RegisterTestCase(BaseTestCase):
+    "Tests register() and payment() views"
+    post_data_for_valid_registration = {}
+    post_data_for_valid_payment = {}
+
+    def __do_post(self, **kwargs):
+        kwargs['registerMeeting'] = 'Submit'
+        return self.client.post('/conference/register', kwargs,
+            follow=True)
+
+    def test_not_logged_in(self):
+        response = self.client.get('/conference/register')
+        self.assertRedirects(response,
+            '/accounts/login/?next=/conference/register')
+
+    def test_missing_field_error_handling(self):
+        self.login()
+        self.create_active_meeting()
+        self.assertContains(self.__do_post(), 'This field is required')
