@@ -424,6 +424,8 @@ class PaymentForm:
         return True
 
     def process_payment(self):
+        if settings.DJANGO_CONFERENCE_DISABLE_PAYMENT_PROCESSING:
+            return 'success'
         if not self.payment_data or 'stripeToken' not in self.payment_data:
             return False
         stripe.api_key = settings.DJANGO_CONFERENCE_STRIPE_SECRET_KEY

@@ -1,5 +1,6 @@
 from datetime import date, datetime
 import re
+import decimal
 from freezegun import freeze_time
 
 from django.core import mail
@@ -13,9 +14,9 @@ class BaseTestCase(TestCase):
     "Base class for view tests"
     urls = 'django_conference.tests.urls'
 
-    def create_user(self):
-        return user_model.objects.create_user(username="foo@bar.com",
-            email="foo@bar.com", password="foo")
+    def create_user(self, username='foo@bar.com'):
+        return user_model.objects.create_user(username=username,
+            email=username, password="foo")
 
     def login(self):
         user = self.create_user()
@@ -343,8 +344,29 @@ class SubmitSessionTestCase(BaseTestCase):
 
 class RegisterTestCase(BaseTestCase):
     "Tests register() and payment() views"
-    post_data_for_valid_registration = {}
-    post_data_for_valid_payment = {}
+    def setUp(self):
+        self.create_user("OnlineRegistration")
+        self.meeting = self.create_active_meeting()
+        self.paid_option = self.meeting.regoptions.create(
+            option_name="TEST OPTION 1",
+            early_price=10.10,
+            regular_price=20.20,
+            onsite_price=20.20,
+        )
+        self.free_option = self.meeting.regoptions.create(
+            option_name="TEST OPTION 2",
+            early_price=0,
+            regular_price=0,
+            onsite_price=0,
+        )
+        self.donation1 = self.meeting.donations.create(
+            donate_type=DonationType.objects.create(name="DONATE1", label="!"),
+        )
+        self.extra1 = self.meeting.extras.create(
+            extra_type=ExtraType.objects.create(name="EXTRA1", label="!"),
+            price=10,
+            max_quantity=10,
+        )
 
     def __do_post(self, **kwargs):
         kwargs['registerMeeting'] = 'Submit'
@@ -358,5 +380,84 @@ class RegisterTestCase(BaseTestCase):
 
     def test_missing_field_error_handling(self):
         self.login()
-        self.create_active_meeting()
         self.assertContains(self.__do_post(), 'This field is required')
+
+    def test_register_with_free_option(self):
+        user = self.login()
+        response = self.__do_post(
+            type=self.free_option.id,
+            guest_first_name="FOO",
+            guest_last_name="BAR",
+            special_needs="MORE TESTS",
+        )
+        self.assertRedirects(response, '/conference/register_success')
+
+        self.assertEqual(mail.outbox[0].subject, "2010 Meeting Registration")
+        self.assertEqual(mail.outbox[0].to, ['foo@bar.com'])
+        self.assertIn('You have been successfully registered',
+            mail.outbox[0].body)
+
+        self.assertEqual(Registration.objects.count(), 1)
+        registration = Registration.objects.all()[0]
+        self.assertEqual(registration.meeting, self.meeting)
+        self.assertEqual(registration.registrant, user)
+        self.assertEqual(registration.type, self.free_option)
+        self.assertEqual(registration.special_needs, 'MORE TESTS')
+        self.assertEqual(registration.guests.count(), 1)
+        guest = registration.guests.all()[0]
+        self.assertEqual(guest.first_name, 'FOO')
+        self.assertEqual(guest.last_name, 'BAR')
+
+    def test_register_with_paid_option(self):
+        user = self.login()
+        response = self.__do_post(type=self.paid_option.id)
+        self.assertRedirects(response, '/conference/payment/')
+        self.assertRegexpMatches(response.content, 'class="orderTotal">\s*\$20.20')
+
+        # Payment authorization is disabled in tests
+        response = self.client.post('/conference/payment/', {
+            'stripeToken': 'dummy',
+        })
+        self.assertRedirects(response, '/conference/register_success')
+
+        self.assertEqual(mail.outbox[0].subject, "2010 Meeting Registration")
+        self.assertEqual(mail.outbox[0].to, ['foo@bar.com'])
+        self.assertIn('You have been successfully registered',
+            mail.outbox[0].body)
+
+        self.assertEqual(Registration.objects.count(), 1)
+        registration = Registration.objects.all()[0]
+        self.assertEqual(registration.meeting, self.meeting)
+        self.assertEqual(registration.registrant, user)
+        self.assertEqual(registration.type, self.paid_option)
+        self.assertEqual(registration.guests.count(), 0)
+
+    def test_register_with_extra_and_donation(self):
+        user = self.login()
+        response = self.__do_post(
+            type=self.free_option.id,
+            EXTRA1='5',
+            DONATE1='123.45',
+        )
+        self.assertRedirects(response, '/conference/payment/')
+        self.assertRegexpMatches(response.content,
+            'class="orderTotal">\s*\$173.45')
+
+        response = self.client.post('/conference/payment/', {
+            'stripeToken': 'dummy',
+        })
+        self.assertRedirects(response, '/conference/register_success')
+
+        self.assertEqual(Registration.objects.count(), 1)
+        registration = Registration.objects.all()[0]
+
+        self.assertEqual(registration.regextras.count(), 1)
+        regextra = registration.regextras.all()[0]
+        self.assertEqual(regextra.extra, self.extra1)
+        self.assertEqual(regextra.quantity, 5)
+
+        self.assertEqual(registration.regdonations.count(), 1)
+        regdonation = registration.regdonations.all()[0]
+        self.assertEqual(regdonation.donate_type, self.donation1)
+        self.assertEqual(regdonation.total, Decimal('123.45'))
+

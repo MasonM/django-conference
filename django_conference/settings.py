@@ -31,6 +31,15 @@ DJANGO_CONFERENCE_USER_MODEL = getattr(settings,
 
 
 """
+If set to True, automatically accept all payment details, bypassing Stripe. 
+Only for use in tests.
+"""
+DJANGO_CONFERENCE_DISABLE_PAYMENT_PROCESSING = getattr(settings,
+    'DJANGO_CONFERENCE_DISABLE_PAYMENT_PROCESSING',
+    False)
+
+
+"""
 Publishable key for Stripe
 """
 DJANGO_CONFERENCE_STRIPE_PUBLISHABLE_KEY = getattr(settings,
