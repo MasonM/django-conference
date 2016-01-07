@@ -18,10 +18,8 @@ class BaseTestCase(TestCase):
         return user_model.objects.create_user(username=username,
             email=username, password="foo")
 
-    def login(self):
-        user = self.create_user()
+    def login(self, user):
         self.client.login(username=user.username, password='foo')
-        return user
 
     def create_active_meeting(self,
         location="SOMEWHERE",
@@ -137,7 +135,7 @@ class SubmitPaperTestCase(BaseTestCase):
             '/accounts/login/?next=/conference/submit_paper')
 
     def test_with_no_active_meeting(self):
-        self.login()
+        self.login(self.create_user())
         response = self.client.get('/conference/submit_paper')
         self.assertRedirects(response, '/conference/')
 
@@ -149,20 +147,20 @@ class SubmitPaperTestCase(BaseTestCase):
         self.assertRedirects(response, '/conference/')
 
     def test_invalid_email_error_handling(self):
-        self.login()
+        self.login(self.create_user())
         self.create_active_meeting()
         response = self.__do_post(email="foo")
         self.assertContains(response, 'Enter a valid e-mail address.')
 
     def test_abstract_too_long_error_handling(self):
-        self.login()
+        self.login(self.create_user())
         self.create_active_meeting()
         response = self.__do_post(abstract="hi " * 100)
         self.assertContains(response, "Abstract can contain a maximum " +
             "of 10 words.")
 
     def test_missing_field_error_handling(self):
-        self.login()
+        self.login(self.create_user())
         self.create_active_meeting()
         for field in self.post_data_for_valid_paper.keys():
             data = self.post_data_for_valid_paper.copy()
@@ -170,7 +168,7 @@ class SubmitPaperTestCase(BaseTestCase):
             self.assertContains(self.__do_post(**data), 'This field is required')
 
     def test_submit_minimal_valid_paper(self):
-        self.login()
+        self.login(self.create_user())
         self.create_active_meeting()
         response = self.__do_post(**self.post_data_for_valid_paper)
         self.assertEqual(Paper.objects.count(), 1)
@@ -185,7 +183,8 @@ class SubmitPaperTestCase(BaseTestCase):
         self.assertIn(msg, mail.outbox[0].body)
 
     def test_submit_complete_valid_paper(self):
-        user = self.login()
+        user = self.create_user()
+        self.login(user)
         self.create_active_meeting()
         post_data = self.post_data_for_valid_paper.copy()
         post_data.update({
@@ -209,6 +208,65 @@ class SubmitPaperTestCase(BaseTestCase):
         self.assertEqual(paper.av_info, post_data['av_info'])
         self.assertEqual(paper.notes, post_data['notes'])
         self.assertEqual(paper.prior_sundays, post_data['prior_sundays'])
+
+
+class EditPaperTestCase(BaseTestCase):
+    "Tests edit_paper() view"
+    def setUp(self):
+        self.paper = Paper.objects.create(
+            submitter=self.create_user(),
+            presenter=PaperPresenter.objects.create(
+                first_name="FOO",
+                last_name="BAR",
+                email="foo@bar.com",
+            ),
+            title="HELLO",
+            abstract="HI",
+        )
+
+    def __do_get(self, paper_id, **kwargs):
+        return self.__do_method(self.client.get, paper_id, kwargs)
+
+    def __do_post(self, paper_id, **kwargs):
+        return self.__do_method(self.client.post, paper_id, kwargs)
+
+    def __do_method(self, method, paper_id, args):
+        return method('/conference/edit_paper/%d' % paper_id, args,
+            follow=True)
+
+    def test_not_logged_in(self):
+        response = self.__do_get(self.paper.id)
+        self.assertRedirects(response,
+            '/accounts/login/?next=/conference/edit_paper/%d' % self.paper.id)
+
+    def test_wrong_user(self):
+        user = self.create_user("SOMEONE ELSE")
+        self.login(user)
+        response = self.__do_get(self.paper.id)
+        self.assertContains(response, 'According to our records, you are '+
+            'not the submitter')
+
+    def test_with_invalid_paper(self):
+        self.login(self.paper.submitter)
+        response = self.__do_get(9999)
+        self.assertRedirects(response, '/conference/')
+
+    def test_submit_valid_edits(self):
+        self.login(self.paper.submitter)
+        response = self.__do_get(self.paper.id)
+        self.assertContains(response, 'Edit Paper')
+
+        data = SubmitPaperTestCase.post_data_for_valid_paper
+        data.update({
+            'title': "CHANGED TITLE",
+            'abstract': "CHANGED ABSTRACT",
+        })
+        response = self.__do_post(self.paper.id, **data)
+        self.assertContains(response, 'Your paper has been updated')
+
+        paper = Paper.objects.get(id=self.paper.id)
+        self.assertEqual(paper.title, 'CHANGED TITLE')
+        self.assertEqual(paper.abstract, 'CHANGED ABSTRACT')
 
 
 class SubmitSessionTestCase(BaseTestCase):
@@ -245,7 +303,7 @@ class SubmitSessionTestCase(BaseTestCase):
             '/accounts/login/?next=/conference/submit_session')
 
     def test_with_no_active_meeting(self):
-        self.login()
+        self.login(self.create_user())
         response = self.client.get('/conference/submit_session')
         self.assertRedirects(response, '/conference/')
 
@@ -257,7 +315,7 @@ class SubmitSessionTestCase(BaseTestCase):
         self.assertRedirects(response, '/conference/')
 
     def test_missing_field_error_handling(self):
-        self.login()
+        self.login(self.create_user())
         self.create_active_meeting()
         for field in self.post_data_for_valid_session.keys():
             data = self.post_data_for_valid_session.copy()
@@ -265,7 +323,7 @@ class SubmitSessionTestCase(BaseTestCase):
             self.assertContains(self.__do_post(**data), 'This field is required')
 
     def test_needs_commentator_error_handling(self):
-        self.login()
+        self.login(self.create_user())
         self.create_active_meeting()
 
         post_data = self.post_data_for_valid_session.copy()
@@ -280,13 +338,13 @@ class SubmitSessionTestCase(BaseTestCase):
                 'Please fill in all the')
 
     def test_invalid_email_error_handling(self):
-        self.login()
+        self.login(self.create_user())
         self.create_active_meeting()
         response = self.__do_post(email="foo")
         self.assertContains(response, 'Enter a valid e-mail address.')
 
     def test_abstract_too_long_error_handling(self):
-        self.login()
+        self.login(self.create_user())
         self.create_active_meeting()
         response = self.__do_post(abstract="hi " * 100)
         self.assertContains(response, "Abstract can contain a maximum " +
@@ -306,7 +364,8 @@ class SubmitSessionTestCase(BaseTestCase):
                     post_data[post_prefix + field])
 
     def test_submit_complete_session(self):
-        user = self.login()
+        user = self.create_user()
+        self.login(user)
         meeting = self.create_active_meeting()
         session_post_data = self.post_data_for_valid_session.copy()
         session_post_data.update(self.post_data_for_valid_commentator)
@@ -379,11 +438,12 @@ class RegisterTestCase(BaseTestCase):
             '/accounts/login/?next=/conference/register')
 
     def test_missing_field_error_handling(self):
-        self.login()
+        self.login(self.create_user())
         self.assertContains(self.__do_post(), 'This field is required')
 
     def test_register_with_free_option(self):
-        user = self.login()
+        user = self.create_user()
+        self.login(user)
         response = self.__do_post(
             type=self.free_option.id,
             guest_first_name="FOO",
@@ -409,7 +469,8 @@ class RegisterTestCase(BaseTestCase):
         self.assertEqual(guest.last_name, 'BAR')
 
     def test_register_with_paid_option(self):
-        user = self.login()
+        user = self.create_user()
+        self.login(user)
         response = self.__do_post(type=self.paid_option.id)
         self.assertRedirects(response, '/conference/payment/')
         self.assertRegexpMatches(response.content, 'class="orderTotal">\s*\$20.20')
@@ -433,7 +494,8 @@ class RegisterTestCase(BaseTestCase):
         self.assertEqual(registration.guests.count(), 0)
 
     def test_register_with_extra_and_donation(self):
-        user = self.login()
+        user = self.create_user()
+        self.login(user)
         response = self.__do_post(
             type=self.free_option.id,
             EXTRA1='5',
