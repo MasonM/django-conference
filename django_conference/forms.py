@@ -360,49 +360,33 @@ class CCExpField(forms.MultiValueField):
     EXP_MONTH = [(str(x).rjust(2, "0"), x) for x in xrange(1, 13)]
     EXP_YEAR = [(x, x) for x in xrange(date.today().year,
                                        date.today().year + 15)]
-    default_error_messages = {
-        'invalid_month': u'Enter a valid month.',
-        'invalid_year': u'Enter a valid year.',
-    }
 
     def __init__(self, *args, **kwargs):
-        errors = self.default_error_messages.copy()
-        if 'error_messages' in kwargs:
-            errors.update(kwargs['error_messages'])
         fields = (
-            forms.ChoiceField(choices=self.EXP_MONTH,
-                error_messages={'invalid': errors['invalid_month']}),
-            forms.ChoiceField(choices=self.EXP_YEAR,
-                error_messages={'invalid': errors['invalid_year']}),
+            forms.ChoiceField(choices=self.EXP_MONTH),
+            forms.ChoiceField(choices=self.EXP_YEAR),
         )
+        fields[0].widget.attrs = {'data-stripe': 'exp-month'}
+        fields[1].widget.attrs = {'data-stripe': 'exp-year'}
         super(CCExpField, self).__init__(fields, *args, **kwargs)
         self.widget = CCExpWidget(widgets =
             [fields[0].widget, fields[1].widget])
 
-    def clean(self, value):
-        exp = super(CCExpField, self).clean(value)
-        if date.today() > exp:
-            raise forms.ValidationError(
-            "The expiration date you entered is in the past.")
-        return exp
 
-    def compress(self, data_list):
-        if data_list:
-            if data_list[1] in forms.fields.EMPTY_VALUES:
-                error = self.error_messages['invalid_year']
-                raise forms.ValidationError(error)
-            if data_list[0] in forms.fields.EMPTY_VALUES:
-                error = self.error_messages['invalid_month']
-                raise forms.ValidationError(error)
-            year = int(data_list[1])
-            month = int(data_list[0])
-            # find last day of the month
-            day = monthrange(year, month)[1]
-            return date(year, month, day)
-        return None
+class StripePaymentForm(forms.Form):
+    number = forms.IntegerField(label="Card Number")
+    name = forms.CharField(label="Card Holder Name", max_length=60)
+    expiration = CCExpField(label="Expiration")
+    cvc = forms.CharField(label="CVC Number", max_length=4,
+        widget=forms.TextInput(attrs={'size': '4'}))
+
+    def __init__(self):
+        super(StripePaymentForm, self).__init__()
+        for field in ['number', 'name', 'cvc']:
+            self.fields[field].widget.attrs['data-stripe'] = field
 
 
-class PaymentForm:
+class StripeProcessPayment:
     def __init__(self, payment_data):
         self.last_error = ''
         self.payment_data = payment_data

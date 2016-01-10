@@ -94,24 +94,7 @@ $(function() {
         <p>
           Please enter your credit card information. We accept, Visa, MasterCard,
           and American Express.
-          <div class="form-row">
-            <div class='container'>
-              <b><label for="id_number">Card Number</label></b>
-              <input type="text" id="id_number" data-stripe="number" />
-            </div>
-            <div class='container'>
-              <b><label for="id_holder">Card Holder Name</label></b>
-              <input id="id_holder" type="text" maxlength="60" data-stripe="name" />
-            </div>
-            <div class='container'>
-              <b><label for="id_exp_month">Expiration</label></b>
-              <span style="white-space: nowrap"><input id="id_exp_month" type="text" size="2" data-stripe="exp-month"/> / <input type="text" size="4" data-stripe="exp-year"/></span>
-            </div>
-            <div class='container'>
-              <b><label for="id_ccv_number">CCV Number</label></b>
-              <input id="id_ccv_number" type="text" size="4" data-stripe="cvc"/>
-            </div>
-          </div>
+          {% display_form payment_form %}
         </p>
       </div>
     </div>

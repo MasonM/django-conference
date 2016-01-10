@@ -11,7 +11,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django_conference import settings
 from django_conference.forms import (PaperForm, MeetingSessions,
     MeetingRegister, MeetingExtras, MeetingDonations, SessionForm,
-    SessionCadreForm, PaymentForm, PaperPresenterForm)
+    SessionCadreForm, StripePaymentForm, StripeProcessPayment,
+    PaperPresenterForm)
 from django_conference.models import (Meeting, Registration, Paper,
     SessionPapers)
 
@@ -148,12 +149,12 @@ def payment(request, reg_id=None):
 
     payment_error = ''
     if 'stripeToken' in request.POST:
-        payment_form = PaymentForm({
+        process_payment = StripeProcessPayment({
             'total': cont.get_total(),
             'description': cont.get_description(),
             'stripeToken': request.POST['stripeToken'],
         })
-        if payment_form.is_valid():
+        if process_payment.is_valid():
             #save registration and send an e-mail
             if reg_id:
                 url = reverse("django_conference_paysuccess")
@@ -164,9 +165,10 @@ def payment(request, reg_id=None):
                 url = reverse("django_conference_register_success")
             return HttpResponseRedirect(url)
         else:
-            payment_error = payment_form.last_error
+            payment_error = process_payment.last_error
 
     return render_to_response('django_conference/payment.html', {
+        'payment_form': StripePaymentForm(),
         'payment_error': payment_error,
         'meeting': meeting,
         'regCont': cont,
