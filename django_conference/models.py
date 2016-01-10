@@ -494,10 +494,10 @@ class Registration(models.Model):
     def __unicode__(self):
         return self.registrant.get_full_name()+": "+unicode(self.date_entered)
 
-    def save(self):
+    def save(self, *args, **kwargs):
         if not self.id:
             self.date_entered = datetime.now()
-        super(Registration, self).save()
+        super(Registration, self).save(args, kwargs)
 
     def get_meeting_cost(self):
         """Calculates total cost for the meeting registration only
@@ -705,12 +705,12 @@ class Session(models.Model):
             body=body, to=[o.email for o in self.organizers.all()])
         msg.send()
 
-    def save(self):
+    def save(self, *args, **kwargs):
         """
         When a session is saved, all papers should have their "accepted" field
         adjusted accordingly
         """
-        super(Session, self).save()
+        super(Session, self).save(args, kwargs)
         for paper in self.papers.all():
             paper.accepted = self.accepted
             paper.save()

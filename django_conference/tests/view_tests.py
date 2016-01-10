@@ -427,7 +427,7 @@ class RegisterTestCase(BaseTestCase):
     "Tests register() and payment() views"
     def setUp(self):
         super(RegisterTestCase, self).setUp()
-        self.create_user("OnlineRegistration")
+        self.online_reg = self.create_user("OnlineRegistration")
         self.meeting = self.create_active_meeting()
         self.paid_option = self.meeting.regoptions.create(
             option_name="TEST OPTION 1",
@@ -449,6 +449,12 @@ class RegisterTestCase(BaseTestCase):
             price=10,
             max_quantity=10,
         )
+
+    def assertRegistrationEmailSent(self, user):
+        self.assertEqual(mail.outbox[0].subject, "2010 Meeting Registration")
+        self.assertEqual(mail.outbox[0].to, [user.email])
+        self.assertIn('You have been successfully registered',
+            mail.outbox[0].body)
 
     def __do_post(self, **kwargs):
         kwargs['registerMeeting'] = 'Submit'
@@ -475,10 +481,7 @@ class RegisterTestCase(BaseTestCase):
         )
         self.assertRedirects(response, '/conference/register_success')
 
-        self.assertEqual(mail.outbox[0].subject, "2010 Meeting Registration")
-        self.assertEqual(mail.outbox[0].to, ['foo@bar.com'])
-        self.assertIn('You have been successfully registered',
-            mail.outbox[0].body)
+        self.assertRegistrationEmailSent(user)
 
         self.assertEqual(Registration.objects.count(), 1)
         registration = Registration.objects.all()[0]
@@ -504,10 +507,7 @@ class RegisterTestCase(BaseTestCase):
         })
         self.assertRedirects(response, '/conference/register_success')
 
-        self.assertEqual(mail.outbox[0].subject, "2010 Meeting Registration")
-        self.assertEqual(mail.outbox[0].to, ['foo@bar.com'])
-        self.assertIn('You have been successfully registered',
-            mail.outbox[0].body)
+        self.assertRegistrationEmailSent(user)
 
         self.assertEqual(Registration.objects.count(), 1)
         registration = Registration.objects.all()[0]
@@ -533,6 +533,8 @@ class RegisterTestCase(BaseTestCase):
         })
         self.assertRedirects(response, '/conference/register_success')
 
+        self.assertRegistrationEmailSent(user)
+
         self.assertEqual(Registration.objects.count(), 1)
         registration = Registration.objects.all()[0]
 
@@ -545,3 +547,28 @@ class RegisterTestCase(BaseTestCase):
         regdonation = registration.regdonations.all()[0]
         self.assertEqual(regdonation.donate_type, self.donation1)
         self.assertEqual(regdonation.total, Decimal('123.45'))
+
+    def test_pay_for_nonexistent_registration(self):
+        self.login(self.create_user())
+        response = self.client.get('/conference/payment/39999')
+        self.assertEqual(response.status_code, 404)
+
+    def test_pay_for_existing_registration(self):
+        user = self.create_user()
+        self.login(user)
+        registration = Registration(
+            meeting=self.meeting,
+            registrant=user,
+            type=self.paid_option,
+            entered_by=self.online_reg,
+        )
+        registration.save()
+        url = '/conference/payment/%d' % registration.id
+
+        response = self.client.get(url)
+        self.assertContains(response, 'Please pay for the following')
+        self.assertRegexpMatches(response.content, 'class="orderTotal">\s*\$20.20')
+
+        response = self.client.post(url, {'stripeToken': 'dummy'}, follow=True)
+        self.assertRedirects(response, '/conference/paysuccess')
+        self.assertContains(response, 'Thank you for paying')
