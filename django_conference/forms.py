@@ -346,6 +346,40 @@ class SessionForm(AbstractForm):
         return super(SessionForm, self).save(commit)
 
 
+class StripeTextInput(forms.TextInput):
+    """
+    This is a version of forms.widgets.TextInput that doesn't render the input
+    with the "name" or "value" attributes. We don't want to have the "name"
+    attribute because that will cause CC details to be POSTed to us when the
+    form is submitted.
+    """
+    def __init__(self, stripe_field_name, attrs=None):
+        self.stripe_field_name = stripe_field_name
+        super(StripeTextInput, self).__init__(attrs)
+
+    def render(self, name, value, attrs=None):
+        extra = {'type': self.input_type, 'data-stripe': self.stripe_field_name}
+        final_attrs = self.build_attrs(attrs, **extra)
+        return mark_safe(u'<input%s />' % forms.util.flatatt(final_attrs))
+
+
+class StripeSelect(forms.Select):
+    """
+    Same as StripeTextInput, except for <select>s
+    """
+    def __init__(self, stripe_field_name, attrs=None):
+        self.stripe_field_name = stripe_field_name
+        super(StripeSelect, self).__init__(attrs)
+
+    def render(self, name, value, attrs=None, choices=()):
+        extra = {'data-stripe': self.stripe_field_name}
+        final_attrs = self.build_attrs(attrs, **extra)
+        output = [u'<select%s>' % forms.util.flatatt(final_attrs)]
+        output.append(self.render_options(choices, []))
+        output.append(u'</select>')
+        return mark_safe(u'\n'.join(output))
+
+
 class CCExpWidget(forms.MultiWidget):
     """ Widget containing two select boxes for selecting the month and year"""
     def decompress(self, value):
@@ -363,27 +397,24 @@ class CCExpField(forms.MultiValueField):
 
     def __init__(self, *args, **kwargs):
         fields = (
-            forms.ChoiceField(choices=self.EXP_MONTH),
-            forms.ChoiceField(choices=self.EXP_YEAR),
+            forms.ChoiceField(choices=self.EXP_MONTH,
+                widget=StripeSelect('exp-month')),
+            forms.ChoiceField(choices=self.EXP_YEAR,
+                widget=StripeSelect('exp-year')),
         )
-        fields[0].widget.attrs = {'data-stripe': 'exp-month'}
-        fields[1].widget.attrs = {'data-stripe': 'exp-year'}
         super(CCExpField, self).__init__(fields, *args, **kwargs)
         self.widget = CCExpWidget(widgets =
             [fields[0].widget, fields[1].widget])
 
 
 class StripePaymentForm(forms.Form):
-    number = forms.IntegerField(label="Card Number")
-    name = forms.CharField(label="Card Holder Name", max_length=60)
+    number = forms.IntegerField(label="Card Number",
+        widget=StripeTextInput('number'))
+    name = forms.CharField(label="Card Holder Name", max_length=60,
+        widget=StripeTextInput('name'))
     expiration = CCExpField(label="Expiration")
     cvc = forms.CharField(label="CVC Number", max_length=4,
-        widget=forms.TextInput(attrs={'size': '4'}))
-
-    def __init__(self):
-        super(StripePaymentForm, self).__init__()
-        for field in ['number', 'name', 'cvc']:
-            self.fields[field].widget.attrs['data-stripe'] = field
+        widget=StripeTextInput('cvs'))
 
 
 class StripeProcessPayment:
