@@ -6,6 +6,7 @@ from freezegun import freeze_time
 from django.core import mail
 from django.test import TestCase
 
+from django_conference import settings
 from django_conference.models import *
 
 
@@ -213,6 +214,7 @@ class SubmitPaperTestCase(BaseTestCase):
 class EditPaperTestCase(BaseTestCase):
     "Tests edit_paper() view"
     def setUp(self):
+        settings.DJANGO_CONFERENCE_ABSTRACT_MAX_WORDS = 10
         self.paper = Paper.objects.create(
             submitter=self.create_user(),
             presenter=PaperPresenter.objects.create(
@@ -292,6 +294,9 @@ class SubmitSessionTestCase(BaseTestCase):
         'commentator-email': 'h@d.com',
         'commentator-institution': 'UM',
     }
+
+    def setUp(self):
+        settings.DJANGO_CONFERENCE_ABSTRACT_MAX_WORDS = 10
 
     def __do_post(self, **kwargs):
         return self.client.post('/conference/submit_session', kwargs,
@@ -404,6 +409,7 @@ class SubmitSessionTestCase(BaseTestCase):
 class RegisterTestCase(BaseTestCase):
     "Tests register() and payment() views"
     def setUp(self):
+        settings.DJANGO_CONFERENCE_DISABLE_PAYMENT_PROCESSING = True
         self.create_user("OnlineRegistration")
         self.meeting = self.create_active_meeting()
         self.paid_option = self.meeting.regoptions.create(

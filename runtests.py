@@ -29,8 +29,6 @@ if not settings.configured and not os.environ.get('DJANGO_SETTINGS_MODULE'):
         MEDIA_URL = '/media/',
         STATIC_URL = '/media/',
         ROOT_URLCONF = 'django_conference.urls',
-        DJANGO_CONFERENCE_ABSTRACT_MAX_WORDS = 10,
-        DJANGO_CONFERENCE_DISABLE_PAYMENT_PROCESSING = True,
         DEBUG = True,
         SITE_ID = 1,
     )
