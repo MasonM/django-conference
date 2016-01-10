@@ -28,6 +28,7 @@ if not settings.configured and not os.environ.get('DJANGO_SETTINGS_MODULE'):
         SERIALIZATION_MODULES = {},
         MEDIA_URL = '/media/',
         STATIC_URL = '/media/',
+        LOGIN_URL = '/account/',
         ROOT_URLCONF = 'django_conference.urls',
         DEBUG = True,
         SITE_ID = 1,

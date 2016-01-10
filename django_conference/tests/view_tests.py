@@ -4,9 +4,10 @@ import decimal
 from freezegun import freeze_time
 
 from django.core import mail
+from django.conf import settings
 from django.test import TestCase
 
-from django_conference import settings
+from django_conference import settings as conf_settings
 from django_conference.models import *
 
 
@@ -14,6 +15,25 @@ from django_conference.models import *
 class BaseTestCase(TestCase):
     "Base class for view tests"
     urls = 'django_conference.tests.urls'
+
+    def setUp(self):
+        self.old_LOGIN_URL = getattr(settings, 'LOGIN_URL', None)
+        settings.LOGIN_URL = '/account/'
+
+        self.old_DJANGO_CONFERENCE_ABSTRACT_MAX_WORDS = \
+            conf_settings.DJANGO_CONFERENCE_ABSTRACT_MAX_WORDS
+        conf_settings.DJANGO_CONFERENCE_ABSTRACT_MAX_WORDS = 10
+
+        self.old_DJANGO_CONFERENCE_DISABLE_PAYMENT_PROCESSING = \
+            conf_settings.DJANGO_CONFERENCE_DISABLE_PAYMENT_PROCESSING
+        conf_settings.DJANGO_CONFERENCE_DISABLE_PAYMENT_PROCESSING = True
+
+    def tearDown(self):
+        settings.LOGIN_URL = self.old_LOGIN_URL
+        conf_settings.DJANGO_CONFERENCE_ABSTRACT_MAX_WORDS = \
+            self.old_DJANGO_CONFERENCE_ABSTRACT_MAX_WORDS
+        conf_settings.DJANGO_CONFERENCE_DISABLE_PAYMENT_PROCESSING = \
+            self.old_DJANGO_CONFERENCE_DISABLE_PAYMENT_PROCESSING
 
     def create_user(self, username='foo@bar.com'):
         return user_model.objects.create_user(username=username,
@@ -133,7 +153,7 @@ class SubmitPaperTestCase(BaseTestCase):
     def test_not_logged_in(self):
         response = self.client.get('/conference/submit_paper')
         self.assertRedirects(response,
-            '/accounts/login/?next=/conference/submit_paper')
+            '/account/?next=/conference/submit_paper')
 
     def test_with_no_active_meeting(self):
         self.login(self.create_user())
@@ -214,7 +234,7 @@ class SubmitPaperTestCase(BaseTestCase):
 class EditPaperTestCase(BaseTestCase):
     "Tests edit_paper() view"
     def setUp(self):
-        settings.DJANGO_CONFERENCE_ABSTRACT_MAX_WORDS = 10
+        super(EditPaperTestCase, self).setUp()
         self.paper = Paper.objects.create(
             submitter=self.create_user(),
             presenter=PaperPresenter.objects.create(
@@ -239,7 +259,7 @@ class EditPaperTestCase(BaseTestCase):
     def test_not_logged_in(self):
         response = self.__do_get(self.paper.id)
         self.assertRedirects(response,
-            '/accounts/login/?next=/conference/edit_paper/%d' % self.paper.id)
+            '/account/?next=/conference/edit_paper/%d' % self.paper.id)
 
     def test_wrong_user(self):
         user = self.create_user("SOMEONE ELSE")
@@ -295,9 +315,6 @@ class SubmitSessionTestCase(BaseTestCase):
         'commentator-institution': 'UM',
     }
 
-    def setUp(self):
-        settings.DJANGO_CONFERENCE_ABSTRACT_MAX_WORDS = 10
-
     def __do_post(self, **kwargs):
         return self.client.post('/conference/submit_session', kwargs,
             follow=True)
@@ -305,7 +322,7 @@ class SubmitSessionTestCase(BaseTestCase):
     def test_not_logged_in(self):
         response = self.client.get('/conference/submit_session')
         self.assertRedirects(response,
-            '/accounts/login/?next=/conference/submit_session')
+            '/account/?next=/conference/submit_session')
 
     def test_with_no_active_meeting(self):
         self.login(self.create_user())
@@ -409,7 +426,7 @@ class SubmitSessionTestCase(BaseTestCase):
 class RegisterTestCase(BaseTestCase):
     "Tests register() and payment() views"
     def setUp(self):
-        settings.DJANGO_CONFERENCE_DISABLE_PAYMENT_PROCESSING = True
+        super(RegisterTestCase, self).setUp()
         self.create_user("OnlineRegistration")
         self.meeting = self.create_active_meeting()
         self.paid_option = self.meeting.regoptions.create(
@@ -441,7 +458,7 @@ class RegisterTestCase(BaseTestCase):
     def test_not_logged_in(self):
         response = self.client.get('/conference/register')
         self.assertRedirects(response,
-            '/accounts/login/?next=/conference/register')
+            '/account/?next=/conference/register')
 
     def test_missing_field_error_handling(self):
         self.login(self.create_user())
@@ -528,4 +545,3 @@ class RegisterTestCase(BaseTestCase):
         regdonation = registration.regdonations.all()[0]
         self.assertEqual(regdonation.donate_type, self.donation1)
         self.assertEqual(regdonation.total, Decimal('123.45'))
-

@@ -70,7 +70,7 @@ def register(request):
     meeting = Meeting.current_or_none()
     if not meeting or not meeting.can_register(request.user):
         #if user can't register, take them back
-        return HttpResponseRedirect(settings.LOGIN_URL)
+        return HttpResponseRedirect(reverse("django_conference_home"))
 
     if 'registerMeeting' in request.POST:
         register_form = MeetingRegister(meeting, data=request.POST)

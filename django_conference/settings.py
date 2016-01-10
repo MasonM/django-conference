@@ -56,12 +56,6 @@ DJANGO_CONFERENCE_STRIPE_SECRET_KEY = getattr(settings,
 
 
 """
-URL to redirect registrants to who are not logged in.
-"""
-LOGIN_URL = getattr(settings, 'LOGIN_URL', '/account')
-
-
-"""
 List of additional admin tasks. Each item in the list can must be a tuple of
 the following form: ("description", view_func)
 Where "description" is what should appear in the task selection drop-down and
