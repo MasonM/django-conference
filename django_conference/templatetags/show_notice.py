@@ -7,7 +7,4 @@ register = template.Library()
 @register.inclusion_tag('django_conference/notice.html')
 def show_notice(notice):
     """Shows a notice given by the string 'notice'"""
-    return {
-        'notice': notice,
-        'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
-    }
+    return { 'notice': notice }

@@ -1,7 +1,8 @@
 {% extends "django_conference/base.html" %}
+{% load staticfiles %}
 {% block title %}About Us{% endblock %}
 {% block stylesheets %}
-<link rel="stylesheet" type="text/css" href="{{media_root}}/css/registration.css"/>
+<link rel="stylesheet" type="text/css" href="{% static "django_conference/css/registration.css" %}"/>
 {% endblock %}
 {% block content %}
 <h3 class="title">

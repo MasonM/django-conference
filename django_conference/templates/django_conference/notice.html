@@ -1,4 +1,5 @@
+{% load staticfiles %}
 <p class="notice">
-   <img src="{{media_root}}/img/notice.gif" alt="Notice"/>
+   <img src="{% static "django_conference/img/notice.gif" %}" alt="Notice"/>
     {{notice|safe}}
 </p>

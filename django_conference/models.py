@@ -58,7 +58,7 @@ class Meeting(models.Model):
     preliminary_program = models.URLField("Preliminary program URL",
         help_text="If specified, a link to the form will be shown above the "+\
         "session selection section of the registration page.",
-        verify_exists=False, blank=True)
+        blank=True)
     register_form = models.URLField("Registration form URL", blank=True,
         help_text='If specified, a link to the form will be shown at the '+\
         'top of the registration page.', verify_exists=False)

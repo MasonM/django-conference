@@ -1,22 +1,23 @@
 {% extends "django_conference/register_base.html" %}
 {% load display_form %}
+{% load staticfiles %}
 {% block javascript %}
-<script type="text/javascript" src="{{media_root}}/js/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="{% static "django_conference/js/jquery-1.3.2.min.js" %}"></script>
 <script type="text/javascript">
 $(function() {
    $(".session_list > ol, .session_details ul.papers").hide();
    $(".session_list > h3").toggle(function() {
-      $("img", this).attr("src", "{{media_root}}/img/collapse.gif");
+      $("img", this).attr("src", "{% static "django_conference/img/collapse.gif" %}");
       $(this).next("ol").slideDown("normal")
    }, function () {
-      $("img", this).attr("src", "{{media_root}}/img/expand.gif");
+      $("img", this).attr("src", "{% static "django_conference/img/expand.gif" %}");
       $(this).next("ol").slideUp("normal")
    });
    $(".session_details > strong").toggle(function() {
-      $("img", this).attr("src", "{{media_root}}/img/collapse.gif");
+      $("img", this).attr("src", "{% static "django_conference/img/collapse.gif" %}");
       $(this).next("ul").slideDown("fast")
    }, function () {
-      $("img", this).attr("src", "{{media_root}}/img/expand.gif");
+      $("img", this).attr("src", "{% static "django_conference/img/expand.gif" %}");
       $(this).next("ul").slideUp("normal")
    });
 });

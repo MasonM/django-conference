@@ -2,8 +2,9 @@
 {% load display_form %}
 {% load money_format %}
 {% load show_notice %}
+{% load staticfiles %}
 {% block javascript %}
-<script type="text/javascript" src="{{media_root}}/js/jquery-1.3.2.min.js"></script>
+<script type="text/javascript" src="{% static "django_conference/js/jquery-1.3.2.min.js" %}"></script>
 <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
 <script type="text/javascript">
 Stripe.setPublishableKey("{{stripe_key}}");
@@ -88,7 +89,7 @@ $(function() {
       </div>
       <div class="content">
         <div class="notice payment-errors{% if not payment_error %} no-error{% endif %}">
-          <img alt="Error" src="/registration_media/img/error.gif">
+          <img alt="Error" src="{% static "django_conference/img/error.gif" %}">
           <span class="error-text">{{payment_error}}</span>
         </div>
         <p>

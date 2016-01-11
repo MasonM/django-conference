@@ -8,8 +8,9 @@ from django import forms
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
 from django.db.models import get_model
+from django.conf import settings
 
-from django_conference import settings
+from django_conference import settings as conf_settings
 from django_conference.models import (Meeting, Paper, Session, SessionCadre,
     RegistrationDonation, Registration, RegistrationExtra,
     RegistrationGuest, RegistrationOption, PaperPresenter)
@@ -31,8 +32,8 @@ class SessionsWidget(forms.CheckboxSelectMultiple):
         # use the first in the list to get the description
         session = Session.objects.get(pk=self.choices[0][1])
         description = session.get_time_slot_string()
-        expand_img = '<img src="%s/img/expand.gif" alt="Expand list"/>' % (
-            settings.DJANGO_CONFERENCE_MEDIA_ROOT)
+        expand_img = '<img src="%sdjango_conference/img/expand.gif" alt="Expand list"/>' % (
+            settings.STATIC_URL)
         output = [u"""
             <div class="session_list">
                 <h3>%s %s</h3>
@@ -167,7 +168,7 @@ class MeetingRegister(forms.Form):
         and the given registrant.
         """
         clean = self.clean()
-        user_model = get_model(*settings.DJANGO_CONFERENCE_USER_MODEL)
+        user_model = get_model(*conf_settings.DJANGO_CONFERENCE_USER_MODEL)
         reg_username = 'OnlineRegistration'
         kwargs = {
             'meeting': self.meeting,
@@ -296,14 +297,14 @@ class AbstractForm(forms.ModelForm):
     """
     def __init__(self, *args, **kwargs):
         super(AbstractForm, self).__init__(*args, **kwargs)
-        max_words = settings.DJANGO_CONFERENCE_ABSTRACT_MAX_WORDS
+        max_words = conf_settings.DJANGO_CONFERENCE_ABSTRACT_MAX_WORDS
         if max_words > 0:
             self.fields['abstract'].help_text = "%i words maximum" % max_words
 
     def clean_abstract(self):
         data = self.cleaned_data['abstract']
         num_words = len(data.split())
-        max_words = settings.DJANGO_CONFERENCE_ABSTRACT_MAX_WORDS
+        max_words = conf_settings.DJANGO_CONFERENCE_ABSTRACT_MAX_WORDS
         if num_words > max_words:
             message = "Abstract can contain a maximum of %i words. "+\
                       "You supplied %i words."
@@ -425,7 +426,7 @@ class StripeProcessPayment:
     def is_valid(self):
         result = self.process_payment()
         if not result:
-            email = settings.DJANGO_CONFERENCE_CONTACT_EMAIL
+            email = conf_settings.DJANGO_CONFERENCE_CONTACT_EMAIL
             error = u"""
                 We encountered an error while processing your credit card.
                 Please contact <a href="mailto:%s">%s</a> for assistance.
@@ -439,11 +440,11 @@ class StripeProcessPayment:
         return True
 
     def process_payment(self):
-        if settings.DJANGO_CONFERENCE_DISABLE_PAYMENT_PROCESSING:
+        if conf_settings.DJANGO_CONFERENCE_DISABLE_PAYMENT_PROCESSING:
             return 'success'
         if not self.payment_data or 'stripeToken' not in self.payment_data:
             return False
-        stripe.api_key = settings.DJANGO_CONFERENCE_STRIPE_SECRET_KEY
+        stripe.api_key = conf_settings.DJANGO_CONFERENCE_STRIPE_SECRET_KEY
         two_places = Decimal('0.01')
         total_rounded = self.payment_data['total'].quantize(two_places)
         total_cents = str(total_rounded).replace('.', '')

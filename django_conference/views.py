@@ -119,7 +119,6 @@ def register(request):
         'donations_form': donations_form,
         'meeting': meeting,
         'registrant': request.user,
-        'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
     }, context_instance=RequestContext(request))
 
 
@@ -173,7 +172,6 @@ def payment(request, reg_id=None):
         'meeting': meeting,
         'regCont': cont,
         'notice': notice,
-        'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
         'stripe_key': settings.DJANGO_CONFERENCE_STRIPE_PUBLISHABLE_KEY,
     }, context_instance=RequestContext(request))
 
@@ -214,7 +212,6 @@ def submit_session(request):
         'commentator_form': commentator_form,
         'meeting': meeting,
         'contact_email': settings.DJANGO_CONFERENCE_CONTACT_EMAIL,
-        'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
         'error_dict': errors.items(),
     }, context_instance=RequestContext(request))
 
@@ -268,7 +265,6 @@ def submit_session_papers(request):
     return render_to_response('django_conference/submit_paper.html', {
         'forms': forms,
         'meeting': meeting,
-        'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
     }, context_instance=RequestContext(request))
 
 
@@ -277,7 +273,6 @@ def submission_success(request, id=None):
     return render_to_response('django_conference/submission_success.html', {
         'message': message,
         'meeting': Meeting.current(),
-        'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
     })
 
 
@@ -305,7 +300,6 @@ def submit_paper(request):
     return render_to_response('django_conference/submit_paper.html', {
         'forms': [paper_presenter_form, paper_form],
         'meeting': meeting,
-        'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
     }, context_instance=RequestContext(request))
 
 
@@ -336,7 +330,6 @@ def edit_paper(request, paper_id):
     return render_to_response('django_conference/edit_paper.html', {
         'paper_form': paper_form,
         'notice': notice,
-        'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
     }, context_instance=RequestContext(request))
 
 
@@ -344,7 +337,6 @@ def homepage(request):
     meeting = Meeting.current_or_none()
     return render_to_response('django_conference/homepage.html', {
         'meeting': meeting,
-        'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
         'reg_deadline_passed': meeting and date.today() > meeting.reg_deadline,
         'session_deadline_passed': meeting and \
             datetime.now() > meeting.session_submission_end,

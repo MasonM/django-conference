@@ -33,7 +33,6 @@ class FormFieldNode(template.Node):
             error_template = 'django_conference/errors.html'
             output += template.loader.render_to_string(error_template, {
                 'error_dict': errors,
-                'media_root': settings.DJANGO_CONFERENCE_MEDIA_ROOT,
             })
         for field in form:
             output += u"""

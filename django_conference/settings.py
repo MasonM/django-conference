@@ -2,14 +2,6 @@ from django.conf import settings
 
 
 """
-This is the URL prefix for the media files used by django-conference.
-"""
-DJANGO_CONFERENCE_MEDIA_ROOT = getattr(settings,
-    'DJANGO_CONFERENCE_MEDIA_ROOT',
-    '/media')
-
-
-"""
 Contact e-mail address used to set the "From" address for e-mails sent by
 the system and for various "contact us for help" links.
 """
