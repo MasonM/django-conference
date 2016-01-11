@@ -680,6 +680,8 @@ class Session(models.Model):
             .order_by('submitter__last_name', 'submitter__first_name'))
 
     def get_time_slot_string(self):
+        if not self.start_time or not self.stop_time:
+            return 'None'
         # If both the starting and ending times are on the same day,
         # then use the format "Sunday, 07:00-07:45 PM", else use
         # "Sunday 07:00 PM - Monday 01:00 AM"
