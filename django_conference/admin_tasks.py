@@ -2,6 +2,7 @@ from django import forms
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.template.loader import render_to_string
+from django.template import RequestContext
 from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.admin.views.decorators import staff_member_required
 
@@ -64,7 +65,7 @@ def generic_task_view(request, meeting, template, formats=["html"],
         return response
     return render_to_response("django_conference/admin_tasks.html", {
         'form': form,
-    })
+    }, context_instance=RequestContext(request))
 
 
 def get_task_list():
@@ -122,7 +123,7 @@ def choose_task(request, meeting_id):
         return HttpResponseRedirect(url)
     return render_to_response("django_conference/admin_tasks.html", {
         'form': form,
-    })
+    }, context_instance=RequestContext(request))
 
 
 @staff_member_required
