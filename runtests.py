@@ -35,13 +35,13 @@ if not settings.configured and not os.environ.get('DJANGO_SETTINGS_MODULE'):
     )
 
 from django.test.utils import setup_test_environment
-from django.test.simple import DjangoTestSuiteRunner
+from django.test.runner import DiscoverRunner
 
 def runtests(options):
     parent = dirname(abspath(__file__))
     sys.path.insert(0, parent)
     setup_test_environment()
-    test_runner = DjangoTestSuiteRunner(**options)
+    test_runner = DiscoverRunner(**options)
     failures = test_runner.run_tests(['django_conference'])
     sys.exit(failures)
 
