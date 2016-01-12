@@ -1,5 +1,5 @@
-from django.conf.urls.defaults import *
-from django.views.generic.simple import direct_to_template
+from django.conf.urls import *
+from django.views.generic import TemplateView
 
 from django_conference import views, admin_tasks
 
@@ -22,12 +22,12 @@ urlpatterns = patterns('',
         name="django_conference_submission_success"),
 
     url(r'^register_success',
-        direct_to_template,
-        {'template': 'django_conference/register_success.html'},
+        TemplateView.as_view(template_name=
+            'django_conference/register_success.html'),
         name="django_conference_register_success"),
     url('^paysuccess',
-        direct_to_template,
-        {'template': 'django_conference/pay_success.html'},
+        TemplateView.as_view(template_name=
+            'django_conference/pay_success.html'),
         name="django_conference_paysuccess"),
     url(r'^payment/(?P<reg_id>\d+)?',
         views.payment,

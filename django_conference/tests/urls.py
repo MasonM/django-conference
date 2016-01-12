@@ -1,5 +1,5 @@
 from django.http import HttpResponseNotFound
-from django.conf.urls.defaults import *
+from django.conf.urls import *
 
 
 handler404 = lambda request: HttpResponseNotFound()

@@ -61,7 +61,7 @@ class Meeting(models.Model):
         blank=True)
     register_form = models.URLField("Registration form URL", blank=True,
         help_text='If specified, a link to the form will be shown at the '+\
-        'top of the registration page.', verify_exists=False)
+        'top of the registration page.')
 
     def __unicode__(self):
         return self.location+" "+unicode(self.start_date.year)
