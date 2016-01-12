@@ -61,6 +61,14 @@ class BaseTestCase(TestCase):
             session_submission_end=end
         )
 
+    def create_registration_option(self, meeting, name, price):
+        return meeting.regoptions.create(
+            option_name=name,
+            early_price=price,
+            regular_price=price,
+            onsite_price=price,
+        )
+
 
 class HomepageTestCase(BaseTestCase):
     "Tests homepage() view"
@@ -85,30 +93,52 @@ class HomepageTestCase(BaseTestCase):
             end=datetime(2010, 11, 11))
         self.assertContains(self.__do_get(), "NEW 2010 Meeting Homepage")
 
-    def test_registration_link(self):
-        meeting = self.create_active_meeting()
+    def test_registration_link_when_active(self):
+        self.create_active_meeting()
         self.assertContains(self.__do_get(), "Register for the Meeting</a>")
 
+    def test_registration_link_when_past_deadline(self):
+        meeting = self.create_active_meeting()
         meeting.reg_deadline = date(2010, 10, 9)
         meeting.save()
         response = self.__do_get()
         self.assertContains(response, "The deadline for registration is over")
 
+    def test_registration_link_when_registraiton_start_date_is_in_future(self):
+        meeting = self.create_active_meeting()
         meeting.reg_start = date(2010, 11, 11)
         meeting.reg_deadline = date(2010, 12, 12)
         meeting.save()
         response = self.__do_get()
         self.assertContains(response, "Registration will open Nov. 11, 2010")
 
-    def test_submit_paper_link(self):
+    def test_registration_link_when_already_registered(self):
+        user = self.create_user()
+        self.login(user)
         meeting = self.create_active_meeting()
+        registration = Registration(
+            meeting=meeting,
+            registrant=user,
+            type=self.create_registration_option(meeting, 'foo', 0),
+            entered_by=self.create_user("OnlineRegistration"),
+        )
+        registration.save()
+        response = self.__do_get()
+        self.assertContains(response, "You have registered for this meeting")
+
+    def test_submit_paper_link_when_active(self):
+        self.create_active_meeting()
         self.assertContains(self.__do_get(), "Submit Paper or Poster</a>")
 
+    def test_submit_paper_link_when_past_deadline(self):
+        meeting = self.create_active_meeting()
         meeting.paper_submission_end = datetime(2010, 10, 9)
         meeting.save()
         self.assertContains(self.__do_get(), "The deadline for paper/poster "+\
             "submission is over")
 
+    def test_submit_paper_link_when_submission_start_date_is_in_future(self):
+        meeting = self.create_active_meeting()
         meeting.paper_submission_start = datetime(2010, 11, 11)
         meeting.paper_submission_end = datetime(2010, 12, 12)
         meeting.save()
@@ -117,15 +147,19 @@ class HomepageTestCase(BaseTestCase):
         self.assertIn("Paper submissions will be accepted starting "+
             "Nov. 11, 2010", content)
 
-    def test_submit_session_link(self):
-        meeting = self.create_active_meeting()
+    def test_submit_session_link_when_active(self):
+        self.create_active_meeting()
         self.assertContains(self.__do_get(), "Submit Session</a>")
 
+    def test_submit_session_link_when_past_deadline(self):
+        meeting = self.create_active_meeting()
         meeting.session_submission_end = datetime(2010, 10, 9)
         meeting.save()
         self.assertContains(self.__do_get(), "The deadline for session "+\
             "submission is over")
 
+    def test_submit_session_link_when_submission_start_date_is_in_future(self):
+        meeting = self.create_active_meeting()
         meeting.session_submission_start = datetime(2010, 11, 11)
         meeting.session_submission_end = datetime(2010, 12, 12)
         meeting.save()
@@ -171,7 +205,7 @@ class SubmitPaperTestCase(BaseTestCase):
         self.login(self.create_user())
         self.create_active_meeting()
         response = self.__do_post(email="foo")
-        self.assertContains(response, 'Enter a valid e-mail address.')
+        self.assertContains(response, 'Enter a valid email address.')
 
     def test_abstract_too_long_error_handling(self):
         self.login(self.create_user())
@@ -363,7 +397,7 @@ class SubmitSessionTestCase(BaseTestCase):
         self.login(self.create_user())
         self.create_active_meeting()
         response = self.__do_post(email="foo")
-        self.assertContains(response, 'Enter a valid e-mail address.')
+        self.assertContains(response, 'Enter a valid email address.')
 
     def test_abstract_too_long_error_handling(self):
         self.login(self.create_user())
@@ -429,18 +463,10 @@ class RegisterTestCase(BaseTestCase):
         super(RegisterTestCase, self).setUp()
         self.online_reg = self.create_user("OnlineRegistration")
         self.meeting = self.create_active_meeting()
-        self.paid_option = self.meeting.regoptions.create(
-            option_name="TEST OPTION 1",
-            early_price=10.10,
-            regular_price=20.20,
-            onsite_price=20.20,
-        )
-        self.free_option = self.meeting.regoptions.create(
-            option_name="TEST OPTION 2",
-            early_price=0,
-            regular_price=0,
-            onsite_price=0,
-        )
+        self.paid_option = self.create_registration_option(self.meeting,
+            'TEST OPTION 1', 20)
+        self.free_option = self.create_registration_option(self.meeting,
+            'TEST OPTION 2', 0)
         self.donation1 = self.meeting.donations.create(
             donate_type=DonationType.objects.create(name="DONATE1", label="!"),
         )
@@ -499,7 +525,8 @@ class RegisterTestCase(BaseTestCase):
         self.login(user)
         response = self.__do_post(type=self.paid_option.id)
         self.assertRedirects(response, '/conference/payment/')
-        self.assertRegexpMatches(response.content, 'class="orderTotal">\s*\$20.20')
+        self.assertRegexpMatches(response.content,
+            'class="orderTotal">\s*\$20.00')
 
         # Payment authorization is disabled in tests
         response = self.client.post('/conference/payment/', {
@@ -567,7 +594,8 @@ class RegisterTestCase(BaseTestCase):
 
         response = self.client.get(url)
         self.assertContains(response, 'Please pay for the following')
-        self.assertRegexpMatches(response.content, 'class="orderTotal">\s*\$20.20')
+        self.assertRegexpMatches(response.content,
+            'class="orderTotal">\s*\$20.00')
 
         response = self.client.post(url, {'stripeToken': 'dummy'}, follow=True)
         self.assertRedirects(response, '/conference/paysuccess')

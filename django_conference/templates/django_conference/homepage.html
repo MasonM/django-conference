@@ -16,8 +16,10 @@
   </h3>
   <br/>
   <p>
-  {% if meeting.registration_active %}
-      <a href="{% url django_conference_register %}">Register for the Meeting</a>
+  {% if has_registered %}
+      You have registered for this meeting.
+  {% elif meeting.registration_active %}
+      <a href="{% url "django_conference_register" %}">Register for the Meeting</a>
   {% else %}
     {% if reg_deadline_passed %}
       The deadline for registration is over
@@ -28,7 +30,7 @@
   </p>
   <p>
   {% if meeting.can_submit_paper %}
-      <a href="{% url django_conference_submit_paper %}">Submit Paper or Poster</a>
+      <a href="{% url "django_conference_submit_paper" %}">Submit Paper or Poster</a>
   {% else %}
     {% if paper_deadline_passed %}
       The deadline for paper/poster submission is over
@@ -40,7 +42,7 @@
   </p>
   <p>
   {% if meeting.can_submit_session %}
-      <a href="{% url django_conference_submit_session %}">Submit Session</a>
+      <a href="{% url "django_conference_submit_session" %}">Submit Session</a>
   {% else %}
     {% if session_deadline_passed %}
       The deadline for session submission is over

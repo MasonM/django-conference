@@ -1,7 +1,7 @@
 {% extends "django_conference/submit_base.html" %}
 {% load display_form %}
 {% block main %}
-<form action="{% url django_conference_submit_session %}" method="post">{% csrf_token %}
+<form action="{% url "django_conference_submit_session" %}" method="post">{% csrf_token %}
   {% if error_dict %}
     {% include "django_conference/errors.html" %}
   {% endif %}

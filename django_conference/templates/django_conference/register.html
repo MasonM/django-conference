@@ -24,7 +24,7 @@ $(function() {
 </script>
 {% endblock %}
 {% block main %}
-<form method="post" action="{% url django_conference_register %}" id="regForm">{% csrf_token %}
+<form method="post" action="{% url "django_conference_register" %}" id="regForm">{% csrf_token %}
 <div class="section">
   <div class="heading">
     <h3>Register for the {{meeting.start_date.year}} Meeting</h3>

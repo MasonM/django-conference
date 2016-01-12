@@ -337,6 +337,8 @@ def homepage(request):
     meeting = Meeting.current_or_none()
     return render_to_response('django_conference/homepage.html', {
         'meeting': meeting,
+        'has_registered': request.user.is_authenticated() and meeting and \
+            meeting.has_registered(request.user),
         'reg_deadline_passed': meeting and date.today() > meeting.reg_deadline,
         'session_deadline_passed': meeting and \
             datetime.now() > meeting.session_submission_end,
