@@ -5,7 +5,7 @@ import textwrap
 
 register = template.Library()
 
-@register.filter
+@register.filter(is_safe=True)
 @stringfilter
 def columnize(textblock, width):
     """
@@ -27,7 +27,6 @@ l:          baz
     """
     lines = unicode(textblock).split("\n")
     return columnize_helper(lines, width)
-columnize.is_safe = True
 
 def columnize_helper(lines, width):
     out = ""

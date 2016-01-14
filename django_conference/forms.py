@@ -128,6 +128,8 @@ class MeetingRegister(forms.Form):
     """
     Main form for meeting registrations.
     """
+    type = forms.ChoiceField(choices=[], required=True,
+        label="Registration Type")
     guest_first_name = forms.CharField(required=False, max_length=45)
     guest_last_name = forms.CharField(required=False, max_length=45)
     special_needs = forms.CharField(required=False, widget=forms.Textarea)
@@ -147,9 +149,7 @@ class MeetingRegister(forms.Form):
                 [(x.id, x.option_name+"\t$"+
                   str(x.regular_price if early_reg_passed else x.early_price))
                  for x in self.meeting.regoptions.filter(admin_only=False)]
-        type_field = forms.ChoiceField(choices=TYPES, required=True,
-            label="Registration Type")
-        self.fields.insert(0, 'type', type_field)
+        self.fields['type'].choices = TYPES
 
     def get_guest(self):
         """
