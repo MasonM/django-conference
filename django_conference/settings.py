@@ -11,15 +11,15 @@ DJANGO_CONFERENCE_CONTACT_EMAIL = getattr(settings,
 
 
 """
-A tuple of the form (app_name, model) that corresponds to the model
-that should be used for the Registration.registrant, Session.submitter, and
-Paper.submitter foreign keys. This is mainly for sites that extend the User
-model via inheritance, as detailed at
+A string that corresponds to the path for the model that should be used for 
+the Registration.registrant, Session.submitter, and Paper.submitter foreign
+keys. This is mainly for sites that extend the User model via inheritance,
+as detailed at
 http://scottbarnham.com/blog/2008/08/21/extending-the-django-user-model-with-inheritance/
 """
 DJANGO_CONFERENCE_USER_MODEL = getattr(settings,
     'DJANGO_CONFERENCE_USER_MODEL',
-    ('auth', 'User'))
+    'auth.User')
 
 
 """

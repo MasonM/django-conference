@@ -3,6 +3,7 @@ import re
 import decimal
 from freezegun import freeze_time
 
+from django.apps import apps
 from django.core import mail
 from django.conf import settings
 from django.test import TestCase
@@ -36,6 +37,7 @@ class BaseTestCase(TestCase):
             self.old_DJANGO_CONFERENCE_DISABLE_PAYMENT_PROCESSING
 
     def create_user(self, username='foo@bar.com'):
+        user_model = apps.get_model(settings.DJANGO_CONFERENCE_USER_MODEL)
         return user_model.objects.create_user(username=username,
             email=username, password="foo")
 

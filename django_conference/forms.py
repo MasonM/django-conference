@@ -5,6 +5,7 @@ import re
 import stripe
 
 from django import forms
+from django.apps import apps
 from django.utils.safestring import mark_safe
 from django.utils.encoding import force_unicode
 from django.db.models import get_model
@@ -168,7 +169,7 @@ class MeetingRegister(forms.Form):
         and the given registrant.
         """
         clean = self.clean()
-        user_model = get_model(*conf_settings.DJANGO_CONFERENCE_USER_MODEL)
+        user_model = apps.get_model(conf_settings.DJANGO_CONFERENCE_USER_MODEL)
         reg_username = 'OnlineRegistration'
         kwargs = {
             'meeting': self.meeting,
@@ -361,7 +362,7 @@ class StripeTextInput(forms.TextInput):
     def render(self, name, value, attrs=None):
         extra = {'type': self.input_type, 'data-stripe': self.stripe_field_name}
         final_attrs = self.build_attrs(attrs, **extra)
-        return mark_safe(u'<input%s />' % forms.util.flatatt(final_attrs))
+        return mark_safe(u'<input%s />' % forms.utils.flatatt(final_attrs))
 
 
 class StripeSelect(forms.Select):
@@ -375,7 +376,7 @@ class StripeSelect(forms.Select):
     def render(self, name, value, attrs=None, choices=()):
         extra = {'data-stripe': self.stripe_field_name}
         final_attrs = self.build_attrs(attrs, **extra)
-        output = [u'<select%s>' % forms.util.flatatt(final_attrs)]
+        output = [u'<select%s>' % forms.utils.flatatt(final_attrs)]
         output.append(self.render_options(choices, []))
         output.append(u'</select>')
         return mark_safe(u'\n'.join(output))

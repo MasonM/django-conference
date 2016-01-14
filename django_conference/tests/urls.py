@@ -1,12 +1,10 @@
-from django.http import HttpResponseNotFound
-from django.conf.urls import *
+from django.http import HttpResponseNotFound, HttpResponse
+from django.conf.urls import patterns, url, include
 
 
 handler404 = lambda request: HttpResponseNotFound()
 
 urlpatterns = patterns('',
-    (r'^account/', 'django.contrib.auth.views.login', {
-        'template_name': 'admin/login.html'
-    }),
-    (r'^conference/', include('django_conference.urls')),
+    url(r'^account/', lambda request: HttpResponse("LOGIN")),
+    url(r'^conference/', include('django_conference.urls')),
 )

@@ -4,14 +4,10 @@ import re
 
 from django.db import models
 from django.db.models import Q
-from django.db.models import get_model
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.template.loader import render_to_string
 
 from django_conference import settings
-
-
-user_model = get_model(*settings.DJANGO_CONFERENCE_USER_MODEL)
 
 
 def meeting_stat(stat_func):
@@ -319,7 +315,8 @@ class Paper(models.Model):
         ('M', 'More'),
     )
 
-    submitter = models.ForeignKey(user_model, blank=True, null=True)
+    submitter = models.ForeignKey(settings.DJANGO_CONFERENCE_USER_MODEL,
+        blank=True, null=True)
     presenter = models.ForeignKey(PaperPresenter)
     title = models.CharField(max_length=300)
     abstract = models.TextField()
@@ -484,8 +481,9 @@ class Registration(models.Model):
     date_entered = models.DateTimeField()
     payment_type = models.CharField(max_length=2, choices=PAYMENT_TYPES,
         default="cc")
-    registrant = models.ForeignKey(user_model, related_name="registrations")
-    entered_by = models.ForeignKey(user_model,
+    registrant = models.ForeignKey(settings.DJANGO_CONFERENCE_USER_MODEL,
+        related_name="registrations")
+    entered_by = models.ForeignKey(settings.DJANGO_CONFERENCE_USER_MODEL,
         limit_choices_to={'is_staff': True})
     sessions = models.ManyToManyField("Session", blank=True,
         related_name="regsessions",
@@ -650,7 +648,8 @@ class SessionCadre(models.Model):
 
 
 class Session(models.Model):
-    submitter = models.ForeignKey(user_model, blank=True, null=True)
+    submitter = models.ForeignKey(settings.DJANGO_CONFERENCE_USER_MODEL,
+        blank=True, null=True)
     meeting = models.ForeignKey(Meeting, related_name="sessions",
         default=Meeting.current_or_none)
     start_time = models.DateTimeField(blank=True, null=True)
