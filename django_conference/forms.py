@@ -290,6 +290,8 @@ class SessionCadreForm(forms.ModelForm):
 
     class Meta:
         model = SessionCadre
+        fields = ["first_name", "mi", "last_name", "gender", "type", "email",
+            "institution"]
 
 
 class AbstractForm(forms.ModelForm):
@@ -317,6 +319,8 @@ class PaperPresenterForm(forms.ModelForm):
     header = "Presenter Information"
     class Meta:
         model = PaperPresenter
+        fields = ['first_name', 'last_name', 'email', 'gender', 'birth_year',
+            'status', 'time_periods', 'regions', 'subjects']
 
 
 class PaperForm(AbstractForm):
