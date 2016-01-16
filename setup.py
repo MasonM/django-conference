@@ -9,7 +9,7 @@ setup(name='django-conference',
     license='BSD',
     author='Mason Malone',
     author_email='mason.malone@gmail.com',
-    url='http://bitbucket.org/MasonM/hssonline-conference/',
+    url='http://bitbucket.org/MasonM/django-conference/',
     packages=find_packages(exclude=['example_project', 'example_project.*']),
     include_package_data=True,
     tests_require=[

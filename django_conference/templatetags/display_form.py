@@ -23,7 +23,7 @@ class FormFieldNode(template.Node):
         self.form_name = form_name
 
     def render(self, context):
-        form = template.resolve_variable(self.form_name, context)
+        form = template.Variable(self.form_name).resolve(context)
         output = u'<div class="form-row">'
         if form.errors:
             #convert keys to human-readable form,
