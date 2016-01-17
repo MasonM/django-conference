@@ -649,7 +649,7 @@ class Session(models.Model):
     abstract = models.TextField(blank=True)
     creation_time = models.DateTimeField(auto_now_add=True, editable=False)
     accepted = models.BooleanField(default=False)
-    chairs = models.ManyToManyField(SessionCadre, null=True, blank=True,
+    chairs = models.ManyToManyField(SessionCadre, blank=True,
         related_name="sessions_chaired")
     organizers = models.ManyToManyField(SessionCadre, blank=True,
         related_name="sessions_organized")
