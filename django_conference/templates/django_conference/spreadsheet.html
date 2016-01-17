@@ -5,20 +5,28 @@
   </tr>
   <tr>
     <th>Registration ID</th>
-    <th>Registrant</th>
+    <th>Registrant First Name</th>
+    <th>Registrant Last Name</th>
+    <th>Registrant E-mail</th>
+    <th>Type</th>
     <th>Date Entered</th>
     <th>Entered By</th>
     <th>Payment Type</th>
     <th>Total</th>
+    <th>Extras</th>
   </tr>
   {% for reg in registrations %}
   <tr>
     <td>{{reg.id}}</td>
-    <td>{{reg.registrant}}</td>
+    <td>{{reg.registrant.first_name}}</td>
+    <td>{{reg.registrant.last_name}}</td>
+    <td>{{reg.registrant.email}}</td>
+    <td>{{reg.type}}</td>
     <td>{{reg.date_entered}}</td>
     <td>{{reg.entered_by}}</td>
     <td>{{reg.get_payment_type_display}}</td>
-    <td>${{reg.get_total|money_format}}</td>
+    <td>{{reg.get_total|money_format}}</td>
+    <td>{% for extra in reg.regextras.all %}{{extra}}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
   </tr>
   {% endfor %}
 </table>
