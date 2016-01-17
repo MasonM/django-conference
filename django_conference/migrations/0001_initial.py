@@ -2,14 +2,14 @@
 from __future__ import unicode_literals
 
 from django.db import migrations, models
+
 import django_conference.models
+from django_conference import settings
 
 
 class Migration(migrations.Migration):
 
-    dependencies = [
-        ('accounts', '0002_auto_20160116_2345'),
-    ]
+    dependencies = settings.DJANGO_CONFERENCE_MIGRATION_DEPENDENCIES
 
     operations = [
         migrations.CreateModel(
@@ -146,9 +146,9 @@ class Migration(migrations.Migration):
                 ('special_needs', models.TextField(blank=True)),
                 ('date_entered', models.DateTimeField()),
                 ('payment_type', models.CharField(default=b'cc', max_length=2, choices=[(b'na', b'Not Applicable'), (b'cc', b'Credit Card'), (b'ch', b'Check'), (b'ca', b'Cash'), (b'mo', b'Money Order')])),
-                ('entered_by', models.ForeignKey(to='accounts.Account')),
+                ('entered_by', models.ForeignKey(to=settings.DJANGO_CONFERENCE_USER_MODEL)),
                 ('meeting', models.ForeignKey(related_name='registrations', default=django_conference.models.current_meeting_or_none, to='django_conference.Meeting')),
-                ('registrant', models.ForeignKey(related_name='registrations', to='accounts.Account')),
+                ('registrant', models.ForeignKey(related_name='registrations', to=settings.DJANGO_CONFERENCE_USER_MODEL)),
             ],
             options={
                 'ordering': ['-meeting', 'registrant'],
@@ -271,7 +271,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='session',
             name='submitter',
-            field=models.ForeignKey(blank=True, to='accounts.Account', null=True),
+            field=models.ForeignKey(blank=True, to=settings.DJANGO_CONFERENCE_USER_MODEL, null=True),
         ),
         migrations.AddField(
             model_name='registration',
@@ -316,7 +316,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='paper',
             name='submitter',
-            field=models.ForeignKey(blank=True, to='accounts.Account', null=True),
+            field=models.ForeignKey(blank=True, to=settings.DJANGO_CONFERENCE_USER_MODEL, null=True),
         ),
         migrations.AlterUniqueTogether(
             name='registrationoption',

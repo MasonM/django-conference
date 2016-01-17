@@ -23,6 +23,15 @@ DJANGO_CONFERENCE_USER_MODEL = getattr(settings,
 
 
 """
+List of tuples to pass to Migration.depedencies for django_conference
+migrations.
+"""
+DJANGO_CONFERENCE_MIGRATION_DEPENDENCIES = getattr(settings,
+    'DJANGO_CONFERENCE_MIGRATION_DEPENDENCIES',
+    [('auth', '0001_initial')])
+
+
+"""
 If set to True, automatically accept all payment details, bypassing Stripe. 
 Only for use in tests.
 """
