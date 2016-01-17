@@ -14,7 +14,7 @@ from django_conference.forms import (PaperForm, MeetingSessions,
     SessionCadreForm, StripePaymentForm, StripeProcessPayment,
     PaperPresenterForm)
 from django_conference.models import (Meeting, Registration, Paper,
-    SessionPapers)
+    SessionPapers, current_meeting_or_none)
 
 
 class RegistrationContainer(object):
@@ -68,7 +68,7 @@ class RegistrationContainer(object):
 
 @login_required
 def register(request):
-    meeting = Meeting.current_or_none()
+    meeting = current_meeting_or_none()
     if not meeting or not meeting.can_register(request.user):
         #if user can't register, take them back
         return HttpResponseRedirect(reverse("django_conference_home"))
@@ -181,7 +181,7 @@ def submit_session(request):
     """
     Allows users to submit a session for approval
     """
-    meeting = Meeting.current_or_none()
+    meeting = current_meeting_or_none()
     if not meeting or not meeting.can_submit_session():
         return HttpResponseRedirect(reverse("django_conference_home"))
 
@@ -281,7 +281,7 @@ def submit_paper(request):
     """
     Allow users to submit a paper for approval
     """
-    meeting = Meeting.current_or_none()
+    meeting = current_meeting_or_none()
     if not meeting or not meeting.can_submit_paper():
         return HttpResponseRedirect(reverse("django_conference_home"))
 
@@ -334,7 +334,7 @@ def edit_paper(request, paper_id):
 
 
 def homepage(request):
-    meeting = Meeting.current_or_none()
+    meeting = current_meeting_or_none()
     return render_to_response('django_conference/homepage.html', {
         'meeting': meeting,
         'has_registered': request.user.is_authenticated() and meeting and \

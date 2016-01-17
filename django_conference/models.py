@@ -32,6 +32,20 @@ def meeting_stat(stat_func):
     return add_total
 
 
+def current_meeting_or_none():
+    """
+    Version of Metting.current() that returns None if no meetings
+    have been entered.
+    Normally this would be a @staticmethod on the Meeting model, but it has to
+    be outside that class due to limitations in Django migrations:
+    https://docs.djangoproject.com/en/1.8/topics/migrations/#serializing-values
+    """
+    try:
+        return Meeting.current()
+    except IndexError:
+        return None
+
+
 class Meeting(models.Model):
     """Model for conferences/meetings"""
     is_active = models.BooleanField(default=False,
@@ -88,17 +102,6 @@ class Meeting(models.Model):
     @staticmethod
     def current():
         return Meeting.objects.filter(is_active=1).order_by('-end_date')[0]
-
-    @staticmethod
-    def current_or_none():
-        """
-        Version of Metting.current() that returns None if no meetings
-        have been entered.
-        """
-        try:
-            return Meeting.current()
-        except IndexError:
-            return None
 
     @staticmethod
     def get_past_meetings(years_ago):
@@ -464,7 +467,7 @@ class Registration(models.Model):
         ("mo", "Money Order"),
     )
     meeting = models.ForeignKey(Meeting, related_name='registrations',
-        default=Meeting.current_or_none)
+        default=current_meeting_or_none)
     type = models.ForeignKey(RegistrationOption)
     special_needs = models.TextField(blank=True)
     date_entered = models.DateTimeField()
@@ -637,7 +640,7 @@ class Session(models.Model):
     submitter = models.ForeignKey(settings.DJANGO_CONFERENCE_USER_MODEL,
         blank=True, null=True)
     meeting = models.ForeignKey(Meeting, related_name="sessions",
-        default=Meeting.current_or_none)
+        default=current_meeting_or_none)
     start_time = models.DateTimeField(blank=True, null=True)
     stop_time = models.DateTimeField(blank=True, null=True)
     room_no = models.CharField(max_length=30, blank=True, null=True)
