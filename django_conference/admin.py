@@ -80,16 +80,63 @@ class MeetingAdmin(admin.ModelAdmin):
 admin.site.register(Meeting, MeetingAdmin)
 
 
-class RegistrationExtraInline(admin.TabularInline):
+class LimitChoicesForFieldsToCurrentMeetingMixin(object):
+    """
+    Mixin to modify fields that reference a meeting-related model in the
+    ModelForm used to display model. Iterates over the
+    self.limit_to_curr_meeting list to limit the choices for the given fields
+    to the current meeting.
+
+    For example, this allows the RegistrationAdmin form to only show
+    registration options that apply to the meeting associated with the
+    registration. Without this, the "type" drop-down would show every
+    registration option, which would be impossible to use.
+    """
+    def update_form_to_limit_choices(self, form, obj):
+        for field_to_limit in self.limit_to_curr_meeting:
+            choices = getattr(obj.meeting,
+                field_to_limit['relationship_attribute'])
+            additional_filter = field_to_limit.get('filter', None)
+            if additional_filter: choices = choices.filter(**additional_filter)
+            field_name = field_to_limit['field_name']
+            form.base_fields[field_name].queryset = choices
+
+    def get_form(self, request, obj=None, **kwargs):
+        # This is for classes that inherit from admin.ModelAdmin
+        form = super(LimitChoicesForFieldsToCurrentMeetingMixin,
+            self).get_form(request, obj, **kwargs)
+        if obj: self.update_form_to_limit_choices(form, obj)
+        return form
+
+    def get_formset(self, request, obj=None, **kwargs):
+        # This is for classes that inherit from admin.InlineModelAdmin
+        formset = super(LimitChoicesForFieldsToCurrentMeetingMixin,
+            self).get_formset(request, obj, **kwargs)
+        if obj: self.update_form_to_limit_choices(formset.form, obj)
+        return formset
+
+
+class RegistrationExtraInline(
+    LimitChoicesForFieldsToCurrentMeetingMixin, admin.TabularInline):
     model = RegistrationExtra
     num = 4
-class RegistrationDonationInline(admin.TabularInline):
+    limit_to_curr_meeting = [{
+        'field_name': 'extra',
+        'relationship_attribute': 'extras',
+    }]
+class RegistrationDonationInline(
+    LimitChoicesForFieldsToCurrentMeetingMixin, admin.TabularInline):
     model = RegistrationDonation
     extra = 3
+    limit_to_curr_meeting = [{
+        'field_name': 'donate_type',
+        'relationship_attribute': 'donations',
+    }]
 class RegistrationGuestInline(admin.TabularInline):
     model = RegistrationGuest
     extra = 1
-class RegistrationAdmin(admin.ModelAdmin):
+class RegistrationAdmin(
+    LimitChoicesForFieldsToCurrentMeetingMixin, admin.ModelAdmin):
     date_hierarchy = "date_entered"
     fieldsets = (
         ("General Information", {
@@ -107,6 +154,14 @@ class RegistrationAdmin(admin.ModelAdmin):
     inlines = [RegistrationExtraInline, RegistrationDonationInline,
         RegistrationGuestInline]
     filter_horizontal = ['sessions']
+    limit_to_curr_meeting = [
+        { 'field_name': 'type', 'relationship_attribute': 'regoptions' },
+        {
+            'field_name': 'sessions',
+            'relationship_attribute': 'sessions',
+            'filter': { 'accepted': True },
+        },
+    ]
 admin.site.register(Registration, RegistrationAdmin)
 
 
