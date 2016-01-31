@@ -1,4 +1,4 @@
 include LICENSE
-include README
+include README.md
 recursive-include django_conference/templates *
 recursive-include django_conference/static *
