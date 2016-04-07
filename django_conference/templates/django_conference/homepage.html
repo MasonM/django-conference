@@ -42,7 +42,7 @@
   </p>
   <p>
   {% if meeting.can_submit_session %}
-      <a href="{% url "django_conference_submit_session" %}">Submit Session</a>
+      <a href="{% url "django_conference_submit_session" %}">Submit Session or Roundtable</a>
   {% else %}
     {% if session_deadline_passed %}
       The deadline for session submission is over

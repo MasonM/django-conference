@@ -151,7 +151,7 @@ class HomepageTestCase(BaseTestCase):
 
     def test_submit_session_link_when_active(self):
         self.create_active_meeting()
-        self.assertContains(self.__do_get(), "Submit Session</a>")
+        self.assertContains(self.__do_get(), "Submit Session or Roundtable</a>")
 
     def test_submit_session_link_when_past_deadline(self):
         meeting = self.create_active_meeting()
