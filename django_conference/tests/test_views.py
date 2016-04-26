@@ -42,7 +42,14 @@ class BaseTestCase(TestCase):
             email=username, password="foo")
 
     def login(self, user):
-        self.client.login(username=user.username, password='foo')
+        # Can't assume that that the user model has a "username" field. For
+        # example, it might use email as the USERNAME_FIELD.
+        user_model = apps.get_model(settings.DJANGO_CONFERENCE_USER_MODEL)
+        args = {
+            user_model.USERNAME_FIELD: getattr(user, user_model.USERNAME_FIELD),
+            'password': 'foo',
+        }
+        self.client.login(**args)
 
     def create_active_meeting(self,
         location="SOMEWHERE",

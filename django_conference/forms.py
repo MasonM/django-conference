@@ -171,6 +171,7 @@ class MeetingRegister(forms.Form):
         clean = self.clean()
         user_model = apps.get_model(conf_settings.DJANGO_CONFERENCE_USER_MODEL)
         reg_username = 'OnlineRegistration'
+        entered_by = user_model.objects.get_by_natural_key(reg_username)
         kwargs = {
             'meeting': self.meeting,
             'type': RegistrationOption.objects.get(id=clean['type']),
@@ -178,7 +179,7 @@ class MeetingRegister(forms.Form):
             'date_entered': datetime.today(),
             'payment_type': 'cc',
             'registrant': registrant,
-            'entered_by': user_model.objects.get(username=reg_username),
+            'entered_by': entered_by,
         }
         return Registration(**kwargs)
 
