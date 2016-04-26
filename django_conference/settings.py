@@ -19,7 +19,7 @@ http://scottbarnham.com/blog/2008/08/21/extending-the-django-user-model-with-inh
 """
 DJANGO_CONFERENCE_USER_MODEL = getattr(settings,
     'DJANGO_CONFERENCE_USER_MODEL',
-    'auth.User')
+    settings.AUTH_USER_MODEL)
 
 
 """
