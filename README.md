@@ -13,3 +13,4 @@ Django-conference is intended to be a complete conference and symposia managemen
 
 * Python 2.7
 * Django 1.8+
+* [django-autocomplete-light 3.0+](https://github.com/yourlabs/django-autocomplete-light)

@@ -1,7 +1,7 @@
 from django.conf.urls import *
 from django.views.generic import TemplateView
 
-from django_conference import views, admin_tasks
+from django_conference import views, autocomplete, admin_tasks
 
 
 urlpatterns = patterns('',
@@ -42,6 +42,15 @@ urlpatterns = patterns('',
     url(r'^do_admin_task/(?P<meeting_id>\d+)/(?P<task_id>\d+)',
         admin_tasks.do_task,
         name="django_conference_do_admin_task"),
+    url(r'^paper-presenter-autocomplete/$',
+        autocomplete.PaperPresenterAutocomplete.as_view(),
+        name='paper-presenter-autocomplete'),
+    url(r'^user-autocomplete/$',
+        autocomplete.UserAutocomplete.as_view(),
+        name='user-autocomplete'),
+    url(r'^paper-autocomplete/$',
+        autocomplete.PaperAutocomplete.as_view(),
+        name='paper-autocomplete'),
 
     url(r'',
         views.homepage,

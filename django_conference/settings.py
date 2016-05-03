@@ -1,4 +1,6 @@
 from django.conf import settings
+from django.db.models.functions import Concat
+from django.db.models import Value as V
 
 
 """
@@ -11,7 +13,7 @@ DJANGO_CONFERENCE_CONTACT_EMAIL = getattr(settings,
 
 
 """
-A string that corresponds to the path for the model that should be used for 
+A string that corresponds to the path for the model that should be used for
 the Registration.registrant, Session.submitter, and Paper.submitter foreign
 keys. This is mainly for sites that extend the User model via inheritance,
 as detailed at
@@ -20,6 +22,17 @@ http://scottbarnham.com/blog/2008/08/21/extending-the-django-user-model-with-inh
 DJANGO_CONFERENCE_USER_MODEL = getattr(settings,
     'DJANGO_CONFERENCE_USER_MODEL',
     settings.AUTH_USER_MODEL)
+
+
+"""
+Function to filter a queryset on the user model with a free-form query.
+Used by django_conference.autocomplete.UserAutocomplete.
+"""
+DJANGO_CONFERENCE_USER_AUTOCOMPLETE_FILTER = getattr(settings,
+    'DJANGO_CONFERENCE_USER_AUTOCOMPLETE_FILTER',
+    lambda queryset, query: queryset.annotate(
+        full_name=Concat('first_name', V(' '), 'last_name')
+    ).filter(full_name__icontains=query))
 
 
 """
@@ -32,7 +45,7 @@ DJANGO_CONFERENCE_MIGRATION_DEPENDENCIES = getattr(settings,
 
 
 """
-If set to True, automatically accept all payment details, bypassing Stripe. 
+If set to True, automatically accept all payment details, bypassing Stripe.
 Only for use in tests.
 """
 DJANGO_CONFERENCE_DISABLE_PAYMENT_PROCESSING = getattr(settings,

@@ -57,6 +57,8 @@ TEMPLATE_DIRS = (
 
 INSTALLED_APPS = (
     'django_conference',
+    'dal',
+    'dal_select2',
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django.contrib.auth',
