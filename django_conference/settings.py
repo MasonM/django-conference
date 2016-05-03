@@ -77,7 +77,6 @@ view_func is the view function. The view function will be passed the request
 and selected meeting (in that order) and must return a response. If view_func
 is a list or a tuple, the view function will be dynamically imported by using
 the first element as the module and the second as the function name.
-view function.
 Example:
 [("Checklist", lambda request, meeting: show_checklist(request, meeting)),
  ("Generate Receipts", generate_receipts),
