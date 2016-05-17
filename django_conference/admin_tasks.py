@@ -45,7 +45,7 @@ def generic_task_view(request, meeting, template, formats=["html"],
     if not form or (request.POST and form.is_valid()):
         registrations = (meeting.registrations
                             .select_related()
-                            .order_by('auth_user.last_name')[:limit])
+                            .order_by('registrant__last_name')[:limit])
         rendered = render_to_string(template, {
            'meeting': meeting,
            'registrations': registrations,
@@ -74,7 +74,7 @@ def get_task_list():
         # this would be cleaner if python supported currying but oh well
         AdminTask("Meeting Statistics", lambda r,m: generic_task_view(r, m,
             "django_conference/stats.html", show_user_limit=False)),
-        AdminTask("Meeting Spreadsheet", lambda r,m: generic_task_view(r, m, 
+        AdminTask("Meeting Spreadsheet", lambda r,m: generic_task_view(r, m,
             "django_conference/spreadsheet.html", ["xls"])),
     ] + [
         AdminTask(*args) for args in settings.DJANGO_CONFERENCE_ADMIN_TASKS
