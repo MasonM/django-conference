@@ -9,9 +9,9 @@
 <script type="text/javascript">
 Stripe.setPublishableKey("{{stripe_key}}");
 $(function() {
-  var stripeResponseHandler = function(status, response) {
-    var $form = $('#regForm');
+  var $form = $('#regForm');
 
+  var stripeResponseHandler = function(status, response) {
     if (response.error) {
       // Show the errors on the form
       $form.find('.payment-errors').show().find('.error-text').text(response.error.message);
@@ -25,9 +25,9 @@ $(function() {
       $form.get(0).submit();
     }
   };
-  $('#regForm').submit(function(event) {
+
+  $form.submit(function(event) {
     event.preventDefault();
-    var $form = $(this);
 
     // Disable the submit button to prevent repeated clicks
     $form.find('input[type=submit]').attr('disabled', 'disabled');
