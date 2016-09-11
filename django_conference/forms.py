@@ -170,7 +170,7 @@ class MeetingRegister(forms.Form):
         """
         clean = self.clean()
         user_model = apps.get_model(conf_settings.DJANGO_CONFERENCE_USER_MODEL)
-        reg_username = 'OnlineRegistration'
+        reg_username = conf_settings.DJANGO_CONFERENCE_ONLINE_REG_USERNAME
         entered_by = user_model.objects.get_by_natural_key(reg_username)
         kwargs = {
             'meeting': self.meeting,

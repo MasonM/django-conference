@@ -25,6 +25,16 @@ DJANGO_CONFERENCE_USER_MODEL = getattr(settings,
 
 
 """
+Username of the user to use for the the "Registration.entered_by" column for
+registrations entered online, to distinguish them from registrations entered by
+a staff member in the admin interface.
+"""
+DJANGO_CONFERENCE_ONLINE_REG_USERNAME = getattr(settings,
+    'DJANGO_CONFERENCE_ONLINE_REG_USERNAME',
+    'onlineregistration@hssweb.org')
+
+
+"""
 Function to filter a queryset on the user model with a free-form query.
 Used by django_conference.autocomplete.UserAutocomplete.
 """
