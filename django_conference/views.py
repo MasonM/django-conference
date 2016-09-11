@@ -1,4 +1,3 @@
-import pickle
 from decimal import Decimal
 from datetime import datetime, date
 
@@ -100,12 +99,12 @@ def register(request):
             else:
                 #don't save registration object yet since we haven't
                 #received payment.
-                request.session['regContainer'] = pickle.dumps(cont)
+                request.session['regContainer'] = cont
                 url = reverse("django_conference_payment")
             return HttpResponseRedirect(url)
     else:
         cont = request.session.get('regContainer')
-        previous_data = pickle.loads(cont).page1_cache if cont else None
+        previous_data = cont.page1_cache if cont else None
         initial_data = request.POST or previous_data or {}
         register_form = MeetingRegister(meeting, initial=initial_data)
         session_form = MeetingSessions(meeting, initial=initial_data)
@@ -143,7 +142,7 @@ def payment(request, reg_id=None):
         #either they shouldn't be here or they clicked "Previous" button
         return HttpResponseRedirect(reverse("django_conference_register"))
     else:
-        cont = pickle.loads(request.session['regContainer'])
+        cont = request.session['regContainer']
         meeting = Meeting.current()
 
     payment_error = ''
@@ -201,7 +200,7 @@ def submit_session(request):
             errors = {'Paper Abstracts': ['Sessions with 3 papers '+\
                 'must have a commentator.']}
         else:
-            request.session['session_data'] = pickle.dumps(request.POST)
+            request.session['session_data'] = request.POST
             url = reverse('django_conference_submit_session_papers')
             return HttpResponseRedirect(url)
 
@@ -223,7 +222,7 @@ def submit_session_papers(request):
         'session_data' not in request.session:
         return HttpResponseRedirect(reverse("django_conference_home"))
 
-    session_data = pickle.loads(request.session['session_data'])
+    session_data = request.session['session_data']
     num = int(session_data['num_papers'])
     forms = []
     for i in range(num):
