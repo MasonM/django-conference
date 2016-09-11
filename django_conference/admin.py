@@ -1,12 +1,15 @@
 from django.core.urlresolvers import reverse
 from django.contrib import admin
 from django.conf import settings
+from django import forms
 
 from django_conference.models import (DonationType, ExtraType, Meeting,
     MeetingDonation, MeetingExtra, MeetingInstitution, Paper, PaperPresenter,
     Registration, RegistrationDonation, RegistrationExtra, RegistrationGuest,
     RegistrationOption, Session, SessionCadre, SessionPapers,
     PaperPresenterRegion, PaperPresenterTimePeriod, PaperPresenterSubject)
+
+from dal import autocomplete
 
 
 admin.site.register(DonationType)
@@ -135,8 +138,16 @@ class RegistrationDonationInline(
 class RegistrationGuestInline(admin.TabularInline):
     model = RegistrationGuest
     extra = 1
+class RegistrationForm(forms.ModelForm):
+    class Meta:
+        model = Paper
+        fields = '__all__'
+        widgets = {
+            'registrant': autocomplete.ModelSelect2(url='user-autocomplete'),
+        }
 class RegistrationAdmin(
     LimitChoicesForFieldsToCurrentMeetingMixin, admin.ModelAdmin):
+    form = RegistrationForm
     date_hierarchy = "date_entered"
     fieldsets = (
         ("General Information", {
@@ -172,10 +183,30 @@ class SessionCadreAdmin(admin.ModelAdmin):
 admin.site.register(SessionCadre, SessionCadreAdmin)
 
 
+class SessionPapersForm(forms.ModelForm):
+    class Meta:
+        model = SessionPapers
+        fields = '__all__'
+        widgets = {
+            'paper': autocomplete.ModelSelect2(url='paper-autocomplete'),
+        }
 class SessionPapersInline(admin.TabularInline):
+    form = SessionPapersForm
     model = SessionPapers
     extra = 3
+
+
+class PaperForm(forms.ModelForm):
+    class Meta:
+        model = Paper
+        fields = '__all__'
+        widgets = {
+            'presenter': autocomplete.ModelSelect2(
+                url='paper-presenter-autocomplete'),
+            'submitter': autocomplete.ModelSelect2(url='user-autocomplete'),
+        }
 class PaperAdmin(admin.ModelAdmin):
+    form = PaperForm
     fieldsets = [
         (None, {'fields': ['title', 'abstract', 'submitter',
             'presenter', 'accepted']}),
@@ -205,7 +236,16 @@ admin.site.register(PaperPresenterTimePeriod)
 admin.site.register(PaperPresenterRegion)
 admin.site.register(PaperPresenterSubject)
 
+
+class SessionForm(forms.ModelForm):
+    class Meta:
+        model = Session
+        fields = '__all__'
+        widgets = {
+            'submitter': autocomplete.ModelSelect2(url='user-autocomplete'),
+        }
 class SessionAdmin(admin.ModelAdmin):
+    form = SessionForm
     fieldsets = [
         (None, {
             'fields': ['meeting', 'title', 'abstract', 'accepted'],

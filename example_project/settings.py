@@ -41,12 +41,21 @@ WEB_ROOT = os.getcwd()
 USE_I18N = True
 
 STATIC_ROOT = WEB_ROOT + "/static/"
-STATICFILES_DIRS = ( WEB_ROOT + 'media/', )
+
+STATIC_URL = '/static/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'sh)ip(^)gy+0!n83ayuk599b1()40-^%m*!$4e*ube61w#8fpi'
 
+MIDDLEWARE_CLASSES = (
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+)
+
 ROOT_URLCONF = 'example_project.urls'
+
+LOGIN_URL = "/account/"
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
@@ -57,6 +66,8 @@ TEMPLATE_DIRS = (
 
 INSTALLED_APPS = (
     'django_conference',
+    'dal',
+    'dal_select2',
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django.contrib.auth',
@@ -68,7 +79,10 @@ INSTALLED_APPS = (
 
 DJANGO_CONFERENCE_CONTACT_EMAIL = "mason.malone@gmail.com"
 DJANGO_CONFERENCE_MEDIA_ROOT = "/media/conference"
+from django_conference.admin_tasks import generic_task_view
 DJANGO_CONFERENCE_ADMIN_TASKS = [
-   ("receipts.html", "Generate Receipts", ["html"], True),
-   ("sessions.html", "Accepted Session Details", ["html"], False),
+   ("Generate Receipts", lambda r,m: generic_task_view(r, m,
+        "receipts.html", ["html"])),
+   ("Accepted Session Details", lambda r,m: generic_task_view(r, m,
+        "sessions.html",  ["html"], False)),
 ]
