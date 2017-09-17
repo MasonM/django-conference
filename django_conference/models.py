@@ -396,6 +396,9 @@ class MeetingExtra(models.Model):
     position = models.PositiveSmallIntegerField(default=1,
         help_text="Used for determining position of the extra on the "+\
         "registration page")
+    admin_only = models.BooleanField(default=False,
+        help_text="If checked, this extra will only be available when "+\
+        "registering through the admin interface.")
 
     def __unicode__(self):
         return "%s: %.2f" % (unicode(self.extra_type), self.price)

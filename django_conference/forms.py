@@ -192,7 +192,7 @@ class MeetingExtras(forms.Form):
     def __init__(self, meeting, *args, **kwargs):
         super(MeetingExtras, self).__init__(*args, **kwargs)
         self.meeting = meeting
-        extras = meeting.extras.all()
+        extras = meeting.extras.filter(admin_only=False)
         for extra in extras:
             field = extra.extra_type
             if extra.max_quantity == 1:
